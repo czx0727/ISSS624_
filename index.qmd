@@ -5,3 +5,5 @@ title: "ISSS624"
 Welcome to ISSS624 Geospatial Analytics Application.
 
 In this webpage, I am going to share with you my learning journey!
+
+![](images/Singapore-Map.jpg)
