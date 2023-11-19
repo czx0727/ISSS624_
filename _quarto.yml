@@ -24,6 +24,9 @@ website:
             href: in_class_ex1/in_class_ex1.qmd
             
       - text: Take-Home Exercise
+        menu: 
+          - text: Take-Home Exercise 1
+          - text: Take-Home Exercise 2
       
     right:
       - href: index.qmd
