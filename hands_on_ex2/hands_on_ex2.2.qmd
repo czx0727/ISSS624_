@@ -1,0 +1,193 @@
+---
+title: "Hands-on Exercise 2.2 Global Measures of Spatial Autocorrelation"
+editor: visual
+date: 2023-11-19
+date-format: long
+date-modified: "last-modified"
+---
+
+# Overview
+
+I will learn how to compute Global and Local Measure of Spatial Autocorrelation (GLSA) by using **spdep** package. 
+
+## **Getting Started**
+
+### **Setting the Analytical Tools**
+
+Two data sets will be used in this hands-on exercise, they are:
+
+-   Hunan province administrative boundary layer at county level. This is a geospatial data set in ESRI shapefile format.
+
+-   Hunan_2012.csv: This csv file contains selected Hunan\'s local development indicators in 2012.
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse)
+```
+
+## **Getting the Data Into R Environment**
+
+The code chunk below uses [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package to import Hunan shapefile into R. The imported shapefile will be **simple features** Object of **sf**.
+
+### **Import shapefile into r environment**
+
+```{r}
+hunan <- st_read(dsn = "data/geospatial", 
+                 layer = "Hunan")
+```
+
+###  **Import csv file into r environment**
+
+```{r}
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+
+###  **Performing relational join**
+
+```{r}
+hunan <- left_join(hunan,hunan2012) %>%
+  select(1:4, 7, 15)
+```
+
+### **Visualising Regional Development Indicator**
+
+I prepare a basemap and a choropleth map showing the distribution of GDPPC 2012 by using *qtm()* of **tmap** package.
+
+```{r}
+equal <- tm_shape(hunan) +
+  tm_fill("GDPPC",
+          n = 5,
+          style = "equal") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Equal interval classification")
+
+quantile <- tm_shape(hunan) +
+  tm_fill("GDPPC",
+          n = 5,
+          style = "quantile") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Equal quantile classification")
+
+tmap_arrange(equal, 
+             quantile, 
+             asp=1, 
+             ncol=2)
+```
+
+## **Global Spatial Autocorrelation**
+
+### **Computing Contiguity Spatial Weights**
+
+In the code chunk below, [*poly2nb()*](https://r-spatial.github.io/spdep/reference/poly2nb.html) of **spdep** package is used to compute contiguity weight matrices for the study area. This function builds a neighbours list based on regions with contiguous boundaries.
+
+```{r}
+wm_q <- poly2nb(hunan, 
+                queen=TRUE)
+summary(wm_q)
+```
+
+### **Row-standardised weights matrix**
+
+```{r}
+rswm_q <- nb2listw(wm_q, 
+                   style="W", 
+                   zero.policy = TRUE)
+rswm_q
+```
+
+### **Global Spatial Autocorrelation: Moran\'s I**
+
+In this section, I will learn how to perform Moran\'s I statistics testing by using [*moran.test()*](https://r-spatial.github.io/spdep/reference/moran.test.html) of **spdep**.
+
+### **Maron\'s I test**
+
+```{r}
+moran.test(hunan$GDPPC, 
+           listw=rswm_q, 
+           zero.policy = TRUE, 
+           na.action=na.omit)
+```
+
+\*\* Conclusion
+
+The Moran's I test suggests strong evidence against the null hypothesis of spatial randomness (p-value = 1.095e-06). The Moran's I statistic of 0.3007 indicates a significant positive spatial autocorrelation in the variable 'GDPPC' within the study area. Areas in this region with similar GDPPC values tend to be spatially clustered or adjacent to each other more often than expected by random chance.
+
+#### Computing Monte Carlo Moran\'s I
+
+The code chunk below performs permutation test for Moran\'s I statistic by using [*moran.mc()*](https://r-spatial.github.io/spdep/reference/moran.mc.html) of **spdep**. A total of 1000 simulation will be performed.
+
+```{r}
+set.seed(1234)
+bperm= moran.mc(hunan$GDPPC, 
+                listw=rswm_q, 
+                nsim=999, 
+                zero.policy = TRUE, 
+                na.action=na.omit)
+bperm
+```
+
+\*\* Conclusion
+
+The permutation test for Moran's I statistic indicates strong evidence against the null hypothesis of spatial randomness. The observed Moran's I value (0.30075) falls within the highest ranks of the simulated values, and the small p-value (0.001) suggests that this value is significantly greater than what would be expected by chance alone. Therefore, it supports the conclusion that there is a significant positive spatial autocorrelation in the 'GDPPC' variable within the study area. Areas with similar GDPPC values tend to be spatially clustered or adjacent to each other more often than expected by random chance.
+
+#### Visualising Monte Carlo Moran\'s I
+
+In the code chunk below [*hist()*](https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/hist) and [*abline()*](https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/abline) of R Graphics are used.
+
+```{r}
+mean(bperm$res[1:999])
+```
+
+```{r}
+var(bperm$res[1:999])
+```
+
+```{r}
+summary(bperm$res[1:999])
+```
+
+```{r}
+hist(bperm$res, 
+     freq=TRUE, 
+     breaks=20, 
+     xlab="Simulated Moran's I")
+abline(v=0, 
+       col="red") 
+```
+
+\*\* Skewed distribution that is of right skewed. It peaks at -0.05
+
+Plot values using ggplot:
+
+```{r}
+
+bperm <- list(
+  res = rnorm(1000),
+  statistic = 0.30075
+)
+
+
+plot_data <- data.frame(
+  Simulation = 1:length(bperm$res),
+  Moran_I = bperm$res
+)
+
+
+plot <- ggplot(plot_data, aes(x = Simulation, y = Moran_I)) +
+  geom_point(color = "blue", alpha = 0.6) +
+  geom_hline(yintercept = bperm$statistic, linetype = "dashed", color = "red") +
+  labs(
+    title = "Permutation Test for Moran's I",
+    x = "Simulation",
+    y = "Moran's I Value"
+  ) +
+  theme_minimal()
+
+plot
+
+```
+
+### **Global Spatial Autocorrelation: Geary\'s**
+
+I will learn how to perform Geary\'s c statistics testing by using appropriate functions of **spdep** package.
+
+#### Geary\'s C test
