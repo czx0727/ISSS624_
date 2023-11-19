@@ -154,7 +154,9 @@ abline(v=0,
        col="red") 
 ```
 
-\*\* Skewed distribution that is of right skewed. It peaks at -0.05
+\*\* Observation
+
+Skewed distribution that is of right skewed. It peaks at -0.05
 
 Plot values using ggplot:
 
@@ -191,3 +193,114 @@ plot
 I will learn how to perform Geary\'s c statistics testing by using appropriate functions of **spdep** package.
 
 #### Geary\'s C test
+
+The code chunk below performs Geary\'s C test for spatial autocorrelation by using [*geary.test()*](https://r-spatial.github.io/spdep/reference/geary.test.html) of **spdep**.
+
+```{r}
+geary.test(hunan$GDPPC, listw=rswm_q)
+```
+
+\*\* Conclusion
+
+Given the low p-value, we can conclude that there is significant evidence to reject the null hypothesis of spatial randomness. We have sufficient evidence to conclude that the alternative hypothesis that there is spatial autocorrelation present in the variable "hunan\$GDPPC." Moreover, the Geary C statistic being substantially lower than the expected value under the null hypothesis further supports this conclusion.
+
+#### Computing Monte Carlo Geary\'s C
+
+The code chunk below performs permutation test for Geary\'s C statistic by using [*geary.mc()*](https://r-spatial.github.io/spdep/reference/geary.mc.html) of **spdep**.
+
+```{r}
+set.seed(1234)
+bperm=geary.mc(hunan$GDPPC, 
+               listw=rswm_q, 
+               nsim=999)
+bperm
+```
+
+\*\*Conclusion
+
+The very low p-value (0.001) suggests strong evidence against the null hypothesis of spatial randomness. Instead, it supports the alternative hypothesis that there is significant spatial autocorrelation present in the variable "hunan\$GDPPC."
+
+Furthermore, the observed rank of 1 among the 1000 simulations indicates that your observed statistic is at the extreme end of the simulated distribution. This strengthens the evidence that the observed spatial autocorrelation is significantly higher than what would be expected by chance.
+
+#### Visualising the Monte Carlo Geary\'s C
+
+We plot a histogram to reveal the distribution of the simulated values by using the code chunk below.
+
+```{r}
+mean(bperm$res[1:999])
+```
+
+```{r}
+var(bperm$res[1:999])
+```
+
+```{r}
+summary(bperm$res[1:999])
+```
+
+```{r}
+hist(bperm$res, freq=TRUE, breaks=20, xlab="Simulated Geary c")
+abline(v=1, col="red") 
+```
+
+\*\* Observation
+
+Skewed distribution that is of left skewed. It peaks at 1.05
+
+## **Spatial Correlogram**
+
+### **Compute Moran\'s I correlogram**
+
+In the code chunk below, [*sp.correlogram()*](https://r-spatial.github.io/spdep/reference/sp.correlogram.html) of **spdep** package is used to compute a 6-lag spatial correlogram of GDPPC. The global spatial autocorrelation used in Moran\'s I. The **plot()** of base Graph is then used to plot the output.
+
+```{r}
+MI_corr <- sp.correlogram(wm_q, 
+                          hunan$GDPPC, 
+                          order=6, 
+                          method="I", 
+                          style="W")
+plot(MI_corr)
+```
+
+Full analysis report
+
+```{r}
+print(MI_corr)
+```
+
+\*\*Conclusion
+
+-   In this output, the Moran's I statistics at various distance bands are presented.
+
+-   The Moran's I values at different distance classes vary and show varying levels of significance.
+
+-   For instance, at the 1st and 2nd distance bands, the Moran's I values are significantly positive with very low p-values (\*\*\*), indicating strong positive spatial autocorrelation.
+
+-   At farther distance bands (e.g., 5th and 6th), the Moran's I values become negative and remain significant (\*\*, \*), suggesting negative spatial autocorrelation or dissimilarity among more distant areas.
+
+### **Compute Geary\'s C correlogram and plot**
+
+In the code chunk below, *sp.correlogram()* of **spdep** package is used to compute a 6-lag spatial correlogram of GDPPC. The global spatial autocorrelation used in Geary\'s C. The **plot()** of base Graph is then used to plot the output.
+
+```{r}
+GC_corr <- sp.correlogram(wm_q, 
+                          hunan$GDPPC, 
+                          order=6, 
+                          method="C", 
+                          style="W")
+plot(GC_corr)
+```
+
+```{r}
+print(GC_corr)
+```
+
+\*\*Conclusion
+
+-   n this output, the Geary's C statistics at various distance bands are presented.
+
+-   The values in the "estimate" column fluctuate across distance classes, indicating variations in the degree of spatial autocorrelation at different distances.
+
+-   At the 1st and 2nd distance bands, the Geary's C values are significantly lower than 1 (\*\*\*), indicating significant spatial autocorrelation.
+
+-   As the distance bands increase (e.g., 5th and 6th), Geary's C values move closer to or above 1, suggesting weaker evidence of spatial autocorrelation, although the 5th distance band still shows significant autocorrelation (\*\*\*).
