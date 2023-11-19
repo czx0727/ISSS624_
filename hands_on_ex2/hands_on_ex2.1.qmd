@@ -26,7 +26,7 @@ I will learn how to compute spatial weights using R. I will be using the followi
 
 -   Hunan county boundary layer. This is a geospatial data set in ESRI shapefile format.
 
--   Hunan_2012.csv: This csv file contains selected Hunan\'s local development indicators in 2012.
+-   Hunan_2012.csv: This csv file contains selected Hunan's local development indicators in 2012.
 
 ```{r}
 pacman::p_load(sf, spdep, tmap, tidyverse, knitr)
@@ -205,7 +205,7 @@ wm_d62 <- dnearneigh(coords, 0, 62, longlat = TRUE)
 wm_d62
 ```
 
-**Quiz:** What is the meaning of \"Average number of links: 3.681818\" shown above?
+**Quiz:** What is the meaning of "Average number of links: 3.681818" shown above?
 
 **Ans:** On average, each region is connected to approximately 3.68 other regions. This suggests the average connectivity or the average number of neighboring regions for each individual region in this network.
 
@@ -269,7 +269,7 @@ str(knn6)
 
 \*\* To note: each county has six neighbours
 
-####  Plotting distance based neighbours
+#### Plotting distance based neighbours
 
 We can plot the weight matrix using the code chunk below.
 
@@ -292,14 +292,14 @@ ids
 
 ### **Row-standardised weights matrix**
 
-Next, we need to assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight (style=\"W\"). This is accomplished by assigning the fraction 1/(#ofneighbors) to each neighboring county then summing the weighted income values. While this is the most intuitive way to summaries the neighbors\' values it has one drawback in that polygons along the edges of the study area will base their lagged values on fewer polygons thus potentially over- or under-estimating the true nature of the spatial autocorrelation in the data. For this example, we\'ll stick with the style=\"W\" option for simplicity\'s sake but note that other more robust options are available, notably style=\"B\".
+Next, we need to assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight (style="W"). This is accomplished by assigning the fraction 1/(#ofneighbors) to each neighboring county then summing the weighted income values. While this is the most intuitive way to summaries the neighbors' values it has one drawback in that polygons along the edges of the study area will base their lagged values on fewer polygons thus potentially over- or under-estimating the true nature of the spatial autocorrelation in the data. For this example, we'll stick with the style="W" option for simplicity's sake but note that other more robust options are available, notably style="B".
 
 ```{r}
 rswm_q <- nb2listw(wm_q, style="W", zero.policy = TRUE)
 rswm_q
 ```
 
-To see the weight of the first polygon\'s eight neighbors type:
+To see the weight of the first polygon's eight neighbors type:
 
 ```{r}
 rswm_q$weights[10]
@@ -334,7 +334,7 @@ In this section, I will learn how to create four different spatial lagged variab
 
 ### **Spatial lag with row-standardized weights**
 
-Finally, we\'ll compute the average neighbor GDPPC value for each polygon. These values are often referred to as **spatially lagged values**.
+Finally, we'll compute the average neighbor GDPPC value for each polygon. These values are often referred to as **spatially lagged values**.
 
 ```{r}
 GDPPC.lag <- lag.listw(rswm_q, hunan$GDPPC)
