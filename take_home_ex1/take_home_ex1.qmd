@@ -1,0 +1,20 @@
+---
+title: "Take-home Exercise 1: Geospatial Analytics for Public Good"
+author: "Chai Zhixuan"
+editor: visual
+date: 2023-11-22
+date-format: long
+date-modified: "last-modified"
+---
+
+# **1 Overview**
+
+# **2 Getting Started**
+
+# **3 Data Preparation**
+
+# **4 Exploratory Data Analysis**
+
+# **5 Exploratory Spatial Data Analysis**
+
+# **6 Conclusion**
