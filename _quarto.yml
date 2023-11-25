@@ -26,6 +26,11 @@ website:
             href: in_class_ex1/in_class_ex1.html
           - text: In-class Exercise 1 Updated
             href: in_class_ex1/in_class_ex1_updated.html
+          - text: In-class Exercise 2.1
+            href: in_class_ex2/in_class_ex2.html
+          - text: In-class Exercise 2.2
+            href: in_class_ex2/in_class_ex2.1.html
+          
 
             
       - text: Take-Home Exercise
