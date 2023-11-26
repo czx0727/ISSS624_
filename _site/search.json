@@ -515,6 +515,188 @@
     "href": "take_home_ex1/take_home_ex1.html",
     "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
     "section": "",
-    "text": "1 Overview\n\n\n2 Getting Started\n\n\n3 Data Preparation\n\n\n4 Exploratory Data Analysis\n\n\n5 Exploratory Spatial Data Analysis\n\n\n6 Conclusion"
+    "text": "Transportation is a pivotal aspect of daily life for Singaporean residents. In 2022, an average of around 3.4 million passengers utilized public buses each day in Singapore, marking a steady rebound from the significant decline during the COVID-19 pandemic1. Noteworthy advancements have been made in the enhancement of bus stops and interchanges, exemplified by projects like the Jurong Town Bus Interchange in November 20232. Additionally, there have been alterations in bus services, including the cancellation of service 167, reflecting ongoing developments in Singapore’s transportation infrastructure 3."
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#objectives",
+    "href": "take_home_ex1/take_home_ex1.html#objectives",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "2.1 Objectives",
+    "text": "2.1 Objectives\nExploratory Spatial Data Analysis (ESDA) hold tremendous potential to address complex problems facing society. In this study, I will demonstrate how to apply appropriate Local Indicators of Spatial Association (GLISA) and Emerging Hot Spot Analysis (EHSA) to undercover the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore."
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#the-study-area",
+    "href": "take_home_ex1/take_home_ex1.html#the-study-area",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "2.2 The Study Area",
+    "text": "2.2 The Study Area\nThe focus of this study would in Singapore, mainly the public bus passengers in Singapore"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#setting-the-analytical-tools",
+    "href": "take_home_ex1/take_home_ex1.html#setting-the-analytical-tools",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "2.3 Setting the Analytical Tools",
+    "text": "2.3 Setting the Analytical Tools\nThe code chunk below installs and loads tmap, sf, tidyverse, knitr, sfdep and plotly\n\npacman::p_load(tmap, sf, tidyverse, knitr, sfdep, plotly)"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#footnotes",
+    "href": "take_home_ex1/take_home_ex1.html#footnotes",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nhttps://www.statista.com/statistics/1006198/singapore-daily-public-bus-ridership/#:~:text=Daily%20ridership%20of%20public%20buses%20Singapore%202015%2D2022&text=In%202022%2C%20an%20average%20of,COVID%2D19%20and%20its%20measures.↩︎\nhttps://theindependent.sg/lta-jurong-town-hall-bus-interchange-opens-in-november-2023/↩︎\nhttps://www.channelnewsasia.com/singapore/bus-service-167-ridership-falls-lta-commuters-unhappy-3928596↩︎"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#data",
+    "href": "take_home_ex1/take_home_ex1.html#data",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "3.1 Data",
+    "text": "3.1 Data\n\nApastial data\nPassenger Volume by Origin Destination Bus Stops will be downloaded from LTA DataMall. Three months dataset are downloaded: Aug, Sep and Oct 23. This study will use only Aug 23 data.\nBelow are the detailed steps to obtain the dataset:\n\nGo to LTA DataMall -&gt; Head to Dynamic Datasets -&gt; Request for API Access\n\n\n\nYou will receive an email with subject head ” LTA DataMall | Registration Confirmation”. Please take note of the API Account Key\n\n\n\nThe link here explains how to make it API calls. It would be advisable to download Postman. In Postman:\na. Enter the URL: “http://datamall2.mytransport.sg/ltaodataservice/PV/ODBus?”\n\nEnter your AccountKey under “Headers”. Add the date in “Params”\n\n\n\n\nClick on the Send button. Download the CSV files\n\n\n\n\n\nGeospatial data\nTwo geospatial data will be used in this study, they are:\n\nBus Stop Location from LTA DataMall. It provides information about all the bus stops currently being serviced by buses, including the bus stop code (identifier) and location coordinates. This is downloaded from LTA DataMall -&gt; Static Datasets -&gt; Under Search Bar type: “Bus Stop” -&gt; Download the SHP file\n\n\n\nhexagon, a hexagon layer of 250m (this distance is the perpendicular distance between the centre of the hexagon and its edges.). Guidance on how it is created is located here. It will be demonstrated in the Section 4.2 Hexagon."
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#importing-the-data-into-r-environment",
+    "href": "take_home_ex1/take_home_ex1.html#importing-the-data-into-r-environment",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "3.2 Importing the data into R Environment",
+    "text": "3.2 Importing the data into R Environment\n\n3.2.1 Importing Aspatial data into R\nFirstly, we will import the Passenger Volume by Origin Destination Bus Stops data set downloaded from LTA DataMall by using read_csv() of readr package.\n\nodbus &lt;- read_csv(\"data/aspatial/origin_destination_bus_202308.csv\")\n\nRows: 5709512 Columns: 7\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr (5): YEAR_MONTH, DAY_TYPE, PT_TYPE, ORIGIN_PT_CODE, DESTINATION_PT_CODE\ndbl (2): TIME_PER_HOUR, TOTAL_TRIPS\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\n\n\nA quick check of odbus tibble data frame shows that the values in OROGIN_PT_CODE and DESTINATON_PT_CODE are in numeric data type.\n\nglimpse(odbus)\n\nRows: 5,709,512\nColumns: 7\n$ YEAR_MONTH          &lt;chr&gt; \"2023-08\", \"2023-08\", \"2023-08\", \"2023-08\", \"2023-…\n$ DAY_TYPE            &lt;chr&gt; \"WEEKDAY\", \"WEEKENDS/HOLIDAY\", \"WEEKENDS/HOLIDAY\",…\n$ TIME_PER_HOUR       &lt;dbl&gt; 16, 16, 14, 14, 17, 17, 17, 17, 7, 17, 14, 10, 10,…\n$ PT_TYPE             &lt;chr&gt; \"BUS\", \"BUS\", \"BUS\", \"BUS\", \"BUS\", \"BUS\", \"BUS\", \"…\n$ ORIGIN_PT_CODE      &lt;chr&gt; \"04168\", \"04168\", \"80119\", \"80119\", \"44069\", \"4406…\n$ DESTINATION_PT_CODE &lt;chr&gt; \"10051\", \"10051\", \"90079\", \"90079\", \"17229\", \"1722…\n$ TOTAL_TRIPS         &lt;dbl&gt; 7, 2, 3, 10, 5, 4, 3, 22, 3, 3, 7, 1, 3, 1, 3, 1, …\n\n\n\nodbus$ORIGIN_PT_CODE &lt;- as.factor(odbus$ORIGIN_PT_CODE)\nodbus$DESTINATION_PT_CODE &lt;- as.factor(odbus$DESTINATION_PT_CODE) \n\nNow, ORIGIN_PT_CODE and DESTINATON_PT_CODE are in factor data type now.\n\nglimpse(odbus)\n\nRows: 5,709,512\nColumns: 7\n$ YEAR_MONTH          &lt;chr&gt; \"2023-08\", \"2023-08\", \"2023-08\", \"2023-08\", \"2023-…\n$ DAY_TYPE            &lt;chr&gt; \"WEEKDAY\", \"WEEKENDS/HOLIDAY\", \"WEEKENDS/HOLIDAY\",…\n$ TIME_PER_HOUR       &lt;dbl&gt; 16, 16, 14, 14, 17, 17, 17, 17, 7, 17, 14, 10, 10,…\n$ PT_TYPE             &lt;chr&gt; \"BUS\", \"BUS\", \"BUS\", \"BUS\", \"BUS\", \"BUS\", \"BUS\", \"…\n$ ORIGIN_PT_CODE      &lt;fct&gt; 04168, 04168, 80119, 80119, 44069, 44069, 20281, 2…\n$ DESTINATION_PT_CODE &lt;fct&gt; 10051, 10051, 90079, 90079, 17229, 17229, 20141, 2…\n$ TOTAL_TRIPS         &lt;dbl&gt; 7, 2, 3, 10, 5, 4, 3, 22, 3, 3, 7, 1, 3, 1, 3, 1, …\n\n\n\n\n3.2.2 Extracting the study data\nData will extracted basing on the following timing:\n\n\n3.2.2.1 For Weekday morning peak (6 to 9)\n\norigin6_9 &lt;- odbus %&gt;%\n  filter(DAY_TYPE == \"WEEKDAY\") %&gt;%\n  filter(TIME_PER_HOUR &gt;= 6 &\n           TIME_PER_HOUR &lt;= 9) %&gt;%\n  group_by(ORIGIN_PT_CODE) %&gt;%\n  summarise(TRIPS = sum(TOTAL_TRIPS))\n\n\nkable(head(origin6_9))\n\n\n\n\nORIGIN_PT_CODE\nTRIPS\n\n\n\n\n01012\n1973\n\n\n01013\n952\n\n\n01019\n1789\n\n\n01029\n2561\n\n\n01039\n2938\n\n\n01059\n1651\n\n\n\n\n\nOutput is saved in rds format for future used.\n\nwrite_rds(origin6_9, \"data/rds/origin6_9.rds\")\n\nThe code chunk below will be used to import the save origin6_9.rds into R environment.\n\norigin6_9 &lt;- read_rds(\"data/rds/origin6_9.rds\")\n\n\n\n3.2.2.2 For Weekday afternoon peak (17 to 20)\n\norigin17_20 &lt;- odbus %&gt;%\n  filter(DAY_TYPE == \"WEEKDAY\") %&gt;%\n  filter(TIME_PER_HOUR &gt;= 17 &\n           TIME_PER_HOUR &lt;= 20) %&gt;%\n  group_by(ORIGIN_PT_CODE) %&gt;%\n  summarise(TRIPS = sum(TOTAL_TRIPS))\n\n\nkable(head(origin17_20))\n\n\n\n\nORIGIN_PT_CODE\nTRIPS\n\n\n\n\n01012\n8448\n\n\n01013\n7328\n\n\n01019\n3608\n\n\n01029\n9317\n\n\n01039\n12937\n\n\n01059\n2133\n\n\n\n\n\n\nwrite_rds(origin17_20, \"data/rds/origin17_20.rds\")\n\n\norigin17_20 &lt;- read_rds(\"data/rds/origin17_20.rds\")\n\n\n\n3.2.2.3 For Weekend/holiday morning peak (11 to 14)\n\norigin11_14 &lt;- odbus %&gt;%\n  filter(DAY_TYPE == \"WEEKENDS/HOLIDAY\") %&gt;%\n  filter(TIME_PER_HOUR &gt;= 11 &\n           TIME_PER_HOUR &lt;= 14) %&gt;%\n  group_by(ORIGIN_PT_CODE) %&gt;%\n  summarise(TRIPS = sum(TOTAL_TRIPS))\n\n\nkable(head(origin11_14))\n\n\n\n\nORIGIN_PT_CODE\nTRIPS\n\n\n\n\n01012\n2273\n\n\n01013\n1697\n\n\n01019\n1511\n\n\n01029\n3272\n\n\n01039\n5424\n\n\n01059\n1062\n\n\n\n\n\n\nwrite_rds(origin11_14, \"data/rds/origin11_14.rds\")\n\n\norigin11_14 &lt;- read_rds(\"data/rds/origin11_14.rds\")\n\n\n\n3.2.2.4 For Weekend/holiday evening peak (16 to 19)\n\norigin16_19 &lt;- odbus %&gt;%\n  filter(DAY_TYPE == \"WEEKENDS/HOLIDAY\") %&gt;%\n  filter(TIME_PER_HOUR &gt;= 16 &\n           TIME_PER_HOUR &lt;= 19) %&gt;%\n  group_by(ORIGIN_PT_CODE) %&gt;%\n  summarise(TRIPS = sum(TOTAL_TRIPS))\n\n\nkable(head(origin16_19))\n\n\n\n\nORIGIN_PT_CODE\nTRIPS\n\n\n\n\n01012\n3208\n\n\n01013\n2796\n\n\n01019\n1623\n\n\n01029\n4244\n\n\n01039\n7403\n\n\n01059\n1190\n\n\n\n\n\n\nwrite_rds(origin16_19, \"data/rds/origin16_19.rds\")\n\n\norigin16_19 &lt;- read_rds(\"data/rds/origin16_19.rds\")\n\n\n\n\n3.2.3 Importing Geospatial data into R\n\n3.2.3.1 BusStop\nIn this section, I will import one shapefile into RStudio, it is:\n\nBusStop: This data provides the location of bus stop as at last quarter of 2023.\n\n\nbusstop &lt;- st_read(dsn = \"data/geospatial\",\n                   layer = \"BusStop\") %&gt;%\n  st_transform(crs = 3414)\n\nReading layer `BusStop' from data source \n  `C:\\czx0727\\ISSS624_\\take_home_ex1\\data\\geospatial' using driver `ESRI Shapefile'\nSimple feature collection with 5161 features and 3 fields\nGeometry type: POINT\nDimension:     XY\nBounding box:  xmin: 3970.122 ymin: 26482.1 xmax: 48284.56 ymax: 52983.82\nProjected CRS: SVY21\n\n\nThe structure of busstop sf tibble data frame should look as below.\n\nglimpse(busstop)\n\nRows: 5,161\nColumns: 4\n$ BUS_STOP_N &lt;chr&gt; \"22069\", \"32071\", \"44331\", \"96081\", \"11561\", \"66191\", \"2338…\n$ BUS_ROOF_N &lt;chr&gt; \"B06\", \"B23\", \"B01\", \"B05\", \"B05\", \"B03\", \"B02A\", \"B02\", \"B…\n$ LOC_DESC   &lt;chr&gt; \"OPP CEVA LOGISTICS\", \"AFT TRACK 13\", \"BLK 239\", \"GRACE IND…\n$ geometry   &lt;POINT [m]&gt; POINT (13576.31 32883.65), POINT (13228.59 44206.38),…"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#geospatial-data-wrangling",
+    "href": "take_home_ex1/take_home_ex1.html#geospatial-data-wrangling",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "3.3 Geospatial data wrangling",
+    "text": "3.3 Geospatial data wrangling\n\n3.3.1 Hexagon\nFrom the link located here, a Hexagon grid (honeycomb) is created with the busstop shapefile from above:\n\n# Create a hexagonal grid with a distance of 250 meters between center and edges\narea_honeycomb_grid = st_make_grid(busstop, c(250 * sqrt(3) / 2, 250), what = \"polygons\", square = FALSE)\n\n# To sf and add grid ID\nhoneycomb_grid_sf = st_sf(area_honeycomb_grid) %&gt;%\n  # add grid ID\n  mutate(grid_id = 1:length(lengths(area_honeycomb_grid)))\n\n# count number of points in each grid\nhoneycomb_grid_sf$n_colli = lengths(st_intersects(honeycomb_grid_sf, busstop))\n\n# remove grid without value of 0 (i.e. no points in side that grid)\nhoneycomb_count = filter(honeycomb_grid_sf, n_colli &gt; 0)\n\ntmap_mode(\"view\")\n\ntmap mode set to interactive viewing\n\nmap_honeycomb = tm_shape(honeycomb_count) +\n  tm_fill(\n    col = \"n_colli\",\n    palette = \"Reds\",\n    style = \"cont\",\n    title = \"Number of Bus stops\",\n    id = \"grid_id\",\n    showNA = FALSE,\n    alpha = 0.6,\n    popup.vars = c(\n      \"Number of Bus stops: \" = \"n_colli\"\n    ),\n    popup.format = list(\n      n_colli = list(format = \"f\", digits = 0)\n    )\n  ) +\n  tm_borders(col = \"grey40\", lwd = 0.7)\n\nmap_honeycomb\n\n\n\n\n\n\nBefore moving to the next step, I will save the output into rds format.\n\nwrite_rds(map_honeycomb, \"data/rds/map_honeycomb.rds\")"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#hexagon",
+    "href": "take_home_ex1/take_home_ex1.html#hexagon",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "4.2 Hexagon",
+    "text": "4.2 Hexagon\nFrom the link located here, a Hexagon grid (honeycomb) is created with the from test_points_1 above:\n\n# cell size of 250\narea_honeycomb_grid = st_make_grid(test_points_1, c(250, 250), what = \"polygons\", square = FALSE, crs = 3414)\n\n# To sf and add grid ID\nhoneycomb_grid_sf = st_sf(area_honeycomb_grid)"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#creating-a-time-series-cube",
+    "href": "take_home_ex1/take_home_ex1.html#creating-a-time-series-cube",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "6.1 Creating a Time Series Cube",
+    "text": "6.1 Creating a Time Series Cube\nConvert “Year-month” in odbus\n\nodbus_updated &lt;- odbus %&gt;% \n  mutate(date_as_date = as.Date(paste0(YEAR_MONTH, \"-01\")))"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#combining-busstop-and-origin6_9",
+    "href": "take_home_ex1/take_home_ex1.html#combining-busstop-and-origin6_9",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "4.1 Combining busstop and origin6_9",
+    "text": "4.1 Combining busstop and origin6_9\nbusstop and origin6_9 dataset are combined by left join with the unique identifer: “ORIGIN_PT_CODE” in origin6_9 and “BUST_STOP_N” ain busstop\n\norigintrip_SZ &lt;- left_join(origin6_9, \n                           busstop,\n                           by = c(\"ORIGIN_PT_CODE\" = \"BUS_STOP_N\"))\n\nNext, I will make the combine dataset a SF\n\ntest_points_1 = origintrip_SZ %&gt;%\n  st_as_sf(crs = 3414)\n\nhead(test_points_1)\n\nSimple feature collection with 6 features and 4 fields\nGeometry type: POINT\nDimension:     XY\nBounding box:  xmin: 30140.8 ymin: 31007.64 xmax: 30570.37 ymax: 31494.55\nProjected CRS: SVY21 / Singapore TM\n# A tibble: 6 × 5\n  ORIGIN_PT_CODE TRIPS BUS_ROOF_N LOC_DESC                       geometry\n  &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;                       &lt;POINT [m]&gt;\n1 01012           1973 B03        HOTEL GRAND PACIFIC  (30140.8 31031.95)\n2 01013            952 B05        ST JOSEPH'S CH      (30218.75 31126.49)\n3 01019           1789 B04        BRAS BASAH CPLX     (30187.77 31034.55)\n4 01029           2561 B07        OPP NATL LIB        (30345.83 31007.64)\n5 01039           2938 B09        BUGIS CUBE          (30471.08 31175.63)\n6 01059           1651 B08        BUGIS STN EXIT A    (30570.37 31494.55)"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#choropleth-visualisation-weekday-morning-peak---6am-to-9am",
+    "href": "take_home_ex1/take_home_ex1.html#choropleth-visualisation-weekday-morning-peak---6am-to-9am",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.1 Choropleth Visualisation (Weekday morning peak - 6am to 9am)",
+    "text": "5.1 Choropleth Visualisation (Weekday morning peak - 6am to 9am)\n\ntm_shape(mpsz_origtrip)+\n  tm_fill(\"TRIPS\", \n          style = \"quantile\", \n          palette = \"Blues\",\n          title = \"Passenger trips\") +\n  tm_layout(main.title = \"Passenger trips generated by origin at the hexagon level\",\n            main.title.position = \"center\",\n            main.title.size = 1.2,\n            legend.height = 0.45, \n            legend.width = 0.35,\n            frame = TRUE) +\n  tm_borders(alpha = 0.5) +\n  tm_compass(type=\"8star\", size = 2) +\n  tm_scale_bar() +\n  tm_grid(alpha =0.2) +\n  tm_credits(\"Source: Hexagon level\\n and Passenger trips data from LTA\", \n             position = c(\"left\", \"bottom\"))\n\n\n\n\nThe Choropleth Visualization above indicates a generally high number of passengers, largely attributed to students commuting to school and individuals traveling to work. However, some areas stand out as anomalies, displaying notably high passenger numbers despite surrounding areas experiencing lower passenger traffic. Notably, from the western perspective, Tua Cres Station Exit A and Joo Koon Station Exit A exhibit significant passenger trips. Moving towards the north, Woodlands Checkpoint and Johor Bahru Checkpoint also demonstrate elevated passenger activity. There are also a few estate areas with high passenger activity in a cluster with low passenger activity: Blk 421C, After Springleaf road.\nDescriptive Statistics is shown below:\n\nsummary(mpsz_origtrip$TRIPS)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n      1     471    2204    5266    6314  365871 \n\n\nHistogram plot is shown below. As expected, it is a right skewed histogram:\n\nggplot(data=mpsz_origtrip, \n       aes(x= (TRIPS)))+\n  geom_histogram(bins=100, \n                 color=\"black\", \n                 fill=\"light blue\") +\n  labs(title = \"How are passenger trips distributed in Singapore?\",\n      x = \"Passenger Trips\",\n      y = \"Frequency\")"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#choropleth-visualisation-weekday-afternoon-peak---5pm-to-8pm",
+    "href": "take_home_ex1/take_home_ex1.html#choropleth-visualisation-weekday-afternoon-peak---5pm-to-8pm",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.2 Choropleth Visualisation (Weekday afternoon peak - 5pm to 8pm)",
+    "text": "5.2 Choropleth Visualisation (Weekday afternoon peak - 5pm to 8pm)"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#choropleth-visualisation-weekendholiday-morning-peak---11am-to-2pm",
+    "href": "take_home_ex1/take_home_ex1.html#choropleth-visualisation-weekendholiday-morning-peak---11am-to-2pm",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.3 Choropleth Visualisation (Weekend/holiday morning peak - 11am to 2pm)",
+    "text": "5.3 Choropleth Visualisation (Weekend/holiday morning peak - 11am to 2pm)"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#choropleth-visualisation-weekendholiday-evening-peak---4pm-to-7pm",
+    "href": "take_home_ex1/take_home_ex1.html#choropleth-visualisation-weekendholiday-evening-peak---4pm-to-7pm",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.4 Choropleth Visualisation (Weekend/holiday evening peak - 4pm to 7pm)",
+    "text": "5.4 Choropleth Visualisation (Weekend/holiday evening peak - 4pm to 7pm)"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am",
+    "href": "take_home_ex1/take_home_ex1.html#import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "4.3 Import back Hexagon Shape File and combine with busstop and Weekday morning peak (6am to 9am)",
+    "text": "4.3 Import back Hexagon Shape File and combine with busstop and Weekday morning peak (6am to 9am)\nThe file is saved and imported back\n\nmpsz &lt;- st_read(dsn = \"data/geospatial\",\n                   layer = \"hexagon\") %&gt;%\n  st_transform(crs = 3414)\n\nReading layer `hexagon' from data source \n  `C:\\czx0727\\ISSS624_\\take_home_ex1\\data\\geospatial' using driver `ESRI Shapefile'\nSimple feature collection with 22134 features and 1 field\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 3720.122 ymin: 26337.76 xmax: 48470.12 ymax: 53256.72\nProjected CRS: SVY21 / Singapore TM\n\n\n\nglimpse(mpsz)\n\nRows: 22,134\nColumns: 2\n$ FID      &lt;dbl&gt; 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,…\n$ geometry &lt;POLYGON [m]&gt; POLYGON ((3845.122 26554.27..., POLYGON ((3845.122 26…\n\n\n\nbusstop_mpsz &lt;- st_intersection(busstop, mpsz) %&gt;%\n   st_drop_geometry()\n\nWarning: attribute variables are assumed to be spatially constant throughout\nall geometries\n\n\nBefore moving to the next step, I save output into rds format.\n\nwrite_rds(busstop_mpsz, \"data/rds/busstop_mpsz.rds\")  \n\nAppend the hexagon from busstop_mpsz data frame onto origin6_9 data frame.\n\norigin_SZ &lt;- left_join(origin6_9 , busstop_mpsz,\n            by = c(\"ORIGIN_PT_CODE\" = \"BUS_STOP_N\"))\n\nBefore continue, it is a good practice to check for duplicating records. The code chunk below shows how it is done.\n\nduplicate &lt;- origin_SZ %&gt;%\n  group_by_all() %&gt;%\n  filter(n()&gt;1) %&gt;%\n  ungroup()\n\nThe code chunk below will be used to retain the unique records.\n\norigin_SZ &lt;- unique(origin_SZ)\n\n\nmpsz_origtrip &lt;- inner_join(mpsz, \n                           origin_SZ,\n                           by = c(\"FID\" = \"FID\"))"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#weekday-morning-peak---6am-to-9am",
+    "href": "take_home_ex1/take_home_ex1.html#weekday-morning-peak---6am-to-9am",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.1 Weekday morning peak - 6am to 9am",
+    "text": "5.1 Weekday morning peak - 6am to 9am\nA choropleth map is plotted showing the distribution of passenger trips:\n\ntm_shape(mpsz_origtrip)+\n  tm_fill(\"TRIPS\", \n          style = \"quantile\", \n          palette = \"Blues\",\n          title = \"Passenger trips\") +\n  tm_layout(main.title = \"Passenger trips generated by origin at the hexagon level\",\n            main.title.position = \"center\",\n            main.title.size = 1.2,\n            legend.height = 0.45, \n            legend.width = 0.35,\n            frame = TRUE) +\n  tm_borders(alpha = 0.5) +\n  tm_compass(type=\"8star\", size = 2) +\n  tm_scale_bar() +\n  tm_grid(alpha =0.2) +\n  tm_credits(\"Source: Hexagon level\\n and Passenger trips data from LTA\", \n             position = c(\"left\", \"bottom\"))\n\n\n\n\nThe Choropleth Visualization above indicates a generally high number of passengers, largely attributed to students commuting to school and individuals traveling to work. However, some areas stand out as anomalies, displaying notably high passenger numbers despite surrounding areas experiencing lower passenger traffic. Notably, from the western perspective, Tua Cres Station Exit A and Joo Koon Station Exit A exhibit significant passenger trips. Moving towards the north, Woodlands Checkpoint and Johor Bahru Checkpoint also demonstrate elevated passenger activity. There are also a few estate areas with high passenger activity in a cluster with low passenger activity: Blk 421C, After Springleaf road.\nDescriptive Statistics is shown below:\n\nsummary(mpsz_origtrip$TRIPS)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n      1     471    2204    5266    6314  365871 \n\n\nHistogram plot is shown below. As expected, it is a right skewed histogram:\n\nggplot(data=mpsz_origtrip, \n       aes(x= (TRIPS)))+\n  geom_histogram(bins=100, \n                 color=\"black\", \n                 fill=\"light blue\") +\n  labs(title = \"How are passenger trips distributed in Singapore?\",\n      x = \"Passenger Trips\",\n      y = \"Frequency\")"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#weekday-afternoon-peak---5pm-to-8pm",
+    "href": "take_home_ex1/take_home_ex1.html#weekday-afternoon-peak---5pm-to-8pm",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.2 Weekday afternoon peak - 5pm to 8pm",
+    "text": "5.2 Weekday afternoon peak - 5pm to 8pm\nAppend the hexagon from busstop_mpsz data frame onto origin17_20 data frame. The steps will be the same as above from Section [5.1 Weekday morning peak - 6am to 9am]\n\norigin_SZ2 &lt;- left_join(origin17_20 , busstop_mpsz,\n            by = c(\"ORIGIN_PT_CODE\" = \"BUS_STOP_N\"))\n\n\nduplicate &lt;- origin_SZ2 %&gt;%\n  group_by_all() %&gt;%\n  filter(n()&gt;1) %&gt;%\n  ungroup()\n\n\nduplicate &lt;- origin_SZ2 %&gt;%\n  group_by_all() %&gt;%\n  filter(n()&gt;1) %&gt;%\n  ungroup()\n\n\norigin_SZ2 &lt;- unique(origin_SZ2)\n\n\nmpsz_origtrip1 &lt;- inner_join(mpsz, \n                           origin_SZ2,\n                           by = c(\"FID\" = \"FID\"))\n\n\ntm_shape(mpsz_origtrip1)+\n  tm_fill(\"TRIPS\", \n          style = \"quantile\", \n          palette = \"Blues\",\n          title = \"Passenger trips\") +\n  tm_layout(main.title = \"Passenger trips generated by origin at the hexagon level\",\n            main.title.position = \"center\",\n            main.title.size = 1.2,\n            legend.height = 0.45, \n            legend.width = 0.35,\n            frame = TRUE) +\n  tm_borders(alpha = 0.5) +\n  tm_compass(type=\"8star\", size = 2) +\n  tm_scale_bar() +\n  tm_grid(alpha =0.2) +\n  tm_credits(\"Source: Hexagon level\\n and Passenger trips data from LTA\", \n             position = c(\"left\", \"bottom\"))\n\n\n\n\n\nThe Choropleth Visualization depicts heightened passenger volumes, notably concentrated around central zones like Orchard and Somerset stations, as well as the west-central area encompassing the Queenstown region. This surge in numbers may be attributed to post-work commuters frequenting eateries and entertainment hubs within the central precinct.\nNotably, Joo Koon station exhibits a substantial influx of passengers, potentially stemming from the conclusion of work hours and the discharge of full-time national servicemen. This trend is similarly observed in stations proximate to Gedong Camp. Furthermore, heightened passenger activity is evident at Woodlands Checkpoint, Johor Bahru Checkpoint, and the Senoko region.\nDescriptive Statistics is shown below:\n\nsummary(mpsz_origtrip1$TRIPS)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n      1     722    2058    5068    4771  536630 \n\n\nHistogram plot is shown below. As expected, it is a right skewed histogram:\n\nggplot(data=mpsz_origtrip1, \n       aes(x= (TRIPS)))+\n  geom_histogram(bins=100, \n                 color=\"black\", \n                 fill=\"light blue\") +\n  labs(title = \"How are passenger trips distributed in Singapore?\",\n      x = \"Passenger Trips\",\n      y = \"Frequency\")"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#comparing-all-choropleth-visualisation",
+    "href": "take_home_ex1/take_home_ex1.html#comparing-all-choropleth-visualisation",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.5 Comparing all Choropleth Visualisation",
+    "text": "5.5 Comparing all Choropleth Visualisation"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#weekendholiday-morning-peak---11am-to-2pm",
+    "href": "take_home_ex1/take_home_ex1.html#weekendholiday-morning-peak---11am-to-2pm",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.3 Weekend/holiday morning peak - 11am to 2pm",
+    "text": "5.3 Weekend/holiday morning peak - 11am to 2pm"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#weekendholiday-evening-peak---4pm-to-7pm",
+    "href": "take_home_ex1/take_home_ex1.html#weekendholiday-evening-peak---4pm-to-7pm",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.4 Weekend/holiday evening peak - 4pm to 7pm",
+    "text": "5.4 Weekend/holiday evening peak - 4pm to 7pm"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#comparing-all-peak-hour-period",
+    "href": "take_home_ex1/take_home_ex1.html#comparing-all-peak-hour-period",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "5.5 Comparing all peak hour period",
+    "text": "5.5 Comparing all peak hour period"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#weekday-morning-peak---6am-to-9am-1",
+    "href": "take_home_ex1/take_home_ex1.html#weekday-morning-peak---6am-to-9am-1",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "6.1 Weekday morning peak - 6am to 9am",
+    "text": "6.1 Weekday morning peak - 6am to 9am\n\n6.1.1 Creating a Time Series Cube\nConvert “Year-month” in odbus\n\nodbus_updated &lt;- odbus %&gt;% \n  mutate(date_as_date = as.Date(paste0(YEAR_MONTH, \"-01\")))"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#weekday-afternoon-peak---5pm-to-8pm-1",
+    "href": "take_home_ex1/take_home_ex1.html#weekday-afternoon-peak---5pm-to-8pm-1",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "6.2 Weekday afternoon peak - 5pm to 8pm",
+    "text": "6.2 Weekday afternoon peak - 5pm to 8pm"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#weekendholiday-morning-peak---11am-to-2pm-1",
+    "href": "take_home_ex1/take_home_ex1.html#weekendholiday-morning-peak---11am-to-2pm-1",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "6.3 Weekend/holiday morning peak - 11am to 2pm",
+    "text": "6.3 Weekend/holiday morning peak - 11am to 2pm"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#weekendholiday-evening-peak---4pm-to-7pm-1",
+    "href": "take_home_ex1/take_home_ex1.html#weekendholiday-evening-peak---4pm-to-7pm-1",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "6.4 Weekend/holiday evening peak - 4pm to 7pm",
+    "text": "6.4 Weekend/holiday evening peak - 4pm to 7pm"
+  },
+  {
+    "objectID": "take_home_ex1/take_home_ex1.html#comparing-all-peak-hour-period-1",
+    "href": "take_home_ex1/take_home_ex1.html#comparing-all-peak-hour-period-1",
+    "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "6.5 Comparing all peak hour period",
+    "text": "6.5 Comparing all peak hour period"
   }
 ]

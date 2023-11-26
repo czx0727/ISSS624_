@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -175,11 +209,52 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><strong>1 Overview</strong></a></li>
-  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><strong>2 Getting Started</strong></a></li>
-  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation"><strong>3 Data Preparation</strong></a></li>
-  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><strong>4 Exploratory Data Analysis</strong></a></li>
-  <li><a href="#exploratory-spatial-data-analysis" id="toc-exploratory-spatial-data-analysis" class="nav-link" data-scroll-target="#exploratory-spatial-data-analysis"><strong>5 Exploratory Spatial Data Analysis</strong></a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><strong>6 Conclusion</strong></a></li>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><strong>2 Getting Started</strong></a>
+  <ul class="collapse">
+  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives">2.1 Objectives</a></li>
+  <li><a href="#the-study-area" id="toc-the-study-area" class="nav-link" data-scroll-target="#the-study-area">2.2 The Study Area</a></li>
+  <li><a href="#setting-the-analytical-tools" id="toc-setting-the-analytical-tools" class="nav-link" data-scroll-target="#setting-the-analytical-tools">2.3 <strong>Setting the Analytical Tools</strong></a></li>
+  </ul></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation"><strong>3 Data Preparation</strong></a>
+  <ul class="collapse">
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">3.1 Data</a>
+  <ul class="collapse">
+  <li><a href="#apastial-data" id="toc-apastial-data" class="nav-link" data-scroll-target="#apastial-data"><strong>Apastial data</strong></a></li>
+  <li><a href="#geospatial-data" id="toc-geospatial-data" class="nav-link" data-scroll-target="#geospatial-data"><strong>Geospatial data</strong></a></li>
+  </ul></li>
+  <li><a href="#importing-the-data-into-r-environment" id="toc-importing-the-data-into-r-environment" class="nav-link" data-scroll-target="#importing-the-data-into-r-environment"><strong>3.2 Importing the data into R Environment</strong></a>
+  <ul class="collapse">
+  <li><a href="#importing-aspatial-data-into-r" id="toc-importing-aspatial-data-into-r" class="nav-link" data-scroll-target="#importing-aspatial-data-into-r"><strong>3.2.1 Importing Aspatial data into R</strong></a></li>
+  <li><a href="#extracting-the-study-data" id="toc-extracting-the-study-data" class="nav-link" data-scroll-target="#extracting-the-study-data">3.2.2 <strong>Extracting the study data</strong></a></li>
+  <li><a href="#importing-geospatial-data-into-r" id="toc-importing-geospatial-data-into-r" class="nav-link" data-scroll-target="#importing-geospatial-data-into-r"><strong>3.2.3 Importing Geospatial data into R</strong></a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#geospatial-data-wrangling" id="toc-geospatial-data-wrangling" class="nav-link" data-scroll-target="#geospatial-data-wrangling"><strong>4 Geospatial data wrangling</strong></a>
+  <ul class="collapse">
+  <li><a href="#combining-busstop-and-origin6_9" id="toc-combining-busstop-and-origin6_9" class="nav-link" data-scroll-target="#combining-busstop-and-origin6_9">4.1 Combining busstop and origin6_9</a></li>
+  <li><a href="#hexagon" id="toc-hexagon" class="nav-link" data-scroll-target="#hexagon">4.2 Hexagon</a></li>
+  <li><a href="#import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am" id="toc-import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am" class="nav-link" data-scroll-target="#import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am">4.3 Import back Hexagon Shape File and combine with busstop and Weekday morning peak (6am to 9am)</a></li>
+  </ul></li>
+  <li><a href="#geovisualisation-and-analysis" id="toc-geovisualisation-and-analysis" class="nav-link" data-scroll-target="#geovisualisation-and-analysis"><strong>5 Geovisualisation and Analysis</strong></a>
+  <ul class="collapse">
+  <li><a href="#weekday-morning-peak---6am-to-9am" id="toc-weekday-morning-peak---6am-to-9am" class="nav-link" data-scroll-target="#weekday-morning-peak---6am-to-9am"><strong>5.1 Weekday morning peak -</strong> 6am to 9am</a></li>
+  <li><a href="#weekday-afternoon-peak---5pm-to-8pm" id="toc-weekday-afternoon-peak---5pm-to-8pm" class="nav-link" data-scroll-target="#weekday-afternoon-peak---5pm-to-8pm"><strong>5.2 Weekday afternoon peak -</strong> 5pm to 8pm</a></li>
+  <li><a href="#weekendholiday-morning-peak---11am-to-2pm" id="toc-weekendholiday-morning-peak---11am-to-2pm" class="nav-link" data-scroll-target="#weekendholiday-morning-peak---11am-to-2pm"><strong>5.3 Weekend/holiday morning peak -</strong> 11am to 2pm</a></li>
+  <li><a href="#weekendholiday-evening-peak---4pm-to-7pm" id="toc-weekendholiday-evening-peak---4pm-to-7pm" class="nav-link" data-scroll-target="#weekendholiday-evening-peak---4pm-to-7pm"><strong>5.4 Weekend/holiday evening peak -</strong> 4pm to 7pm</a></li>
+  <li><a href="#comparing-all-peak-hour-period" id="toc-comparing-all-peak-hour-period" class="nav-link" data-scroll-target="#comparing-all-peak-hour-period">5.5 Comparing all peak hour period</a></li>
+  </ul></li>
+  <li><a href="#emerging-hot-spot-analysisehsa" id="toc-emerging-hot-spot-analysisehsa" class="nav-link" data-scroll-target="#emerging-hot-spot-analysisehsa"><strong>6 Emerging Hot Spot Analysis(EHSA)</strong></a>
+  <ul class="collapse">
+  <li><a href="#weekday-morning-peak---6am-to-9am-1" id="toc-weekday-morning-peak---6am-to-9am-1" class="nav-link" data-scroll-target="#weekday-morning-peak---6am-to-9am-1">6.1 <strong>Weekday morning peak -</strong> 6am to 9am</a>
+  <ul class="collapse">
+  <li><a href="#creating-a-time-series-cube" id="toc-creating-a-time-series-cube" class="nav-link" data-scroll-target="#creating-a-time-series-cube"><strong>6.1.1 Creating a Time Series Cube</strong></a></li>
+  </ul></li>
+  <li><a href="#weekday-afternoon-peak---5pm-to-8pm-1" id="toc-weekday-afternoon-peak---5pm-to-8pm-1" class="nav-link" data-scroll-target="#weekday-afternoon-peak---5pm-to-8pm-1">6.2 <strong>Weekday afternoon peak -</strong> 5pm to 8pm</a></li>
+  <li><a href="#weekendholiday-morning-peak---11am-to-2pm-1" id="toc-weekendholiday-morning-peak---11am-to-2pm-1" class="nav-link" data-scroll-target="#weekendholiday-morning-peak---11am-to-2pm-1">6.3 <strong>Weekend/holiday morning peak -</strong> 11am to 2pm</a></li>
+  <li><a href="#weekendholiday-evening-peak---4pm-to-7pm-1" id="toc-weekendholiday-evening-peak---4pm-to-7pm-1" class="nav-link" data-scroll-target="#weekendholiday-evening-peak---4pm-to-7pm-1"><strong>6.4 Weekend/holiday evening peak -</strong> 4pm to 7pm</a></li>
+  <li><a href="#comparing-all-peak-hour-period-1" id="toc-comparing-all-peak-hour-period-1" class="nav-link" data-scroll-target="#comparing-all-peak-hour-period-1">6.5 Comparing all peak hour period</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><strong>7 Conclusion</strong></a></li>
   </ul>
 </nav>
     </div>
@@ -212,7 +287,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 22, 2023</p>
+      <p class="date-modified">November 26, 2023</p>
     </div>
   </div>
     
@@ -223,26 +298,673 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="overview" class="level1">
 <h1><strong>1 Overview</strong></h1>
+<p>Transportation is a pivotal aspect of daily life for Singaporean residents. In 2022, an average of around 3.4 million passengers utilized public buses each day in Singapore, marking a steady rebound from the significant decline during the COVID-19 pandemic<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Noteworthy advancements have been made in the enhancement of bus stops and interchanges, exemplified by projects like the Jurong Town Bus Interchange in November 2023<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Additionally, there have been alterations in bus services, including the cancellation of service 167, reflecting ongoing developments in Singapore’s transportation infrastructure <a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
 </section>
 <section id="getting-started" class="level1">
 <h1><strong>2 Getting Started</strong></h1>
+<section id="objectives" class="level2">
+<h2 class="anchored" data-anchor-id="objectives">2.1 Objectives</h2>
+<p>Exploratory Spatial Data Analysis (ESDA) hold tremendous potential to address complex problems facing society. In this study, I will demonstrate how to apply appropriate Local Indicators of Spatial Association (GLISA) and Emerging Hot Spot Analysis (EHSA) to undercover the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore.</p>
+</section>
+<section id="the-study-area" class="level2">
+<h2 class="anchored" data-anchor-id="the-study-area">2.2 The Study Area</h2>
+<p>The focus of this study would in Singapore, mainly the public bus passengers in Singapore</p>
+</section>
+<section id="setting-the-analytical-tools" class="level2">
+<h2 class="anchored" data-anchor-id="setting-the-analytical-tools">2.3 <strong>Setting the Analytical Tools</strong></h2>
+<p>The code chunk below installs and loads tmap, sf, tidyverse, knitr, sfdep and plotly</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tmap, sf, tidyverse, knitr, sfdep, plotly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 </section>
 <section id="data-preparation" class="level1">
 <h1><strong>3 Data Preparation</strong></h1>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">3.1 Data</h2>
+<section id="apastial-data" class="level3">
+<h3 class="anchored" data-anchor-id="apastial-data"><strong>Apastial data</strong></h3>
+<p><strong><em>Passenger Volume by Origin Destination Bus Stops</em></strong> will be downloaded from <a href="https://datamall.lta.gov.sg/content/datamall/en.html">LTA DataMall</a>. Three months dataset are downloaded: <strong>Aug, Sep and Oct 23</strong>. This study will use only Aug 23 data.</p>
+<p>Below are the detailed steps to obtain the dataset:</p>
+<ol type="1">
+<li>Go to LTA DataMall -&gt; Head to Dynamic Datasets -&gt; Request for API Access</li>
+</ol>
+<p><img src="images/6.PNG" class="img-fluid" width="531"></p>
+<ol start="2" type="1">
+<li>You will receive an email with subject head ” LTA DataMall | Registration Confirmation”. Please take note of the <strong>API Account Key</strong></li>
+</ol>
+<p><img src="images/test.PNG" class="img-fluid" width="495"></p>
+<ol start="3" type="1">
+<li><p>The link <a href="https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf">here</a> explains how to make it API calls. It would be advisable to download <a href="https://www.postman.com/">Postman</a>. In Postman:</p>
+<p>a. Enter the URL: “http://datamall2.mytransport.sg/ltaodataservice/PV/ODBus?”</p>
+<ol start="2" type="a">
+<li>Enter your AccountKey under “Headers”. Add the date in “Params”</li>
+</ol>
+<p><img src="images/2.PNG" class="img-fluid" width="474"></p>
+<p><img src="images/1.PNG" class="img-fluid" width="469"></p>
+<ol start="3" type="a">
+<li>Click on the Send button. Download the CSV files</li>
+</ol>
+<p><img src="images/3.PNG" class="img-fluid" width="505"></p></li>
+</ol>
 </section>
-<section id="exploratory-data-analysis" class="level1">
-<h1><strong>4 Exploratory Data Analysis</strong></h1>
+<section id="geospatial-data" class="level3">
+<h3 class="anchored" data-anchor-id="geospatial-data"><strong>Geospatial data</strong></h3>
+<p>Two geospatial data will be used in this study, they are:</p>
+<ul>
+<li><strong><em>Bus Stop Location</em></strong> from LTA DataMall. It provides information about all the bus stops currently being serviced by buses, including the bus stop code (identifier) and location coordinates. This is downloaded from LTA DataMall -&gt; Static Datasets -&gt; Under Search Bar type: “Bus Stop” -&gt; Download the SHP file</li>
+</ul>
+<p><img src="images/4.PNG" class="img-fluid" width="532"></p>
+<ul>
+<li><strong><em>hexagon</em></strong>, a <a href="https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/h-whyhexagons.htm">hexagon</a> layer of 250m (this distance is the perpendicular distance between the centre of the hexagon and its edges.). Guidance on how it is created is located <a href="https://urbandatapalette.com/post/2021-08-tessellation-sf/">here</a>. It will be demonstrated in the Section <a href="#hexagon">4.2 Hexagon</a>.</li>
+</ul>
 </section>
-<section id="exploratory-spatial-data-analysis" class="level1">
-<h1><strong>5 Exploratory Spatial Data Analysis</strong></h1>
+</section>
+<section id="importing-the-data-into-r-environment" class="level2">
+<h2 class="anchored" data-anchor-id="importing-the-data-into-r-environment"><strong>3.2 Importing the data into R Environment</strong></h2>
+<section id="importing-aspatial-data-into-r" class="level3">
+<h3 class="anchored" data-anchor-id="importing-aspatial-data-into-r"><strong>3.2.1 Importing Aspatial data into R</strong></h3>
+<p>Firstly, we will import the&nbsp;<em>Passenger Volume by Origin Destination Bus Stops</em>&nbsp;data set downloaded from LTA DataMall by using&nbsp;<code>read_csv()</code>&nbsp;of&nbsp;<strong>readr</strong>&nbsp;package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>odbus <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/origin_destination_bus_202308.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 5709512 Columns: 7
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (5): YEAR_MONTH, DAY_TYPE, PT_TYPE, ORIGIN_PT_CODE, DESTINATION_PT_CODE
+dbl (2): TIME_PER_HOUR, TOTAL_TRIPS
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>A quick check of odbus tibble data frame shows that the values in OROGIN_PT_CODE and DESTINATON_PT_CODE are in numeric data type.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(odbus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 5,709,512
+Columns: 7
+$ YEAR_MONTH          &lt;chr&gt; "2023-08", "2023-08", "2023-08", "2023-08", "2023-…
+$ DAY_TYPE            &lt;chr&gt; "WEEKDAY", "WEEKENDS/HOLIDAY", "WEEKENDS/HOLIDAY",…
+$ TIME_PER_HOUR       &lt;dbl&gt; 16, 16, 14, 14, 17, 17, 17, 17, 7, 17, 14, 10, 10,…
+$ PT_TYPE             &lt;chr&gt; "BUS", "BUS", "BUS", "BUS", "BUS", "BUS", "BUS", "…
+$ ORIGIN_PT_CODE      &lt;chr&gt; "04168", "04168", "80119", "80119", "44069", "4406…
+$ DESTINATION_PT_CODE &lt;chr&gt; "10051", "10051", "90079", "90079", "17229", "1722…
+$ TOTAL_TRIPS         &lt;dbl&gt; 7, 2, 3, 10, 5, 4, 3, 22, 3, 3, 7, 1, 3, 1, 3, 1, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>odbus<span class="sc">$</span>ORIGIN_PT_CODE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(odbus<span class="sc">$</span>ORIGIN_PT_CODE)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>odbus<span class="sc">$</span>DESTINATION_PT_CODE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(odbus<span class="sc">$</span>DESTINATION_PT_CODE) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, ORIGIN_PT_CODE and DESTINATON_PT_CODE are in factor data type now.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(odbus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 5,709,512
+Columns: 7
+$ YEAR_MONTH          &lt;chr&gt; "2023-08", "2023-08", "2023-08", "2023-08", "2023-…
+$ DAY_TYPE            &lt;chr&gt; "WEEKDAY", "WEEKENDS/HOLIDAY", "WEEKENDS/HOLIDAY",…
+$ TIME_PER_HOUR       &lt;dbl&gt; 16, 16, 14, 14, 17, 17, 17, 17, 7, 17, 14, 10, 10,…
+$ PT_TYPE             &lt;chr&gt; "BUS", "BUS", "BUS", "BUS", "BUS", "BUS", "BUS", "…
+$ ORIGIN_PT_CODE      &lt;fct&gt; 04168, 04168, 80119, 80119, 44069, 44069, 20281, 2…
+$ DESTINATION_PT_CODE &lt;fct&gt; 10051, 10051, 90079, 90079, 17229, 17229, 20141, 2…
+$ TOTAL_TRIPS         &lt;dbl&gt; 7, 2, 3, 10, 5, 4, 3, 22, 3, 3, 7, 1, 3, 1, 3, 1, …</code></pre>
+</div>
+</div>
+</section>
+<section id="extracting-the-study-data" class="level3">
+<h3 class="anchored" data-anchor-id="extracting-the-study-data">3.2.2 <strong>Extracting the study data</strong></h3>
+<p>Data will extracted basing on the following timing:</p>
+<p><img src="images/5.PNG" class="img-fluid"></p>
+<section id="for-weekday-morning-peak-6-to-9" class="level4">
+<h4 class="anchored" data-anchor-id="for-weekday-morning-peak-6-to-9">3.2.2.1 For Weekday morning peak (6 to 9)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>origin6_9 <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">6</span> <span class="sc">&amp;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">9</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TOTAL_TRIPS))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(origin6_9))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">ORIGIN_PT_CODE</th>
+<th style="text-align: right;">TRIPS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01012</td>
+<td style="text-align: right;">1973</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01013</td>
+<td style="text-align: right;">952</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01019</td>
+<td style="text-align: right;">1789</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01029</td>
+<td style="text-align: right;">2561</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01039</td>
+<td style="text-align: right;">2938</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01059</td>
+<td style="text-align: right;">1651</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Output is saved in rds format for future used.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(origin6_9, <span class="st">"data/rds/origin6_9.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The code chunk below will be used to import the save origin6_9.rds into R environment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>origin6_9 <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/origin6_9.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="for-weekday-afternoon-peak-17-to-20" class="level4">
+<h4 class="anchored" data-anchor-id="for-weekday-afternoon-peak-17-to-20">3.2.2.2 For Weekday afternoon peak (17 to 20)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>origin17_20 <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">17</span> <span class="sc">&amp;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">20</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE) <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TOTAL_TRIPS))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(origin17_20))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">ORIGIN_PT_CODE</th>
+<th style="text-align: right;">TRIPS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01012</td>
+<td style="text-align: right;">8448</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01013</td>
+<td style="text-align: right;">7328</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01019</td>
+<td style="text-align: right;">3608</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01029</td>
+<td style="text-align: right;">9317</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01039</td>
+<td style="text-align: right;">12937</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01059</td>
+<td style="text-align: right;">2133</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(origin17_20, <span class="st">"data/rds/origin17_20.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>origin17_20 <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/origin17_20.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="for-weekendholiday-morning-peak-11-to-14" class="level4">
+<h4 class="anchored" data-anchor-id="for-weekendholiday-morning-peak-11-to-14">3.2.2.3 For Weekend/holiday morning peak (11 to 14)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>origin11_14 <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKENDS/HOLIDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">11</span> <span class="sc">&amp;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">14</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE) <span class="sc">%&gt;%</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TOTAL_TRIPS))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(origin11_14))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">ORIGIN_PT_CODE</th>
+<th style="text-align: right;">TRIPS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01012</td>
+<td style="text-align: right;">2273</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01013</td>
+<td style="text-align: right;">1697</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01019</td>
+<td style="text-align: right;">1511</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01029</td>
+<td style="text-align: right;">3272</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01039</td>
+<td style="text-align: right;">5424</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01059</td>
+<td style="text-align: right;">1062</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(origin11_14, <span class="st">"data/rds/origin11_14.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>origin11_14 <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/origin11_14.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="for-weekendholiday-evening-peak-16-to-19" class="level4">
+<h4 class="anchored" data-anchor-id="for-weekendholiday-evening-peak-16-to-19">3.2.2.4 For Weekend/holiday evening peak (16 to 19)</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>origin16_19 <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKENDS/HOLIDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">16</span> <span class="sc">&amp;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>           TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">19</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE) <span class="sc">%&gt;%</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TOTAL_TRIPS))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(origin16_19))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">ORIGIN_PT_CODE</th>
+<th style="text-align: right;">TRIPS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01012</td>
+<td style="text-align: right;">3208</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01013</td>
+<td style="text-align: right;">2796</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01019</td>
+<td style="text-align: right;">1623</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01029</td>
+<td style="text-align: right;">4244</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01039</td>
+<td style="text-align: right;">7403</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01059</td>
+<td style="text-align: right;">1190</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(origin16_19, <span class="st">"data/rds/origin16_19.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>origin16_19 <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/origin16_19.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="importing-geospatial-data-into-r" class="level3">
+<h3 class="anchored" data-anchor-id="importing-geospatial-data-into-r"><strong>3.2.3 Importing Geospatial data into R</strong></h3>
+<section id="busstop" class="level4">
+<h4 class="anchored" data-anchor-id="busstop">3.2.3.1 BusStop</h4>
+<p>In this section, I will import one shapefile into RStudio, it is:</p>
+<ul>
+<li>BusStop: This data provides the location of bus stop as at last quarter of 2023.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>busstop <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"BusStop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `BusStop' from data source 
+  `C:\czx0727\ISSS624_\take_home_ex1\data\geospatial' using driver `ESRI Shapefile'
+Simple feature collection with 5161 features and 3 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 3970.122 ymin: 26482.1 xmax: 48284.56 ymax: 52983.82
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<p>The structure of&nbsp;<code>busstop</code>&nbsp;sf tibble data frame should look as below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(busstop)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 5,161
+Columns: 4
+$ BUS_STOP_N &lt;chr&gt; "22069", "32071", "44331", "96081", "11561", "66191", "2338…
+$ BUS_ROOF_N &lt;chr&gt; "B06", "B23", "B01", "B05", "B05", "B03", "B02A", "B02", "B…
+$ LOC_DESC   &lt;chr&gt; "OPP CEVA LOGISTICS", "AFT TRACK 13", "BLK 239", "GRACE IND…
+$ geometry   &lt;POINT [m]&gt; POINT (13576.31 32883.65), POINT (13228.59 44206.38),…</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+<section id="geospatial-data-wrangling" class="level1">
+<h1><strong>4 Geospatial data wrangling</strong></h1>
+<section id="combining-busstop-and-origin6_9" class="level2">
+<h2 class="anchored" data-anchor-id="combining-busstop-and-origin6_9">4.1 Combining busstop and origin6_9</h2>
+<p>busstop and origin6_9 dataset are combined by left join with the unique identifer: “ORIGIN_PT_CODE” in origin6_9 and “BUST_STOP_N” ain busstop</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>origintrip_SZ <span class="ot">&lt;-</span> <span class="fu">left_join</span>(origin6_9, </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                           busstop,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, I will make the combine dataset a SF</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>test_points_1 <span class="ot">=</span> origintrip_SZ <span class="sc">%&gt;%</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(test_points_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 6 features and 4 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 30140.8 ymin: 31007.64 xmax: 30570.37 ymax: 31494.55
+Projected CRS: SVY21 / Singapore TM
+# A tibble: 6 × 5
+  ORIGIN_PT_CODE TRIPS BUS_ROOF_N LOC_DESC                       geometry
+  &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;                       &lt;POINT [m]&gt;
+1 01012           1973 B03        HOTEL GRAND PACIFIC  (30140.8 31031.95)
+2 01013            952 B05        ST JOSEPH'S CH      (30218.75 31126.49)
+3 01019           1789 B04        BRAS BASAH CPLX     (30187.77 31034.55)
+4 01029           2561 B07        OPP NATL LIB        (30345.83 31007.64)
+5 01039           2938 B09        BUGIS CUBE          (30471.08 31175.63)
+6 01059           1651 B08        BUGIS STN EXIT A    (30570.37 31494.55)</code></pre>
+</div>
+</div>
+</section>
+<section id="hexagon" class="level2">
+<h2 class="anchored" data-anchor-id="hexagon">4.2 Hexagon</h2>
+<p>From the link located <a href="https://urbandatapalette.com/post/2021-08-tessellation-sf/">here</a>, a <strong>Hexagon grid (honeycomb)</strong> is created with the from test_points_1 above:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># cell size of 250</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>area_honeycomb_grid <span class="ot">=</span> <span class="fu">st_make_grid</span>(test_points_1, <span class="fu">c</span>(<span class="dv">250</span>, <span class="dv">250</span>), <span class="at">what =</span> <span class="st">"polygons"</span>, <span class="at">square =</span> <span class="cn">FALSE</span>, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># To sf and add grid ID</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>honeycomb_grid_sf <span class="ot">=</span> <span class="fu">st_sf</span>(area_honeycomb_grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am" class="level2">
+<h2 class="anchored" data-anchor-id="import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am">4.3 Import back Hexagon Shape File and combine with busstop and Weekday morning peak (6am to 9am)</h2>
+<p>The file is saved and imported back</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"hexagon"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `hexagon' from data source 
+  `C:\czx0727\ISSS624_\take_home_ex1\data\geospatial' using driver `ESRI Shapefile'
+Simple feature collection with 22134 features and 1 field
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 3720.122 ymin: 26337.76 xmax: 48470.12 ymax: 53256.72
+Projected CRS: SVY21 / Singapore TM</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(mpsz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 22,134
+Columns: 2
+$ FID      &lt;dbl&gt; 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,…
+$ geometry &lt;POLYGON [m]&gt; POLYGON ((3845.122 26554.27..., POLYGON ((3845.122 26…</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>busstop_mpsz <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(busstop, mpsz) <span class="sc">%&gt;%</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">st_drop_geometry</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: attribute variables are assumed to be spatially constant throughout
+all geometries</code></pre>
+</div>
+</div>
+<p>Before moving to the next step, I save output into rds format.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(busstop_mpsz, <span class="st">"data/rds/busstop_mpsz.rds"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Append the hexagon from busstop_mpsz data frame onto origin6_9 data frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>origin_SZ <span class="ot">&lt;-</span> <span class="fu">left_join</span>(origin6_9 , busstop_mpsz,</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Before continue, it is a good practice to check for duplicating records. The code chunk below shows how it is done.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>duplicate <span class="ot">&lt;-</span> origin_SZ <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>()<span class="sc">&gt;</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The code chunk below will be used to retain the unique records.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>origin_SZ <span class="ot">&lt;-</span> <span class="fu">unique</span>(origin_SZ)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>mpsz_origtrip <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(mpsz, </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>                           origin_SZ,</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"FID"</span> <span class="ot">=</span> <span class="st">"FID"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="geovisualisation-and-analysis" class="level1">
+<h1><strong>5 Geovisualisation and Analysis</strong></h1>
+<section id="weekday-morning-peak---6am-to-9am" class="level2">
+<h2 class="anchored" data-anchor-id="weekday-morning-peak---6am-to-9am"><strong>5.1 Weekday morning peak -</strong> 6am to 9am</h2>
+<p>A choropleth map is plotted showing the distribution of passenger trips:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_origtrip)<span class="sc">+</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>, </span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>, </span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Blues"</span>,</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Passenger trips"</span>) <span class="sc">+</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Passenger trips generated by origin at the hexagon level"</span>,</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">1.2</span>,</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>, </span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span><span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_credits</span>(<span class="st">"Source: Hexagon level</span><span class="sc">\n</span><span class="st"> and Passenger trips data from LTA"</span>, </span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>             <span class="at">position =</span> <span class="fu">c</span>(<span class="st">"left"</span>, <span class="st">"bottom"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="take_home_ex1_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The Choropleth Visualization above indicates a generally high number of passengers, largely attributed to students commuting to school and individuals traveling to work. However, some areas stand out as anomalies, displaying notably high passenger numbers despite surrounding areas experiencing lower passenger traffic. Notably, from the western perspective, Tua Cres Station Exit A and Joo Koon Station Exit A exhibit significant passenger trips. Moving towards the north, Woodlands Checkpoint and Johor Bahru Checkpoint also demonstrate elevated passenger activity. There are also a few estate areas with high passenger activity in a cluster with low passenger activity: Blk 421C, After Springleaf road.</p>
+<p>Descriptive Statistics is shown below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mpsz_origtrip<span class="sc">$</span>TRIPS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      1     471    2204    5266    6314  365871 </code></pre>
+</div>
+</div>
+<p>Histogram plot is shown below. As expected, it is a right skewed histogram:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>mpsz_origtrip, </span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span> (TRIPS)))<span class="sc">+</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">100</span>, </span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color=</span><span class="st">"black"</span>, </span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"light blue"</span>) <span class="sc">+</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"How are passenger trips distributed in Singapore?"</span>,</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="st">"Passenger Trips"</span>,</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">"Frequency"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="take_home_ex1_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="weekday-afternoon-peak---5pm-to-8pm" class="level2">
+<h2 class="anchored" data-anchor-id="weekday-afternoon-peak---5pm-to-8pm"><strong>5.2 Weekday afternoon peak -</strong> 5pm to 8pm</h2>
+<p>Append the hexagon from busstop_mpsz data frame onto origin17_20 data frame. The steps will be the same as above from Section [5.1 Weekday morning peak - 6am to 9am]</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>origin_SZ2 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(origin17_20 , busstop_mpsz,</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>duplicate <span class="ot">&lt;-</span> origin_SZ2 <span class="sc">%&gt;%</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>()<span class="sc">&gt;</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>duplicate <span class="ot">&lt;-</span> origin_SZ2 <span class="sc">%&gt;%</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>()<span class="sc">&gt;</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>origin_SZ2 <span class="ot">&lt;-</span> <span class="fu">unique</span>(origin_SZ2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>mpsz_origtrip1 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(mpsz, </span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>                           origin_SZ2,</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"FID"</span> <span class="ot">=</span> <span class="st">"FID"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_origtrip1)<span class="sc">+</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>, </span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>, </span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Blues"</span>,</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Passenger trips"</span>) <span class="sc">+</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Passenger trips generated by origin at the hexagon level"</span>,</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">1.2</span>,</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>, </span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,</span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span><span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_credits</span>(<span class="st">"Source: Hexagon level</span><span class="sc">\n</span><span class="st"> and Passenger trips data from LTA"</span>, </span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>             <span class="at">position =</span> <span class="fu">c</span>(<span class="st">"left"</span>, <span class="st">"bottom"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="take_home_ex1_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><br>
+The Choropleth Visualization depicts heightened passenger volumes, notably concentrated around central zones like Orchard and Somerset stations, as well as the west-central area encompassing the Queenstown region. This surge in numbers may be attributed to post-work commuters frequenting eateries and entertainment hubs within the central precinct.</p>
+<p>Notably, Joo Koon station exhibits a substantial influx of passengers, potentially stemming from the conclusion of work hours and the discharge of full-time national servicemen. This trend is similarly observed in stations proximate to Gedong Camp. Furthermore, heightened passenger activity is evident at Woodlands Checkpoint, Johor Bahru Checkpoint, and the Senoko region.</p>
+<p>Descriptive Statistics is shown below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mpsz_origtrip1<span class="sc">$</span>TRIPS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      1     722    2058    5068    4771  536630 </code></pre>
+</div>
+</div>
+<p>Histogram plot is shown below. As expected, it is a right skewed histogram:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>mpsz_origtrip1, </span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span> (TRIPS)))<span class="sc">+</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">100</span>, </span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color=</span><span class="st">"black"</span>, </span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill=</span><span class="st">"light blue"</span>) <span class="sc">+</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"How are passenger trips distributed in Singapore?"</span>,</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="st">"Passenger Trips"</span>,</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">"Frequency"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="take_home_ex1_files/figure-html/unnamed-chunk-45-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="weekendholiday-morning-peak---11am-to-2pm" class="level2">
+<h2 class="anchored" data-anchor-id="weekendholiday-morning-peak---11am-to-2pm"><strong>5.3 Weekend/holiday morning peak -</strong> 11am to 2pm</h2>
+</section>
+<section id="weekendholiday-evening-peak---4pm-to-7pm" class="level2">
+<h2 class="anchored" data-anchor-id="weekendholiday-evening-peak---4pm-to-7pm"><strong>5.4 Weekend/holiday evening peak -</strong> 4pm to 7pm</h2>
+</section>
+<section id="comparing-all-peak-hour-period" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-all-peak-hour-period">5.5 Comparing all peak hour period</h2>
+</section>
+</section>
+<section id="emerging-hot-spot-analysisehsa" class="level1">
+<h1><strong>6 Emerging Hot Spot Analysis(EHSA)</strong></h1>
+<section id="weekday-morning-peak---6am-to-9am-1" class="level2">
+<h2 class="anchored" data-anchor-id="weekday-morning-peak---6am-to-9am-1">6.1 <strong>Weekday morning peak -</strong> 6am to 9am</h2>
+<section id="creating-a-time-series-cube" class="level3">
+<h3 class="anchored" data-anchor-id="creating-a-time-series-cube"><strong>6.1.1 Creating a Time Series Cube</strong></h3>
+<p>Convert “Year-month” in odbus</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>odbus_updated <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span> </span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date_as_date =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(YEAR_MONTH, <span class="st">"-01"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="weekday-afternoon-peak---5pm-to-8pm-1" class="level2">
+<h2 class="anchored" data-anchor-id="weekday-afternoon-peak---5pm-to-8pm-1">6.2 <strong>Weekday afternoon peak -</strong> 5pm to 8pm</h2>
+</section>
+<section id="weekendholiday-morning-peak---11am-to-2pm-1" class="level2">
+<h2 class="anchored" data-anchor-id="weekendholiday-morning-peak---11am-to-2pm-1">6.3 <strong>Weekend/holiday morning peak -</strong> 11am to 2pm</h2>
+</section>
+<section id="weekendholiday-evening-peak---4pm-to-7pm-1" class="level2">
+<h2 class="anchored" data-anchor-id="weekendholiday-evening-peak---4pm-to-7pm-1"><strong>6.4 Weekend/holiday evening peak -</strong> 4pm to 7pm</h2>
+</section>
+<section id="comparing-all-peak-hour-period-1" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-all-peak-hour-period-1">6.5 Comparing all peak hour period</h2>
+</section>
 </section>
 <section id="conclusion" class="level1">
-<h1><strong>6 Conclusion</strong></h1>
+<h1><strong>7 Conclusion</strong></h1>
 
 
 </section>
 
-</main> <!-- /main -->
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>https://www.statista.com/statistics/1006198/singapore-daily-public-bus-ridership/#:~:text=Daily%20ridership%20of%20public%20buses%20Singapore%202015%2D2022&amp;text=In%202022%2C%20an%20average%20of,COVID%2D19%20and%20its%20measures.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>https://theindependent.sg/lta-jurong-town-hall-bus-interchange-opens-in-november-2023/<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>https://www.channelnewsasia.com/singapore/bus-service-167-ridership-falls-lta-commuters-unhappy-3928596<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
