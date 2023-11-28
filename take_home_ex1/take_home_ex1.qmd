@@ -39,7 +39,7 @@ pacman::p_load(tmap, sf, tidyverse, knitr, sfdep, plotly)
 
 ## 3.1 Data
 
-### **Aspatial data**
+### **3.1.1 Aspatial data**
 
 ***Passenger Volume by Origin Destination Bus Stops*** will be downloaded from [LTA DataMall](https://datamall.lta.gov.sg/content/datamall/en.html). Three months dataset are downloaded: **Aug, Sep and Oct 23**. This study will use only Aug 23 data.
 
@@ -67,7 +67,7 @@ Below are the detailed steps to obtain the dataset:
 
     ![](images/3.PNG){width="505"}
 
-### **Geospatial data**
+### **3.1.2 Geospatial data**
 
 Two geospatial data will be used in this study, they are:
 
@@ -252,12 +252,18 @@ head(test_points_1)
 From the link located [here](https://urbandatapalette.com/post/2021-08-tessellation-sf/), a **Hexagon grid (honeycomb)** is created with the from test_points_1 above:
 
 ```{r}
-# cell size of 250
-area_honeycomb_grid = st_make_grid(test_points_1, c(250, 250), what = "polygons", square = FALSE, crs = 3414)
+# cell size of layer of 250m
+area_honeycomb_grid = st_make_grid(test_points_1, c(500, 500), what = "polygons", square = FALSE, crs = 3414)
 
 # To sf and add grid ID
 honeycomb_grid_sf = st_sf(area_honeycomb_grid)
 
+```
+
+Save the shape file to aspatial folder
+
+```{r}
+st_write(honeycomb_grid_sf, "data/aspatial/hexagon.shp",append=TRUE)
 ```
 
 ## 4.3 Import back Hexagon Shape File and combine with busstop and Weekday morning peak (6am to 9am)
@@ -336,11 +342,11 @@ tm_shape(mpsz_origtrip)+
   tm_compass(type="8star", size = 2) +
   tm_scale_bar() +
   tm_grid(alpha =0.2) +
-  tm_credits("Source: Hexagon level\n and Passenger trips data from LTA", 
+  tm_credits("Source: Passenger trips data from LTA", 
              position = c("left", "bottom"))
 ```
 
-The Choropleth Visualization above indicates a generally high number of passengers, largely attributed to students commuting to school and individuals traveling to work. However, some areas stand out as anomalies, displaying notably high passenger numbers despite surrounding areas experiencing lower passenger traffic. Notably, from the western perspective, Tua Cres Station Exit A and Joo Koon Station Exit A exhibit significant passenger trips. Moving towards the north, Woodlands Checkpoint and Johor Bahru Checkpoint also demonstrate elevated passenger activity. There are also a few estate areas with high passenger activity in a cluster with low passenger activity: Blk 421C, After Springleaf road.
+The Choropleth Visualization above indicates a generally high number of passengers, largely attributed to students commuting to school and individuals traveling to work. However, some areas stand out as anomalies, displaying notably high passenger numbers despite surrounding areas experiencing lower passenger traffic. Notably, from the western perspective, Tuas Cres Station Exit A (23,219 passengers) and Joo Koon Station Exit A and Exit B (34,764 passengers) exhibit significant passenger trips. Moving towards the north, Woodlands Checkpoint (105,938 passengers) and Johor Bahru Checkpoint (97,009 passengers) also demonstrate elevated passenger activity. There are also a few estate areas with high passenger activity in a cluster with low passenger activity: Blk 421C (9,406 passengers), After Springleaf road (12,951 passengers).
 
 Descriptive Statistics is shown below:
 
@@ -404,14 +410,14 @@ tm_shape(mpsz_origtrip1)+
   tm_compass(type="8star", size = 2) +
   tm_scale_bar() +
   tm_grid(alpha =0.2) +
-  tm_credits("Source: Hexagon level\n and Passenger trips data from LTA", 
+  tm_credits("Source: Passenger trips data from LTA", 
              position = c("left", "bottom"))
 ```
 
 \
 The Choropleth Visualization depicts heightened passenger volumes, notably concentrated around central zones like Orchard and Somerset stations, as well as the west-central area encompassing the Queenstown region. This surge in numbers may be attributed to post-work commuters frequenting eateries and entertainment hubs within the central precinct.
 
-Notably, Joo Koon station exhibits a substantial influx of passengers, potentially stemming from the conclusion of work hours and the discharge of full-time national servicemen. This trend is similarly observed in stations proximate to Gedong Camp. Furthermore, heightened passenger activity is evident at Woodlands Checkpoint, Johor Bahru Checkpoint, and the Senoko region.
+Notably, Joo Koon station (6,100 passengers) exhibits a substantial influx of passengers, potentially stemming from the conclusion of work hours and the discharge of full-time national servicemen. This trend is similarly observed in stations proximate to Gedong Camp (3,276 passengers). Furthermore, heightened passenger activity is evident at Woodlands Checkpoint, Johor Bahru Checkpoint, and the Senoko region.
 
 Descriptive Statistics is shown below:
 
@@ -480,9 +486,11 @@ tm_shape(mpsz_origtrip3)+
 
 ```
 
-The Choropleth Visualization shows a decrease in passenger volumes in comparison to the two preceding plots. Likewise, there is a notable concentration of high activity around central zones such as Orchard and Somerset stations. This increase in numbers might be linked to families gathering for brunch or lunch.
+The Choropleth Visualization shows a decrease in passenger volumes in comparison to the two preceding plots (lesser number of dark hexagons). Likewise, there is a notable concentration of high activity around central zones such as Orchard and Somerset stations. This increase in numbers might be linked to families gathering for brunch or lunch.
 
-It's worth mentioning that Joo Koon station experiences lower passenger volumes on weekends, as fewer individuals are commuting to work in the Tuas area.
+It's worth mentioning that Joo Koon station experiences lower passenger volumes on weekends (871 passengers), as fewer individuals are commuting to work in the Tuas area.
+
+Woodlands and Johor Bahru checkpoints alos exhibits high passengers volumes (43,602 passengers).
 
 Descriptive Statistics is shown below:
 
@@ -550,9 +558,11 @@ tm_shape(mpsz_origtrip4)+
              position = c("left", "bottom"))
 ```
 
-The Choropleth Visualization seems to be similar to the pevious plot for Weekend/holiday morning peak - 11am to 2pm. Likewise, there is a notable concentration of high activity around central zones such as Orchard and Somerset stations. This increase in numbers might be linked to families gathering for dinner.
+The Choropleth Visualization seems to be similar to the previous plot for Weekend/holiday morning peak - 11am to 2pm. Likewise, there is a notable concentration of high activity around central zones such as Orchard and Somerset stations. This increase in numbers might be linked to families gathering for dinner.
 
-It's worth mentioning that Joo Koon station experiences lower passenger volumes on weekends, as fewer individuals are commuting to work in the Tuas area.
+It's worth mentioning that Joo Koon station experiences lower passenger volumes on weekends (2083 passengers), as fewer individuals are commuting to work in the Tuas area.
+
+Woodlands and Johor Bahru checkpoint still exhibits high passenger volumes (60,597 passengers).
 
 Descriptive Statistics is shown below:
 
@@ -602,9 +612,9 @@ wm_q <- mpsz_origtrip%>%
 wm_q
 ```
 
-### **6.1.2 Computing local Moran\'s I**
+### **6.1.2 Computing local Moran's I**
 
-I will compute Local Moran\'s I of TRIPS at hexagon level by using [`local_moran()`](https://sfdep.josiahparry.com/reference/local_moran.html) of sfdep package.
+I will compute Local Moran's I of TRIPS at hexagon level by using [`local_moran()`](https://sfdep.josiahparry.com/reference/local_moran.html) of sfdep package.
 
 ```{r}
 lisa <- wm_q %>% 
@@ -614,7 +624,7 @@ lisa <- wm_q %>%
   unnest(local_moran)
 ```
 
-### 6.1.3 **Visualising local Moran\'s I**
+### 6.1.3 **Visualising local Moran's I**
 
 In this code chunk below, tmap functions are used prepare a choropleth map by using value in the *ii* field.
 
@@ -630,7 +640,7 @@ tm_shape(lisa) +
 
 From the plot above, majority of the hexagon layers seem to have values of local Moran's I of -10 to 10. With an exception of one point of value 40 to 50.
 
-### **6.1.4 Visualising p-value of local Moran\'s I**
+### **6.1.4 Visualising p-value of local Moran's I**
 
 ```{r}
 tmap_mode("plot")
@@ -643,9 +653,9 @@ tm_shape(lisa) +
             main.title.size = 0.8)
 ```
 
-Majority of the hexagon layer is not significant. However, there are a few layers of p value that is significant.
+Majority of the hexagon layers are not significant. However, there are a few layers of p value that are significant. It is notable in the west region of Singapore.
 
-### 6.1.5 **Visualising local Moran\'s I and p-value**
+### 6.1.5 **Visualising local Moran's I and p-value**
 
 Both maps next to each other as shown below.
 
@@ -683,7 +693,11 @@ tm_shape(lisa_sig) +
   tm_borders(alpha = 0.4)
 ```
 
-From the plot above, low-low are observed in areas such as Tuas, Jurong, areas near Gedong Camp. In addition, high-high are observed in areas such as Woodlands, Dover area.
+The map above indicates that most low-low occurrences are seen around Tuas and near Gedong Camp. This aligns with expectations due to the presence of various industrial zones in Tuas, and fewer visits to army camps, showcasing contrasting values in close proximity.
+
+Furthermore, high-high instances are noticed in specific sections of Woodlands and the Dover area.
+
+No instances of low-high or high-low are observed in the data.
 
 ## 6.2 **Weekday afternoon peak -** 5pm to 8pm
 
@@ -704,9 +718,9 @@ wm_q2 <- mpsz_origtrip1%>%
 wm_q2
 ```
 
-### **6.2.2 Computing local Moran\'s I**
+### **6.2.2 Computing local Moran's I**
 
-I will compute Local Moran\'s I of TRIPS at hexagon level by using [`local_moran()`](https://sfdep.josiahparry.com/reference/local_moran.html) of sfdep package.
+I will compute Local Moran's I of TRIPS at hexagon level by using [`local_moran()`](https://sfdep.josiahparry.com/reference/local_moran.html) of sfdep package.
 
 ```{r}
 lisa2 <- wm_q2 %>% 
@@ -716,7 +730,7 @@ lisa2 <- wm_q2 %>%
   unnest(local_moran)
 ```
 
-### 6.2.3 **Visualising local Moran\'s I**
+### 6.2.3 **Visualising local Moran's I**
 
 In this code chunk below, tmap functions are used prepare a choropleth map by using value in the *ii* field.
 
@@ -732,7 +746,7 @@ tm_shape(lisa2) +
 
 From the plot above, majority of the hexagon layers seem to have values of local Moran's I of -10 to 10. With an exception of one point of value 40 to 50.
 
-### **6.2.4 Visualising p-value of local Moran\'s I**
+### **6.2.4 Visualising p-value of local Moran's I**
 
 ```{r}
 tmap_mode("plot")
@@ -745,9 +759,9 @@ tm_shape(lisa2) +
             main.title.size = 0.8)
 ```
 
-Majority of the hexagon layer is not significant. However, there are a few layers of p value that is significant.
+Majority of the hexagon layers are not significant. However, there are a few layers of p value that are significant, notable in the Tuas and Gedong camp region.
 
-### 6.2.5 **Visualising local Moran\'s I and p-value**
+### 6.2.5 **Visualising local Moran's I and p-value**
 
 Both maps next to each other as shown below.
 
@@ -760,7 +774,7 @@ map1 <- tm_shape(lisa2) +
   tm_layout(main.title = "local Moran's I of TRIPS",
             main.title.size = 0.8)
 
-map2 <- tm_shape(lisa) +
+map2 <- tm_shape(lisa2) +
   tm_fill("p_ii_sim",
           breaks = c(0, 0.001, 0.01, 0.05, 1),
               labels = c("0.001", "0.01", "0.05", "Not sig")) + 
@@ -771,7 +785,7 @@ map2 <- tm_shape(lisa) +
 tmap_arrange(map1, map2, ncol = 2)
 ```
 
-### 6.1.6 **Visualising LISA map**
+### 6.2.6 **Visualising LISA map**
 
 ```{r}
 lisa_sig2 <- lisa2  %>%
@@ -785,12 +799,223 @@ tm_shape(lisa_sig) +
   tm_borders(alpha = 0.4)
 ```
 
-From the plot above, low-low are observed in areas such as Tuas, Jurong, areas near Gedong Camp as well. In addition, high-high are observed in areas such Woodlands.
+From the plot above, low-low are observed in areas such as Tuas, near Gedong Camp. However, in this plot, areas in Queenstown area also consists of low-low.
+
+In addition, high-high are observed in areas such Woodlands.
+
+Similarly, there are no high-low and low-high values.
 
 ## 6.3 **Weekend/holiday morning peak -** 11am to 2pm
 
+### **6.3.1 Deriving contiguity weights: Queen's method**
+
+In the code chunk below, queen method is used to derive the contiguity weights.
+
+```{r}
+wm_q3 <- mpsz_origtrip3%>%   
+  mutate(nb = st_contiguity(geometry),          
+         wt = st_weights(nb,                          
+                         style = "W",                          
+                         allow_zero = TRUE),          
+         .before =1) 
+```
+
+```{r}
+wm_q3
+```
+
+### **6.3.2 Computing local Moran's I**
+
+I will compute Local Moran's I of TRIPS at hexagon level by using [`local_moran()`](https://sfdep.josiahparry.com/reference/local_moran.html) of sfdep package.
+
+```{r}
+lisa3 <- wm_q3 %>%    
+  mutate(local_moran = local_moran(     
+    TRIPS, nb, wt, nsim = 99,zero.policy= TRUE, na.action = na.exclude),          .before = 1) %>%   unnest(local_moran)
+```
+
+### 6.3.3 **Visualising local Moran's I**
+
+In this code chunk below, tmap functions are used prepare a choropleth map by using value in the *ii* field.
+
+```{r}
+tmap_mode("plot") 
+tm_shape(lisa3) +   
+  tm_fill("ii") +    
+  tm_borders(alpha = 0.5) +  
+  tm_view(set.zoom.limits = c(6,8)) +   
+  tm_layout(main.title = "local Moran's I of TRIPS",            
+            main.title.size = 0.8)
+```
+
+From the plot above, majority of the hexagon layers seem to have values of local Moran's I of -10 to 10. With an exception of one point of value 40 to 50.
+
+### **6.3.4 Visualising p-value of local Moran's I**
+
+```{r}
+tmap_mode("plot") 
+tm_shape(lisa3) +   
+  tm_fill("p_ii_sim",          
+          breaks = c(0, 0.001, 0.01, 0.05, 1),               
+          labels = c("0.001", "0.01", "0.05", "Not sig")) +    
+  tm_borders(alpha = 0.5) +    
+  tm_layout(main.title = "p-value of local Moran's I",            
+            main.title.size = 0.8)
+```
+
+Majority of the hexagon layers are not significant. However, there are a few layers of p value that are significant.
+
+### 6.3.5 **Visualising local Moran's I and p-value**
+
+Both maps next to each other as shown below.
+
+```{r}
+tmap_mode("plot") 
+map1 <- tm_shape(lisa3) +   
+  tm_fill("ii") +    
+  tm_borders(alpha = 0.5) +   
+  tm_view(set.zoom.limits = c(6,8)) +   
+  tm_layout(main.title = "local Moran's I of TRIPS",             
+            main.title.size = 0.8)  
+map2 <- tm_shape(lisa3) +   
+  tm_fill("p_ii_sim",           
+          breaks = c(0, 0.001, 0.01, 0.05, 1),               
+          labels = c("0.001", "0.01", "0.05", "Not sig")) +    
+  tm_borders(alpha = 0.5) +   
+  tm_layout(main.title = "p-value of local Moran's I",             
+            main.title.size = 0.8)  
+tmap_arrange(map1, map2, ncol = 2)
+```
+
+### 6.3.6 **Visualising LISA map**
+
+```{r}
+lisa_sig3 <- lisa3  %>%   
+  filter(p_ii_sim < 0.05) 
+tmap_mode("plot") 
+tm_shape(lisa) +   
+  tm_polygons() +   
+  tm_borders(alpha = 0.5) + 
+  tm_shape(lisa_sig) +   
+  tm_fill("mean") +    
+  tm_borders(alpha = 0.4)
+```
+
+From the plot above, low-low are observed in areas such as Tuas, near Gedong Camp, and even Queenstown area. In addition, high-high are observed in areas such Commonwealth.
+
+Similarly, there are no high-low and low-high.
+
 ## **6.4 Weekend/holiday evening peak -** 4pm to 7pm
+
+### **6.4.1 Deriving contiguity weights: Queen's method**
+
+In the code chunk below, queen method is used to derive the contiguity weights.
+
+```{r}
+wm_q4 <- mpsz_origtrip4%>%      
+  mutate(nb = st_contiguity(geometry),                    
+         wt = st_weights(nb,                                              
+                         style = "W",                                                    allow_zero = TRUE),                    
+         .before =1) 
+```
+
+```{r}
+wm_q4
+```
+
+### **6.4.2 Computing local Moran's I**
+
+I will compute Local Moran's I of TRIPS at hexagon level by using [`local_moran()`](https://sfdep.josiahparry.com/reference/local_moran.html) of sfdep package.
+
+```{r}
+lisa4 <- wm_q4 %>%       
+  mutate(local_moran = local_moran(          
+    TRIPS, nb, wt, nsim = 99,zero.policy= TRUE, na.action = na.exclude),          .before = 1) %>%   unnest(local_moran)
+```
+
+### 6.4.3 **Visualising local Moran's I**
+
+In this code chunk below, tmap functions are used prepare a choropleth map by using value in the *ii* field.
+
+```{r}
+tmap_mode("plot")  
+tm_shape(lisa4) +      
+  tm_fill("ii") +       
+  tm_borders(alpha = 0.5) +     
+  tm_view(set.zoom.limits = c(6,8)) +      
+  tm_layout(main.title = "local Moran's I of TRIPS",                         main.title.size = 0.8)
+```
+
+From the plot above, majority of the hexagon layers seem to have values of local Moran's I of -10 to 10. With an exception of two points of value 40 to 50.
+
+### **6.4.4 Visualising p-value of local Moran's I**
+
+```{r}
+tmap_mode("plot")  
+tm_shape(lisa4) +      
+  tm_fill("p_ii_sim",                     
+          breaks = c(0, 0.001, 0.01, 0.05, 1),                          
+          labels = c("0.001", "0.01", "0.05", "Not sig")) +       
+  tm_borders(alpha = 0.5) +       
+  tm_layout(main.title = "p-value of local Moran's I",                         main.title.size = 0.8)
+```
+
+Majority of the hexagon layers are not significant. However, there are a few layers of p value that are significant, again in Tuas and near Gedong camp region.
+
+### 6.4.5 **Visualising local Moran's I and p-value**
+
+Both maps next to each other as shown below.
+
+```{r}
+tmap_mode("plot")  
+map1 <- tm_shape(lisa4) +      
+  tm_fill("ii") +       
+  tm_borders(alpha = 0.5) +      
+  tm_view(set.zoom.limits = c(6,8)) +      
+  tm_layout(main.title = "local Moran's I of TRIPS",                          main.title.size = 0.8)   
+
+map2 <- tm_shape(lisa4) +      
+  tm_fill("p_ii_sim",                      
+          breaks = c(0, 0.001, 0.01, 0.05, 1),                          
+          labels = c("0.001", "0.01", "0.05", "Not sig")) +       
+  tm_borders(alpha = 0.5) +      
+  tm_layout(main.title = "p-value of local Moran's I",                          main.title.size = 0.8)   
+
+tmap_arrange(map1, map2, ncol = 2)
+```
+
+### 6.4.6 **Visualising LISA map**
+
+```{r}
+lisa_sig4 <- lisa4  %>%      
+  filter(p_ii_sim < 0.05)  
+tmap_mode("plot")  
+tm_shape(lisa) +      
+  tm_polygons() +      
+  tm_borders(alpha = 0.5) +    
+  tm_shape(lisa_sig) +      
+  tm_fill("mean") +       
+  tm_borders(alpha = 0.4)
+```
+
+From the plot above, low-low are observed in areas such as Tuas, areas near Gedong Camp, and Queenstown area. In addition, high-high are observed in areas such Commonwealth.
 
 ## 6.5 Comparing all peak hour period
 
+Across all the LISA maps, a notable prevalence of low-low instances is evident in Tuas and neighboring regions close to Gedong Camp. This can be possible explained by the concentration of industrial zones in Tuas and fewer visits to nearby region near army camp reinforces the proximity of contrasting values.
+
+Furthermore, the occurrence of high-high instances lacks consistency across all the LISA maps, showcasing variations from Woodlands to Commonwealth areas.
+
+The amalgamation of information from both the LISA maps and geospatial visualization highlights Tuas, Woodlands, and areas near Gedong Camp as significant points of interest in Singapore's bus transportation development.
+
 # **7 Conclusion**
+
+The passengers volume of the different areas are examined in this study. The persistent issue of extensive waiting times at Woodlands and Tuas checkpoints during peak periods, such as Polling Day and the start of school holidays [^4], along with the appalling 4.5-hour queues experienced on Vesak Day weekend[^5], highlights a critical problem impacting commuters' daily lives and travel plans.
+
+[^4]: https://www.asiaone.com/singapore/waited-bus-1-hour-commuters-stuck-woodlands-tuas-checkpoints-polling-day-september-school-holidays
+
+[^5]: https://mothership.sg/2023/06/jams-sg-jb-causeway-vesak-day/
+
+One possible solution will be to provide real-time updates on traffic conditions and anticipated waiting times through mobile apps, websites, or electronic signboards. This information would enable commuters to plan their journeys more effectively and choose alternative routes if necessary.
+
+In regions like Tuas and areas adjacent to Gedong Camp, it would be beneficial to establish additional bus stops or enhance bus services to facilitate passenger commutes.
