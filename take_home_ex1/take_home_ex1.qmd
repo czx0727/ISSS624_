@@ -230,7 +230,7 @@ glimpse(busstop)
 
 ## 4.1 Combining busstop and origin6_9
 
-busstop and origin6_9 dataset are combined by left join with the unique identifer: "ORIGIN_PT_CODE" in origin6_9 and "BUST_STOP_N" ain busstop
+busstop and origin6_9 dataset are combined by left join with the unique identifer: "ORIGIN_PT_CODE" in origin6_9 and "BUS_STOP_N" in busstop
 
 ```{r}
 origintrip_SZ <- left_join(origin6_9, 
@@ -238,7 +238,7 @@ origintrip_SZ <- left_join(origin6_9,
                            by = c("ORIGIN_PT_CODE" = "BUS_STOP_N"))
 ```
 
-Next, I will make the combine dataset a SF
+Next, I will make the combine dataset a shape file
 
 ```{r}
 test_points_1 = origintrip_SZ %>%
@@ -268,7 +268,7 @@ st_write(honeycomb_grid_sf, "data/aspatial/hexagon.shp",append=TRUE)
 
 ## 4.3 Import back Hexagon Shape File and combine with busstop and Weekday morning peak (6am to 9am)
 
-The file is saved and imported back
+The file is saved and imported back:
 
 ```{r}
 mpsz <- st_read(dsn = "data/geospatial",
@@ -285,20 +285,20 @@ busstop_mpsz <- st_intersection(busstop, mpsz) %>%
    st_drop_geometry()
 ```
 
-Before moving to the next step, I save output into rds format.
+Before moving to the next step, I save the output into rds format.
 
 ```{r}
 write_rds(busstop_mpsz, "data/rds/busstop_mpsz.rds")  
 ```
 
-Append the hexagon from busstop_mpsz data frame onto origin6_9 data frame.
+Next, I append the hexagon from busstop_mpsz data frame onto origin6_9 data frame.
 
 ```{r}
 origin_SZ <- left_join(origin6_9 , busstop_mpsz,
             by = c("ORIGIN_PT_CODE" = "BUS_STOP_N"))
 ```
 
-Before continue, it is a good practice to check for duplicating records. The code chunk below shows how it is done.
+Before continue, the code chunk below shows how it is done to check for duplicating records.
 
 ```{r}
 duplicate <- origin_SZ %>%
@@ -312,6 +312,8 @@ The code chunk below will be used to retain the unique records.
 ```{r}
 origin_SZ <- unique(origin_SZ)
 ```
+
+Updated records with no duplicate is compbined with mpsz
 
 ```{r}
 mpsz_origtrip <- inner_join(mpsz, 
@@ -369,7 +371,7 @@ ggplot(data=mpsz_origtrip,
 
 ## **5.2 Weekday afternoon peak -** 5pm to 8pm
 
-Append the hexagon from busstop_mpsz data frame onto origin17_20 data frame. The steps will be the same as above from Section \[5.1 Weekday morning peak - 6am to 9am\]
+Append the hexagon from busstop_mpsz data frame onto origin17_20 data frame. The steps will be the same as above from Section [5.1 Weekday morning peak - 6am to 9am]
 
 ```{r}
 origin_SZ2 <- left_join(origin17_20 , busstop_mpsz,
@@ -440,7 +442,7 @@ ggplot(data=mpsz_origtrip1,
 
 ## **5.3 Weekend/holiday morning peak -** 11am to 2pm
 
-Append the hexagon from busstop_mpsz data frame onto origin17_20 data frame. The steps will be the same as above.
+Append the hexagon from busstop_mpsz data frame onto origin11_14 data frame. The steps will be the same as above.
 
 ```{r}
 origin_SZ3 <- left_join(origin11_14 , busstop_mpsz,
@@ -513,7 +515,7 @@ ggplot(data=mpsz_origtrip3,
 
 ## **5.4 Weekend/holiday evening peak -** 4pm to 7pm
 
-Append the hexagon from busstop_mpsz data frame onto origin17_20 data frame. The steps will be the same as above.
+Append the hexagon from busstop_mpsz data frame onto origin16_20 data frame. The steps will be the same as above.
 
 ```{r}
 origin_SZ4 <- left_join(origin16_19, busstop_mpsz,
@@ -831,7 +833,9 @@ I will compute Local Moran's I of TRIPS at hexagon level by using [`local_moran
 ```{r}
 lisa3 <- wm_q3 %>%    
   mutate(local_moran = local_moran(     
-    TRIPS, nb, wt, nsim = 99,zero.policy= TRUE, na.action = na.exclude),          .before = 1) %>%   unnest(local_moran)
+    TRIPS, nb, wt, nsim = 99,
+    zero.policy= TRUE, na.action = na.exclude),          .before = 1) %>%   
+  unnest(local_moran)
 ```
 
 ### 6.3.3 **Visualising local Moran's I**

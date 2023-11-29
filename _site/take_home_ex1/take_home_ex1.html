@@ -316,7 +316,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 28, 2023</p>
+      <p class="date-modified">November 29, 2023</p>
     </div>
   </div>
     
@@ -715,13 +715,13 @@ $ geometry   &lt;POINT [m]&gt; POINT (13576.31 32883.65), POINT (13228.59 44206.
 <h1><strong>4 Geospatial data wrangling</strong></h1>
 <section id="combining-busstop-and-origin6_9" class="level2">
 <h2 class="anchored" data-anchor-id="combining-busstop-and-origin6_9">4.1 Combining busstop and origin6_9</h2>
-<p>busstop and origin6_9 dataset are combined by left join with the unique identifer: “ORIGIN_PT_CODE” in origin6_9 and “BUST_STOP_N” ain busstop</p>
+<p>busstop and origin6_9 dataset are combined by left join with the unique identifer: “ORIGIN_PT_CODE” in origin6_9 and “BUS_STOP_N” in busstop</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>origintrip_SZ <span class="ot">&lt;-</span> <span class="fu">left_join</span>(origin6_9, </span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                           busstop,</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next, I will make the combine dataset a SF</p>
+<p>Next, I will make the combine dataset a shape file</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>test_points_1 <span class="ot">=</span> origintrip_SZ <span class="sc">%&gt;%</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
@@ -767,7 +767,7 @@ Writing 5580 features with 0 fields and geometry type Polygon.</code></pre>
 </section>
 <section id="import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am" class="level2">
 <h2 class="anchored" data-anchor-id="import-back-hexagon-shape-file-and-combine-with-busstop-and-weekday-morning-peak-6am-to-9am">4.3 Import back Hexagon Shape File and combine with busstop and Weekday morning peak (6am to 9am)</h2>
-<p>The file is saved and imported back</p>
+<p>The file is saved and imported back:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"hexagon"</span>) <span class="sc">%&gt;%</span></span>
@@ -799,16 +799,16 @@ $ geometry &lt;POLYGON [m]&gt; POLYGON ((3845.122 26554.27..., POLYGON ((3845.12
 all geometries</code></pre>
 </div>
 </div>
-<p>Before moving to the next step, I save output into rds format.</p>
+<p>Before moving to the next step, I save the output into rds format.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(busstop_mpsz, <span class="st">"data/rds/busstop_mpsz.rds"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Append the hexagon from busstop_mpsz data frame onto origin6_9 data frame.</p>
+<p>Next, I append the hexagon from busstop_mpsz data frame onto origin6_9 data frame.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>origin_SZ <span class="ot">&lt;-</span> <span class="fu">left_join</span>(origin6_9 , busstop_mpsz,</span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Before continue, it is a good practice to check for duplicating records. The code chunk below shows how it is done.</p>
+<p>Before continue, the code chunk below shows how it is done to check for duplicating records.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>duplicate <span class="ot">&lt;-</span> origin_SZ <span class="sc">%&gt;%</span></span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
@@ -819,6 +819,7 @@ all geometries</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>origin_SZ <span class="ot">&lt;-</span> <span class="fu">unique</span>(origin_SZ)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Updated records with no duplicate is compbined with mpsz</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>mpsz_origtrip <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(mpsz, </span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>                           origin_SZ,</span>
@@ -956,7 +957,7 @@ The Choropleth Visualization depicts heightened passenger volumes, notably conce
 </section>
 <section id="weekendholiday-morning-peak---11am-to-2pm" class="level2">
 <h2 class="anchored" data-anchor-id="weekendholiday-morning-peak---11am-to-2pm"><strong>5.3 Weekend/holiday morning peak -</strong> 11am to 2pm</h2>
-<p>Append the hexagon from busstop_mpsz data frame onto origin17_20 data frame. The steps will be the same as above.</p>
+<p>Append the hexagon from busstop_mpsz data frame onto origin11_14 data frame. The steps will be the same as above.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>origin_SZ3 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(origin11_14 , busstop_mpsz,</span>
 <span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1029,7 +1030,7 @@ The Choropleth Visualization depicts heightened passenger volumes, notably conce
 </section>
 <section id="weekendholiday-evening-peak---4pm-to-7pm" class="level2">
 <h2 class="anchored" data-anchor-id="weekendholiday-evening-peak---4pm-to-7pm"><strong>5.4 Weekend/holiday evening peak -</strong> 4pm to 7pm</h2>
-<p>Append the hexagon from busstop_mpsz data frame onto origin17_20 data frame. The steps will be the same as above.</p>
+<p>Append the hexagon from busstop_mpsz data frame onto origin16_20 data frame. The steps will be the same as above.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>origin_SZ4 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(origin16_19, busstop_mpsz,</span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1488,7 +1489,9 @@ First 10 features:
 <div class="cell">
 <div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>lisa3 <span class="ot">&lt;-</span> wm_q3 <span class="sc">%&gt;%</span>    </span>
 <span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">local_moran =</span> <span class="fu">local_moran</span>(     </span>
-<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a>    TRIPS, nb, wt, <span class="at">nsim =</span> <span class="dv">99</span>,<span class="at">zero.policy=</span> <span class="cn">TRUE</span>, <span class="at">na.action =</span> na.exclude),          <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span>   <span class="fu">unnest</span>(local_moran)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a>    TRIPS, nb, wt, <span class="at">nsim =</span> <span class="dv">99</span>,</span>
+<span id="cb123-4"><a href="#cb123-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">zero.policy=</span> <span class="cn">TRUE</span>, <span class="at">na.action =</span> na.exclude),          <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span>   </span>
+<span id="cb123-5"><a href="#cb123-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(local_moran)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="visualising-local-morans-i-2" class="level3">
