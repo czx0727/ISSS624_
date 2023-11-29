@@ -522,7 +522,7 @@
     "href": "take_home_ex1/take_home_ex1.html#objectives",
     "title": "Take-home Exercise 1: Geospatial Analytics for Public Good",
     "section": "2.1 Objectives",
-    "text": "2.1 Objectives\nExploratory Spatial Data Analysis (ESDA) hold tremendous potential to address complex problems facing society. In this study, I will demonstrate how to apply appropriate Local Indicators of Spatial Association (GLISA) to undercover the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore."
+    "text": "2.1 Objectives\nExploratory Spatial Data Analysis (ESDA) hold tremendous potential to address complex problems facing society, such as transportation issue and development. In this study, I will demonstrate how to apply geospatial visualisation and appropriate Local Indicators of Spatial Association (LISA) to undercover the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore. I will also propose some recommendations in this study."
   },
   {
     "objectID": "take_home_ex1/take_home_ex1.html#the-study-area",
