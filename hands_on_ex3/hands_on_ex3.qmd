@@ -1,7 +1,7 @@
 ---
-title: "Hands on Exercise 3"
+title: "Hands-on Exercise 3 Processing and Visualising Flow Data"
 editor: visual
-date: 2023-11-22
+date: 2023-11-30
 date-format: long
 date-modified: "last-modified"
 ---
