@@ -312,6 +312,8 @@ The print report above reveals that variables ORIGIN_AGE7_12, ORIGIN_AGE13_24, O
 
 In view of this, code chunk below will be used to replace zero values to 0.99.
 
+Note: Poission Regression does not have 1 or 0.
+
 ```{r}
 SIM_data$DESTIN_AGE7_12 <- ifelse(
   SIM_data$DESTIN_AGE7_12 == 0,
