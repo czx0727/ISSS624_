@@ -77,6 +77,10 @@ mpsz_sp
 ```{r}
 dist <- spDists(mpsz_sp, 
                 longlat = FALSE)
+
+```
+
+```{r}
 head(dist, n=c(10, 10))
 ```
 
