@@ -216,6 +216,16 @@ pop <- pop %>%
          SZ = SUBZONE_C)
 ```
 
+Reference below:
+
+From mpsz
+
+![](images/1.PNG){width="434"}
+
+pop:
+
+![](images/2.PNG){width="556"}
+
 ## **Preparing origin attribute**
 
 ```{r}

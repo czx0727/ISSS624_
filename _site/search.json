@@ -788,7 +788,7 @@
     "href": "in_class_ex3/in_class_ex3.html#geospatial-data-wrangling",
     "title": "In Class Exercise 3",
     "section": "Geospatial data wrangling",
-    "text": "Geospatial data wrangling\n\npop &lt;- pop %&gt;%\n  left_join(mpsz,\n            by = c(\"PA\" = \"PLN_AREA_N\",\n                   \"SZ\" = \"SUBZONE_N\")) %&gt;%\n  select(1:6) %&gt;%\n  rename(SZ_NAME = SZ,\n         SZ = SUBZONE_C)"
+    "text": "Geospatial data wrangling\n\npop &lt;- pop %&gt;%\n  left_join(mpsz,\n            by = c(\"PA\" = \"PLN_AREA_N\",\n                   \"SZ\" = \"SUBZONE_N\")) %&gt;%\n  select(1:6) %&gt;%\n  rename(SZ_NAME = SZ,\n         SZ = SUBZONE_C)\n\nReference below:\nFrom mpsz\n\npop:"
   },
   {
     "objectID": "in_class_ex3/in_class_ex3.html#preparing-origin-attribute",
