@@ -117,6 +117,8 @@ distPair %>%
 
 Next, a constant distance value of 50m is added into intra-zones distance.
 
+\*\*175 divides by 2. So use 50m to replace 0m
+
 ```{r}
 distPair$dist <- ifelse(distPair$dist == 0,
                         50, distPair$dist)
