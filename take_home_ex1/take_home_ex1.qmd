@@ -809,7 +809,7 @@ tm_shape(lisa_sig) +
 
 From the plot above, low-low are observed in areas such as Tuas, near Gedong Camp. However, in this plot, areas in Queenstown area also consists of low-low.
 
-In addition, high-high are observed in areas such Woodlands.
+In addition, high-high are observed in areas such as Woodlands.
 
 Similarly, there are no high-low and low-high values.
 
@@ -1030,4 +1030,4 @@ One possible solution will be to provide real-time updates on traffic conditions
 
 In regions like Tuas and areas adjacent to Gedong Camp, it would be beneficial to establish additional bus stops or enhance bus services to facilitate passenger commutes.
 
-Further studies are be explored using the Sep and Oct 2023 dataset.
+Further studies can done to explore using the Sep and Oct 2023 dataset.
