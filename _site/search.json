@@ -606,28 +606,28 @@
     "href": "in_class_ex3/in_class_ex3.html#labelling-column-and-row-heanders-of-a-distance-matrix",
     "title": "In Class Exercise 3",
     "section": "Labelling column and row heanders of a distance matrix",
-    "text": "Labelling column and row heanders of a distance matrix\n\nsz_names &lt;- mpsz$SUBZONE_C\n\n\ncolnames(dist) &lt;- paste0(sz_names)\nrownames(dist) &lt;- paste0(sz_names)"
+    "text": "Labelling column and row heanders of a distance matrix\nFirst, we will create a list sorted according to the the distance matrix by planning sub-zone code.\n\nsz_names &lt;- mpsz$SUBZONE_C\n\n\n\n\n\n\n\nNote\n\n\n\nThis is to copy the names from the column subzone_c\n\n\nNext we will attach SUBZONE_C to row and column for distance matrix matching ahead\n\ncolnames(dist) &lt;- paste0(sz_names)\nrownames(dist) &lt;- paste0(sz_names)"
   },
   {
     "objectID": "in_class_ex3/in_class_ex3.html#pivoting-distance-value-by-subzone_c",
     "href": "in_class_ex3/in_class_ex3.html#pivoting-distance-value-by-subzone_c",
     "title": "In Class Exercise 3",
     "section": "Pivoting distance value by SUBZONE_C",
-    "text": "Pivoting distance value by SUBZONE_C\n\ndistPair &lt;- melt(dist) %&gt;%\n  rename(dist = value)\nhead(distPair, 10)\n\n     Var1   Var2      dist\n1  MESZ01 MESZ01     0.000\n2  RVSZ05 MESZ01  3926.003\n3  SRSZ01 MESZ01  3939.108\n4  WISZ01 MESZ01 20252.964\n5  MUSZ02 MESZ01  2989.984\n6  MPSZ05 MESZ01  1431.330\n7  WISZ03 MESZ01 19211.836\n8  WISZ02 MESZ01 14960.942\n9  SISZ02 MESZ01  7515.256\n10 SISZ01 MESZ01  6391.342"
+    "text": "Pivoting distance value by SUBZONE_C\n\ndistPair &lt;- melt(dist) %&gt;%\n  rename(dist = value)\nhead(distPair, 10)\n\n     Var1   Var2      dist\n1  MESZ01 MESZ01     0.000\n2  RVSZ05 MESZ01  3926.003\n3  SRSZ01 MESZ01  3939.108\n4  WISZ01 MESZ01 20252.964\n5  MUSZ02 MESZ01  2989.984\n6  MPSZ05 MESZ01  1431.330\n7  WISZ03 MESZ01 19211.836\n8  WISZ02 MESZ01 14960.942\n9  SISZ02 MESZ01  7515.256\n10 SISZ01 MESZ01  6391.342\n\n\n\n\n\n\n\n\nNote\n\n\n\nThis is to change to a format that can be easily dealt with for poisson regression"
   },
   {
     "objectID": "in_class_ex3/in_class_ex3.html#updating-intra-zonal-distances",
     "href": "in_class_ex3/in_class_ex3.html#updating-intra-zonal-distances",
     "title": "In Class Exercise 3",
     "section": "Updating intra-zonal distances",
-    "text": "Updating intra-zonal distances\nIn this section, we are going to append a constant value to replace the intra-zonal distance of 0.\nFirst, we will select and find out the minimum value of the distance by using summary().\n\ndistPair %&gt;%\n  filter(dist &gt; 0) %&gt;%\n  summary()\n\n      Var1             Var2             dist        \n MESZ01 :   331   MESZ01 :   331   Min.   :  173.8  \n RVSZ05 :   331   RVSZ05 :   331   1st Qu.: 7149.5  \n SRSZ01 :   331   SRSZ01 :   331   Median :11890.0  \n WISZ01 :   331   WISZ01 :   331   Mean   :12229.4  \n MUSZ02 :   331   MUSZ02 :   331   3rd Qu.:16401.7  \n MPSZ05 :   331   MPSZ05 :   331   Max.   :49894.4  \n (Other):107906   (Other):107906                    \n\n\nNext, a constant distance value of 50m is added into intra-zones distance.\n**175 divides by 2. So use 50m to replace 0m\n\ndistPair$dist &lt;- ifelse(distPair$dist == 0,\n                        50, distPair$dist)\n\nThe code chunk below will be used to check the result data.frame.\n\ndistPair %&gt;%\n  summary()\n\n      Var1             Var2             dist      \n MESZ01 :   332   MESZ01 :   332   Min.   :   50  \n RVSZ05 :   332   RVSZ05 :   332   1st Qu.: 7097  \n SRSZ01 :   332   SRSZ01 :   332   Median :11864  \n WISZ01 :   332   WISZ01 :   332   Mean   :12193  \n MUSZ02 :   332   MUSZ02 :   332   3rd Qu.:16388  \n MPSZ05 :   332   MPSZ05 :   332   Max.   :49894  \n (Other):108232   (Other):108232                  \n\n\nThe code chunk below is used to rename the origin and destination fields.\n\ndistPair &lt;- distPair %&gt;%\n  rename(orig = Var1,\n         dest = Var2)\n\nLastly, the code chunk below is used to save the dataframe for future use\n\nwrite_rds(distPair, \"data/rds/distPair.rds\")"
+    "text": "Updating intra-zonal distances\nIn this section, we are going to append a constant value to replace the intra-zonal distance of 0.\nFirst, we will select and find out the minimum value of the distance by using summary().\n\ndistPair %&gt;%\n  filter(dist &gt; 0) %&gt;%\n  summary()\n\n      Var1             Var2             dist        \n MESZ01 :   331   MESZ01 :   331   Min.   :  173.8  \n RVSZ05 :   331   RVSZ05 :   331   1st Qu.: 7149.5  \n SRSZ01 :   331   SRSZ01 :   331   Median :11890.0  \n WISZ01 :   331   WISZ01 :   331   Mean   :12229.4  \n MUSZ02 :   331   MUSZ02 :   331   3rd Qu.:16401.7  \n MPSZ05 :   331   MPSZ05 :   331   Max.   :49894.4  \n (Other):107906   (Other):107906                    \n\n\nNext, a constant distance value of 50m is added into intra-zones distance.\n\n\n\n\n\n\nNote\n\n\n\nMin distance is about 175.\n175 divides by 2. So use 50m to replace 0m as poisson should not have 0\n\n\n\ndistPair$dist &lt;- ifelse(distPair$dist == 0,\n                        50, distPair$dist)\n\nThe code chunk below will be used to check the result data.frame.\n\ndistPair %&gt;%\n  summary()\n\n      Var1             Var2             dist      \n MESZ01 :   332   MESZ01 :   332   Min.   :   50  \n RVSZ05 :   332   RVSZ05 :   332   1st Qu.: 7097  \n SRSZ01 :   332   SRSZ01 :   332   Median :11864  \n WISZ01 :   332   WISZ01 :   332   Mean   :12193  \n MUSZ02 :   332   MUSZ02 :   332   3rd Qu.:16388  \n MPSZ05 :   332   MPSZ05 :   332   Max.   :49894  \n (Other):108232   (Other):108232                  \n\n\nThe code chunk below is used to rename the origin and destination fields.\n\ndistPair &lt;- distPair %&gt;%\n  rename(orig = Var1,\n         dest = Var2)\n\nLastly, the code chunk below is used to save the dataframe for future use\n\nwrite_rds(distPair, \"data/rds/distPair.rds\")"
   },
   {
     "objectID": "in_class_ex3/in_class_ex3.html#separating-intra-flow-from-passenger-volume-df",
     "href": "in_class_ex3/in_class_ex3.html#separating-intra-flow-from-passenger-volume-df",
     "title": "In Class Exercise 3",
     "section": "Separating intra-flow from passenger volume df",
-    "text": "Separating intra-flow from passenger volume df\n\nflow_data$FlowNoIntra &lt;- ifelse(\n  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, \n  0, flow_data$TRIPS)\nflow_data$offset &lt;- ifelse(\n  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, \n  0.000001, 1)"
+    "text": "Separating intra-flow from passenger volume df\nCode chunk below is used to add three new fields in flow_data dataframe.\n\nflow_data$FlowNoIntra &lt;- ifelse(\n  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, \n  0, flow_data$TRIPS)\nflow_data$offset &lt;- ifelse(\n  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, \n  0.000001, 1)"
   },
   {
     "objectID": "in_class_ex3/in_class_ex3.html#combining-passenger-volume-data-with-distance-value",
@@ -648,7 +648,7 @@
     "href": "in_class_ex3/in_class_ex3.html#geospatial-data-wrangling",
     "title": "In Class Exercise 3",
     "section": "Geospatial data wrangling",
-    "text": "Geospatial data wrangling\n\npop &lt;- pop %&gt;%\n  left_join(mpsz,\n            by = c(\"PA\" = \"PLN_AREA_N\",\n                   \"SZ\" = \"SUBZONE_N\")) %&gt;%\n  select(1:6) %&gt;%\n  rename(SZ_NAME = SZ,\n         SZ = SUBZONE_C)\n\nReference below:\nFrom mpsz\n\npop:"
+    "text": "Geospatial data wrangling\n\npop &lt;- pop %&gt;%\n  left_join(mpsz,\n            by = c(\"PA\" = \"PLN_AREA_N\",\n                   \"SZ\" = \"SUBZONE_N\")) %&gt;%\n  select(1:6) %&gt;%\n  rename(SZ_NAME = SZ,\n         SZ = SUBZONE_C)\n\nReference below:\nFrom mpsz\n\npop:\n\n2 set of data: origin and destination attribute."
   },
   {
     "objectID": "in_class_ex3/in_class_ex3.html#preparing-origin-attribute",

@@ -86,9 +86,17 @@ head(dist, n=c(10, 10))
 
 ## **Labelling column and row heanders of a distance matrix**
 
+First, we will create a list sorted according to the the distance matrix by planning sub-zone code.
+
 ```{r}
 sz_names <- mpsz$SUBZONE_C
 ```
+
+::: callout-note
+This is to copy the names from the column subzone_c
+:::
+
+Next we will attach `SUBZONE_C` to row and column for distance matrix matching ahead
 
 ```{r}
 colnames(dist) <- paste0(sz_names)
@@ -102,6 +110,10 @@ distPair <- melt(dist) %>%
   rename(dist = value)
 head(distPair, 10)
 ```
+
+::: callout-note
+This is to change to a format that can be easily dealt with for poisson regression
+:::
 
 ## **Updating intra-zonal distances**
 
@@ -117,7 +129,11 @@ distPair %>%
 
 Next, a constant distance value of 50m is added into intra-zones distance.
 
-\*\*175 divides by 2. So use 50m to replace 0m
+::: callout-note
+Min distance is about 175.
+
+175 divides by 2. So use 50m to replace 0m as poisson should not have 0
+:::
 
 ```{r}
 distPair$dist <- ifelse(distPair$dist == 0,
@@ -147,7 +163,7 @@ write_rds(distPair, "data/rds/distPair.rds")
 
 # **Preparing flow data**
 
-The code chunk below is used import *od_data* save in Chapter 15 into R environment.
+The code chunk below is used import *od_data* in hands_on_ex3 R environment.
 
 ```{r}
 od_data <- read_rds("data/rds/od_data.rds")
@@ -168,6 +184,8 @@ head(flow_data, 10)
 ```
 
 ## **Separating intra-flow from passenger volume df**
+
+Code chunk below is used to add three new fields in `flow_data` dataframe.
 
 ```{r}
 flow_data$FlowNoIntra <- ifelse(
@@ -225,6 +243,8 @@ From mpsz
 pop:
 
 ![](images/2.PNG){width="556"}
+
+2 set of data: origin and destination attribute.
 
 ## **Preparing origin attribute**
 

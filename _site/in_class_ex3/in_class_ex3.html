@@ -434,9 +434,24 @@ max values  :    YUNNAN,    YSSZ09,     YISHUN,         YS,    WEST REGION,     
 </section>
 <section id="labelling-column-and-row-heanders-of-a-distance-matrix" class="level2">
 <h2 class="anchored" data-anchor-id="labelling-column-and-row-heanders-of-a-distance-matrix"><strong>Labelling column and row heanders of a distance matrix</strong></h2>
+<p>First, we will create a list sorted according to the the distance matrix by planning sub-zone code.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>sz_names <span class="ot">&lt;-</span> mpsz<span class="sc">$</span>SUBZONE_C</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is to copy the names from the column subzone_c</p>
+</div>
+</div>
+<p>Next we will attach&nbsp;<code>SUBZONE_C</code>&nbsp;to row and column for distance matrix matching ahead</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dist) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(sz_names)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(dist) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(sz_names)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -462,6 +477,19 @@ max values  :    YUNNAN,    YSSZ09,     YISHUN,         YS,    WEST REGION,     
 10 SISZ01 MESZ01  6391.342</code></pre>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is to change to a format that can be easily dealt with for poisson regression</p>
+</div>
+</div>
 </section>
 <section id="updating-intra-zonal-distances" class="level2">
 <h2 class="anchored" data-anchor-id="updating-intra-zonal-distances"><strong>Updating intra-zonal distances</strong></h2>
@@ -483,7 +511,20 @@ max values  :    YUNNAN,    YSSZ09,     YISHUN,         YS,    WEST REGION,     
 </div>
 </div>
 <p>Next, a constant distance value of 50m is added into intra-zones distance.</p>
-<p>**175 divides by 2. So use 50m to replace 0m</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Min distance is about 175.</p>
+<p>175 divides by 2. So use 50m to replace 0m as poisson should not have 0</p>
+</div>
+</div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>distPair<span class="sc">$</span>dist <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(distPair<span class="sc">$</span>dist <span class="sc">==</span> <span class="dv">0</span>,</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                        <span class="dv">50</span>, distPair<span class="sc">$</span>dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -517,7 +558,7 @@ max values  :    YUNNAN,    YSSZ09,     YISHUN,         YS,    WEST REGION,     
 </section>
 <section id="preparing-flow-data" class="level1">
 <h1><strong>Preparing flow data</strong></h1>
-<p>The code chunk below is used import&nbsp;<em>od_data</em>&nbsp;save in Chapter 15 into R environment.</p>
+<p>The code chunk below is used import&nbsp;<em>od_data</em> in hands_on_ex3 R environment.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>od_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/od_data.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -553,6 +594,7 @@ max values  :    YUNNAN,    YSSZ09,     YISHUN,         YS,    WEST REGION,     
 </div>
 <section id="separating-intra-flow-from-passenger-volume-df" class="level2">
 <h2 class="anchored" data-anchor-id="separating-intra-flow-from-passenger-volume-df"><strong>Separating intra-flow from passenger volume df</strong></h2>
+<p>Code chunk below is used to add three new fields in&nbsp;<code>flow_data</code>&nbsp;dataframe.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>FlowNoIntra <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>ORIGIN_SZ <span class="sc">==</span> flow_data<span class="sc">$</span>DESTIN_SZ, </span>
@@ -612,6 +654,7 @@ dbl (3): AGE7_12, AGE13_24, AGE25_64
 <p><img src="images/1.PNG" class="img-fluid" width="434"></p>
 <p>pop:</p>
 <p><img src="images/2.PNG" class="img-fluid" width="556"></p>
+<p>2 set of data: origin and destination attribute.</p>
 </section>
 <section id="preparing-origin-attribute" class="level2">
 <h2 class="anchored" data-anchor-id="preparing-origin-attribute"><strong>Preparing origin attribute</strong></h2>
