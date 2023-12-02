@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 29, 2023</p>
+      <p class="date-modified">December 2, 2023</p>
     </div>
   </div>
     
@@ -361,7 +361,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="data">3.1 Data</h2>
 <section id="aspatial-data" class="level3">
 <h3 class="anchored" data-anchor-id="aspatial-data"><strong>3.1.1 Aspatial data</strong></h3>
-<p><strong><em>Passenger Volume by Origin Destination Bus Stops</em></strong> will be downloaded from <a href="https://datamall.lta.gov.sg/content/datamall/en.html">LTA DataMall</a>. Three months dataset are downloaded: <strong>Aug, Sep and Oct 23</strong>. This study will use only Aug 23 data.</p>
+<p><strong><em>Passenger Volume by Origin Destination Bus Stops</em></strong> will be downloaded from <a href="https://datamall.lta.gov.sg/content/datamall/en.html">LTA DataMall</a>. Aug 2023 dataset is dowloaded. This study will use only <strong>Aug 2023</strong> data.</p>
 <p>Below are the detailed steps to obtain the dataset:</p>
 <ol type="1">
 <li>Go to LTA DataMall -&gt; Head to Dynamic Datasets -&gt; Request for API Access</li>
@@ -393,8 +393,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p><img src="images/4.PNG" class="img-fluid" width="532"></p>
 <ul>
-<li><strong><em>hexagon</em></strong>, a <a href="https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/h-whyhexagons.htm">hexagon</a> layer of 250m (this distance is the perpendicular distance between the centre of the hexagon and its edges.). Guidance on how it is created is located <a href="https://urbandatapalette.com/post/2021-08-tessellation-sf/">here</a>. It will be demonstrated in the Section <a href="#hexagon">4.2 Hexagon</a>.</li>
+<li><strong><em>hexagon</em></strong>, a <a href="https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/h-whyhexagons.htm">hexagon</a> layer of 250m (this distance is the perpendicular distance between the centre of the hexagon and its edges.). Guidance on how it is created is located <a href="https://urbandatapalette.com/post/2021-08-tessellation-sf/">here</a>.</li>
 </ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The steps to create the hexagon layer in this study is located in Section <a href="#hexagon">4.2 Hexagon</a>.</p>
+</div>
+</div>
 </section>
 </section>
 <section id="importing-the-data-into-r-environment" class="level2">
@@ -1114,7 +1127,7 @@ The Choropleth Visualization depicts heightened passenger volumes, notably conce
 <p>From all the Choropleth Visualization above, a few notable observations:</p>
 <ol type="1">
 <li>Woodlands Checkpoint and Johor Bahru Checkpoint consistently exhibit high passenger volumes. This might be attributed to daily commuting between Malaysia and Singapore for work. On weekends, there could be Singaporeans traveling to Malaysia for shopping and leisure activities.</li>
-<li>Orchard and Somerset stations consistently record high passenger volumes, except during the weekday morning peak hours (6 am to 9 am). This high passenger volumes might be due to individuals traveling to central locations for their meals.</li>
+<li>Orchard and Somerset stations consistently record high passenger volumes, except during the weekday morning peak hours (6 am to 9 am). This high passenger volumes might be due to individuals traveling to central locations for their meals. In addition, as it is the central business distinct area, most companies will be in central area. This explains the influx of passenger volumes in these areas<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</li>
 </ol>
 </section>
 </section>
@@ -1765,9 +1778,10 @@ tm_shape prior to each of them).</code></pre>
 </section>
 <section id="conclusion" class="level1">
 <h1><strong>7 Conclusion</strong></h1>
-<p>The passengers volume of the different areas are examined in this study. The persistent issue of extensive waiting times at Woodlands and Tuas checkpoints during peak periods, such as Polling Day and the start of school holidays <a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, along with the appalling 4.5-hour queues experienced on Vesak Day weekend<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>, highlights a critical problem impacting commuters’ daily lives and travel plans.</p>
+<p>The passengers volume of the different areas are examined in this study. The persistent issue of extensive waiting times at Woodlands and Tuas checkpoints during peak periods, such as Polling Day and the start of school holidays <a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>, along with the appalling 4.5-hour queues experienced on Vesak Day weekend<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>, highlights a critical problem impacting commuters’ daily lives and travel plans.</p>
 <p>One possible solution will be to provide real-time updates on traffic conditions and anticipated waiting times through mobile apps, websites, or electronic signboards. This information would enable commuters to plan their journeys more effectively and choose alternative routes if necessary.</p>
 <p>In regions like Tuas and areas adjacent to Gedong Camp, it would be beneficial to establish additional bus stops or enhance bus services to facilitate passenger commutes.</p>
+<p>Further studies are be explored using the Sep and Oct 2023 dataset.</p>
 
 
 </section>
@@ -1779,8 +1793,9 @@ tm_shape prior to each of them).</code></pre>
 <li id="fn1"><p>https://www.statista.com/statistics/1006198/singapore-daily-public-bus-ridership/#:~:text=Daily%20ridership%20of%20public%20buses%20Singapore%202015%2D2022&amp;text=In%202022%2C%20an%20average%20of,COVID%2D19%20and%20its%20measures.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p>https://theindependent.sg/lta-jurong-town-hall-bus-interchange-opens-in-november-2023/<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p>https://www.channelnewsasia.com/singapore/bus-service-167-ridership-falls-lta-commuters-unhappy-3928596<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>https://www.asiaone.com/singapore/waited-bus-1-hour-commuters-stuck-woodlands-tuas-checkpoints-polling-day-september-school-holidays<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>https://mothership.sg/2023/06/jams-sg-jb-causeway-vesak-day/<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>https://www.corporateservicessingapore.com/7-popular-business-locations-singapore/<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>https://www.asiaone.com/singapore/waited-bus-1-hour-commuters-stuck-woodlands-tuas-checkpoints-polling-day-september-school-holidays<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>https://mothership.sg/2023/06/jams-sg-jb-causeway-vesak-day/<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
