@@ -48,7 +48,7 @@ odbus$ORIGIN_PT_CODE <- as.factor(odbus$ORIGIN_PT_CODE)
 odbus$DESTINATION_PT_CODE <- as.factor(odbus$DESTINATION_PT_CODE) 
 ```
 
-For the purpose of this exercise, we will extract commuting flows on weekday and between 6 and 9 o\'clock.
+For the purpose of this exercise, we will extract commuting flows on weekday and between 6 and 9 o'clock.
 
 ```{r}
 odbus6_9 <- odbus %>%
@@ -238,7 +238,12 @@ flowLine <- od2line(flow = od_data_3,
 To visualise the resulting desire lines, the code chunk below is used.
 
 ```{r}
-tm_shape(mpsz) +
+mapex <- st_bbox(hexagon)
+```
+
+```{r}
+tm_shape(mpsz,
+         bbox = mapex) +
   tm_polygons() +
 flowLine %>%  
 tm_shape() +
@@ -252,7 +257,8 @@ tm_shape() +
 When the flow data are very messy and highly skewed like the one shown above, it is wiser to focus on selected flows, for example flow greater than or equal to 5000 as shown below.
 
 ```{r}
-tm_shape(mpsz) +
+tm_shape(mpsz,
+         bbox = mapex) +
   tm_polygons() +
 flowLine %>%  
   filter(MORNING_PEAK >= 5000) %>%
