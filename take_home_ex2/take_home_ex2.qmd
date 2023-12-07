@@ -197,9 +197,8 @@ od_data_2 <- unique(od_data_2)
 
 ```{r}
 od_data_2 <- od_data_2 %>%
-  rename(DESTIN_SZ = SUBZONE_C) %>%
   drop_na() %>%
-  group_by(ORIGIN_SZ, DESTIN_SZ) %>%
+  group_by(FID.x, FID.y) %>%
   summarise(MORNING_PEAK = sum(TRIPS))
 ```
 
@@ -220,7 +219,7 @@ od_data_2 <- read_rds("data/rds/od_data_2.rds")
 I will not plot the intra-zonal flows. The code chunk below will be used to remove intra-zonal flows.
 
 ```{r}
-od_data_3 <- od_data_2[od_data_2$ORIGIN_SZ!=od_data_2$DESTIN_SZ,]
+od_data_3 <- od_data_2[od_data_2$FID.x!=od_data_2$FID.y,]
 ```
 
 ## 5.2 **Creating desire lines**
@@ -229,8 +228,8 @@ In this code chunk below, `od2line()` of **stplanr** package is used to crea
 
 ```{r}
 flowLine <- od2line(flow = od_data_3, 
-                    zones = mpsz,
-                    zone_code = "SUBZONE_C")
+                    zones = hexagon,
+                    zone_code = "FID")
 ```
 
 ## 5.3 **Visualising the desire lines**
@@ -242,6 +241,7 @@ mapex <- st_bbox(hexagon)
 ```
 
 ```{r}
+tmap_mode("plot")
 tm_shape(mpsz,
          bbox = mapex) +
   tm_polygons() +
