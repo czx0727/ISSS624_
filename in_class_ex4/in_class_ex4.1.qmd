@@ -1,0 +1,22 @@
+---
+title: "In Class Exercise 4.1"
+author: "Chai Zhixuan"
+editor: visual
+date: 2023-12-09
+date-format: long
+date-modified: "last-modified"
+---
+
+```{r}
+pacman::p_load(tmap, sf, sp, DT,
+               performance, reshape2,
+               ggpubr, tidyverse)
+```
+
+```{r}
+flow_data <- read_rds("data/rds/flow_data_tidy.rds")
+```
+
+```{r}
+glimpse(flow_data)
+```

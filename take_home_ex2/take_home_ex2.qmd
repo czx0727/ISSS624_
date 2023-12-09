@@ -29,7 +29,7 @@ pacman::p_load(tmap, sf, DT, stplanr,
 
 ### **3.1.1 Importing the OD data**
 
-Firstly, we will import the *Passenger Volume by Origin Destination Bus Stops* data set downloaded from LTA DataMall by using `read_csv()` of **readr** package.
+Firstly, we will import the *Passenger Volume by Origin Destination Bus Stops* data set downloaded from LTA DataMall by using `read_csv()` of **readr** package. Oct 2023 data will be used.
 
 ```{r}
 odbus <- read_csv("data/aspatial/origin_destination_bus_202310.csv")
@@ -80,7 +80,7 @@ For the purpose of this exercise, three geospatial data will be used. They are:
 
 -   MPSZ-2019: This data provides the sub-zone boundary of URA Master Plan 2019.
 
--   Hexagon: analytical hexagon data of 325m (this distance is the perpendicular distance between the centre of the hexagon and its edges) to represent the [traffic analysis zone (TAZ)](https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf).
+-   Hexagon: analytical hexagon data of 375m (this distance is the perpendicular distance between the centre of the hexagon and its edges) to represent the [traffic analysis zone (TAZ)](https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf).
 
 First 2 data sets are in ESRI shapefile format. Last file will be derived from R in the later setion
 
@@ -125,7 +125,7 @@ Now, I am going to create a hexagon layer:
 
 ```{r}
 # cell size of layer of 250m
-area_honeycomb_grid = st_make_grid(busstop_mpsz, c(650, 650), what = "polygons", square = FALSE, crs = 3414)
+area_honeycomb_grid = st_make_grid(busstop_mpsz, c(750, 750), what = "polygons", square = FALSE, crs = 3414)
 
 # To sf and add grid ID
 honeycomb_grid_sf = st_sf(area_honeycomb_grid)
@@ -141,7 +141,7 @@ hexagon <- st_read(dsn = "data/geospatial",
   st_transform(crs = 3414)
 ```
 
-## 4.3 Combine Hexagon and Busstop_Mpzx
+## 4.3 Combine Hexagon and Busstop_Mpsz
 
 Next, we are going to combine the datset busstop_mpsz and hexagon
 
@@ -150,7 +150,25 @@ od_data <- st_join(busstop_mpsz , hexagon,
             by = c("geometry" = "geometry")) 
 ```
 
-## 4.4 Combine odbus6_9 with od_data
+## 4.4 Combine Hexagon and Busstop
+
+Combing Hexagon and busstop will give the hexagon shape to the
+
+```{r}
+hexagon_busstop <- st_join(hexagon, busstop, by = c("FID" = "FID"))
+```
+
+```{r}
+hexagon_busstop <- hexagon_busstop %>%
+  drop_na() %>%
+  group_by(FID)
+```
+
+```{r}
+write_rds(hexagon_busstop, "data/rds/hexagon_busstop.rds")
+```
+
+## 4.5 Combine odbus6_9 with od_data
 
 ```{r}
 od_data_1 <- left_join(odbus6_9 , od_data,
@@ -177,12 +195,14 @@ od_data_1 <- unique(od_data_1)
 
 It will be a good practice to confirm if the duplicating records issue has been addressed fully.
 
-Next, we will update od_data data frame with the planning subzone codes
+Next, we will update od_data data frame with Combine Hexagon and Busstop_Mpsz.
 
 ```{r}
 od_data_2 <- left_join(od_data_1 , od_data,
             by = c("DESTIN_BS" = "BUS_STOP_N")) 
 ```
+
+Before continue, it is a good practice for us to check for duplicating records.
 
 ```{r}
 duplicate <- od_data_2 %>%
@@ -190,6 +210,8 @@ duplicate <- od_data_2 %>%
   filter(n()>1) %>%
   ungroup()
 ```
+
+If duplicated records are found, the code chunk below will be used to retain the unique records.
 
 ```{r}
 od_data_2 <- unique(od_data_2)
@@ -212,14 +234,18 @@ write_rds(od_data_2, "data/rds/od_data_2.rds")
 od_data_2 <- read_rds("data/rds/od_data_2.rds")
 ```
 
-## **5 Visualising Spatial Interaction**
+# **5 Visualising Spatial Interaction**
 
 ## **5.1 Removing intra-zonal flows**
 
-I will not plot the intra-zonal flows. The code chunk below will be used to remove intra-zonal flows.
+I will not plot the intra-zonal flows. The code chunk below will be used to remove intra-zonal flows at the hexagon level. O-D matrix is as shown:
 
 ```{r}
 od_data_3 <- od_data_2[od_data_2$FID.x!=od_data_2$FID.y,]
+```
+
+```{r}
+head(od_data_3)
 ```
 
 ## 5.2 **Creating desire lines**
@@ -237,13 +263,11 @@ flowLine <- od2line(flow = od_data_3,
 To visualise the resulting desire lines, the code chunk below is used.
 
 ```{r}
-mapex <- st_bbox(hexagon)
-```
-
-```{r}
 tmap_mode("plot")
-tm_shape(mpsz,
-         bbox = mapex) +
+tmap_options(check.and.fix = TRUE)
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
   tm_polygons() +
 flowLine %>%  
 tm_shape() +
@@ -254,14 +278,54 @@ tm_shape() +
            alpha = 0.3)
 ```
 
+## 5.4 Morning Peak (Greater than or equal to 5000)
+
 When the flow data are very messy and highly skewed like the one shown above, it is wiser to focus on selected flows, for example flow greater than or equal to 5000 as shown below.
 
 ```{r}
-tm_shape(mpsz,
-         bbox = mapex) +
+tmap_mode("plot")
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
   tm_polygons() +
 flowLine %>%  
   filter(MORNING_PEAK >= 5000) %>%
+tm_shape() +
+  tm_lines(lwd = "MORNING_PEAK",
+           style = "quantile",
+           scale = c(0.1, 1, 3, 5, 7, 10),
+           n = 6,
+           alpha = 0.3)
+```
+
+## 5.5 Morning Peak (Greater than or equal to 10000)
+
+```{r}
+tmap_mode("plot")
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
+  tm_polygons() +
+flowLine %>%  
+  filter(MORNING_PEAK >= 10000) %>%
+tm_shape() +
+  tm_lines(lwd = "MORNING_PEAK",
+           style = "quantile",
+           scale = c(0.1, 1, 3, 5, 7, 10),
+           n = 6,
+           alpha = 0.3)
+```
+
+## 5.6 Morning Peak (Greater than or equal to 50000)
+
+```{r}
+tmap_mode("plot")
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
+  tm_polygons() +
+flowLine %>%  
+  filter(MORNING_PEAK >= 50000) %>%
 tm_shape() +
   tm_lines(lwd = "MORNING_PEAK",
            style = "quantile",
