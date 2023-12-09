@@ -256,6 +256,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#morning-peak-greater-than-or-equal-to-10000" id="toc-morning-peak-greater-than-or-equal-to-10000" class="nav-link" data-scroll-target="#morning-peak-greater-than-or-equal-to-10000">5.5 Morning Peak (Greater than or equal to 10000)</a></li>
   <li><a href="#morning-peak-greater-than-or-equal-to-50000" id="toc-morning-peak-greater-than-or-equal-to-50000" class="nav-link" data-scroll-target="#morning-peak-greater-than-or-equal-to-50000">5.6 Morning Peak (Greater than or equal to 50000)</a></li>
   </ul></li>
+  <li><a href="#assemble-propulsive-and-attractiveness-variables" id="toc-assemble-propulsive-and-attractiveness-variables" class="nav-link" data-scroll-target="#assemble-propulsive-and-attractiveness-variables">6. Assemble propulsive and attractiveness variables</a>
+  <ul class="collapse">
+  <li><a href="#geospatial" id="toc-geospatial" class="nav-link" data-scroll-target="#geospatial">6.1 Geospatial</a></li>
+  <li><a href="#aspatial" id="toc-aspatial" class="nav-link" data-scroll-target="#aspatial">6.2 Aspatial</a></li>
+  </ul></li>
+  <li><a href="#computing-distance-matrix" id="toc-computing-distance-matrix" class="nav-link" data-scroll-target="#computing-distance-matrix">7 <strong>Computing Distance Matrix</strong></a>
+  <ul class="collapse">
+  <li><a href="#converting-from-sf-data.table-to-spatialpolygonsdataframe" id="toc-converting-from-sf-data.table-to-spatialpolygonsdataframe" class="nav-link" data-scroll-target="#converting-from-sf-data.table-to-spatialpolygonsdataframe">7.1 <strong>Converting from sf data.table to SpatialPolygonsDataFrame</strong></a></li>
+  <li><a href="#computing-the-distance-matrix" id="toc-computing-the-distance-matrix" class="nav-link" data-scroll-target="#computing-the-distance-matrix">7.2 <strong>Computing the distance matrix</strong></a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -307,7 +317,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="setting-the-analytical-tools"><strong>2.1 Setting the Analytical Tools</strong></h2>
 <p>The code chunk below installs and loads the various packages</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tmap, sf, DT, stplanr,</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tmap, sf, DT, stplanr, sp,</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               performance,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               ggpubr, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -353,7 +363,7 @@ $ TOTAL_TRIPS         &lt;dbl&gt; 3, 5, 3, 5, 4, 1, 24, 2, 1, 7, 3, 2, 5, 1, 1, 
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>odbus<span class="sc">$</span>ORIGIN_PT_CODE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(odbus<span class="sc">$</span>ORIGIN_PT_CODE)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>odbus<span class="sc">$</span>DESTINATION_PT_CODE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(odbus<span class="sc">$</span>DESTINATION_PT_CODE) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>For the purpose of this exercise, we will extract commuting flows on weekday and between 6 and 9 o’clock.</p>
+<p>For the purpose of this exercise, we will extract commuting flows on weekday and between 6 and 9 o’clock. This will mainly be people going to school or work.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>odbus6_9 <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKDAY"</span>) <span class="sc">%&gt;%</span></span>
@@ -494,7 +504,7 @@ Writing 2299 features with 0 fields and geometry type Polygon.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `hexagon' from data source 
   `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
-Simple feature collection with 31490 features and 1 field
+Simple feature collection with 38387 features and 1 field
 Geometry type: POLYGON
 Dimension:     XY
 Bounding box:  xmin: 3220.122 ymin: 26049.09 xmax: 48970.12 ymax: 50947.32
@@ -536,7 +546,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(odbus6_9, od_data, by = c(ORIGIN_PT_CODE = "BUS_STOP_N")): Detected an unexpected many-to-many relationship between `x` and `y`.
 ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 7393 of `y` matches multiple rows in `x`.
+ℹ Row 9409 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
 </div>
@@ -560,7 +570,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(od_data_1, od_data, by = c(DESTIN_BS = "BUS_STOP_N")): Detected an unexpected many-to-many relationship between `x` and `y`.
 ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 7382 of `y` matches multiple rows in `x`.
+ℹ Row 9395 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
 </div>
@@ -694,6 +704,7 @@ shorter object length</code></pre>
 <p><img src="take_home_ex2_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>For passengers volume greater or equal to 5000, we can observe from the map above that between Woodlands and area such as Tuas, Jurong, Woodlands and Tampines areas. There are also small pockets of areas in the central of Singapore.</p>
 </section>
 <section id="morning-peak-greater-than-or-equal-to-10000" class="level2">
 <h2 class="anchored" data-anchor-id="morning-peak-greater-than-or-equal-to-10000">5.5 Morning Peak (Greater than or equal to 10000)</h2>
@@ -725,6 +736,7 @@ shorter object length</code></pre>
 <p><img src="take_home_ex2_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>For passenger volumes greater than 10,000, we observe in areas between Woodlands and Tuas, and also Woodlands and Tampines.</p>
 </section>
 <section id="morning-peak-greater-than-or-equal-to-50000" class="level2">
 <h2 class="anchored" data-anchor-id="morning-peak-greater-than-or-equal-to-50000">5.6 Morning Peak (Greater than or equal to 50000)</h2>
@@ -758,6 +770,242 @@ shorter object length</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="take_home_ex2_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>For passengers volume equal or greater than 50,000, it is concentrated in Woodlands region.</p>
+</section>
+</section>
+<section id="assemble-propulsive-and-attractiveness-variables" class="level1">
+<h1>6. Assemble propulsive and attractiveness variables</h1>
+<section id="geospatial" class="level2">
+<h2 class="anchored" data-anchor-id="geospatial">6.1 Geospatial</h2>
+<p>For geospatial, I will be using the following:</p>
+<ol type="1">
+<li><em>Business</em></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>business <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"Business"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `Business' from data source 
+  `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
+Simple feature collection with 6550 features and 3 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 3669.148 ymin: 25408.41 xmax: 47034.83 ymax: 50148.54
+Projected CRS: SVY21 / Singapore TM</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(business) <span class="sc">+</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ol start="2" type="1">
+<li><em>FinServ</em></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>finserv <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"FinServ"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `FinServ' from data source 
+  `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
+Simple feature collection with 3320 features and 3 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 4881.527 ymin: 25171.88 xmax: 46526.16 ymax: 49338.02
+Projected CRS: SVY21 / Singapore TM</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(finserv) <span class="sc">+</span></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ol start="3" type="1">
+<li>Train Station Exit Layer</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"Train_Station_Exit_Layer"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `Train_Station_Exit_Layer' from data source 
+  `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
+Simple feature collection with 565 features and 2 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 6134.086 ymin: 27499.7 xmax: 45356.36 ymax: 47865.92
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(train) <span class="sc">+</span></span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ol start="4" type="1">
+<li>Rapid Transit System Station</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>mrt <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"RapidTransitSystemStation"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `RapidTransitSystemStation' from data source 
+  `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in CPL_read_ogr(dsn, layer, query, as.character(options), quiet, : GDAL
+Message 1: Non closed ring detected. To avoid accepting it, set the
+OGR_GEOMETRY_ACCEPT_UNCLOSED_RING configuration option to NO</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 220 features and 4 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 6068.209 ymin: 27478.44 xmax: 45377.5 ymax: 47913.58
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(train) <span class="sc">+</span></span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="aspatial" class="level2">
+<h2 class="anchored" data-anchor-id="aspatial">6.2 Aspatial</h2>
+<p>For aspatial, I will be using the following:</p>
+<ol type="1">
+<li>HDB</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/aspatial/hdb.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>coordinates <span class="ot">&lt;-</span> data[, <span class="fu">c</span>(<span class="st">"lng"</span>, <span class="st">"lat"</span>)]  </span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>spatial_points <span class="ot">&lt;-</span> <span class="fu">SpatialPointsDataFrame</span>(coordinates, data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(spatial_points) <span class="sc">+</span></span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Currect projection of shape spatial_points unknown. Long-lat (WGS84)
+is assumed.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="computing-distance-matrix" class="level1">
+<h1>7 <strong>Computing Distance Matrix</strong></h1>
+<section id="converting-from-sf-data.table-to-spatialpolygonsdataframe" class="level2">
+<h2 class="anchored" data-anchor-id="converting-from-sf-data.table-to-spatialpolygonsdataframe">7.1 <strong>Converting from sf data.table to SpatialPolygonsDataFrame</strong></h2>
+<p>First&nbsp;<a href="https://r-spatial.github.io/sf/reference/coerce-methods.html"><code>as.Spatial()</code></a>&nbsp;will be used to convert&nbsp;<em>mpsz</em>&nbsp;from sf tibble data frame to SpatialPolygonsDataFrame of sp object as shown in the code chunk below</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(hexagon_busstop, <span class="st">"Spatial"</span>)</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_sp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatialPolygonsDataFrame 
+features    : 5152 
+extent      : 3320.122, 48495.12, 26106.82, 50499.87  (xmin, xmax, ymin, ymax)
+crs         : +proj=tmerc +lat_0=1.36666666666667 +lon_0=103.833333333333 +k=1 +x_0=28001.642 +y_0=38744.572 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs 
+variables   : 4
+names       :  FID, BUS_STOP_N, BUS_ROOF_N,       LOC_DESC 
+min values  :    1,      01012,        B01,  18 WOODSVILLE 
+max values  : 2951,      99189,        UNK, ZUELLIG PHARMA </code></pre>
+</div>
+</div>
+</section>
+<section id="computing-the-distance-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="computing-the-distance-matrix">7.2 <strong>Computing the distance matrix</strong></h2>
+<p>Next,&nbsp;<a href="https://www.rdocumentation.org/packages/sp/versions/2.1-1/topics/spDistsN1"><code>spDists()</code></a>&nbsp;of sp package will be used to compute the Euclidean distance between the centroids of the hexagon layer.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>dist <span class="ot">&lt;-</span> <span class="fu">spDists</span>(hexagon_busstop_sp, </span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">longlat =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dist, <span class="at">n=</span><span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]
+ [1,]    0.000  650.000 2343.608 1125.833 1125.833 2978.674 4059.249 1719.738
+ [2,]  650.000    0.000 2251.666  650.000  650.000 2833.284 3953.796 1300.000
+ [3,] 2343.608 2251.666    0.000 1719.738 1719.738  650.000 1719.738 1300.000
+ [4,] 1125.833  650.000 1719.738    0.000    0.000 2251.666 3377.499  650.000
+ [5,] 1125.833  650.000 1719.738    0.000    0.000 2251.666 3377.499  650.000
+ [6,] 2978.674 2833.284  650.000 2251.666 2251.666    0.000 1125.833 1719.738
+ [7,] 4059.249 3953.796 1719.738 3377.499 3377.499 1125.833    0.000 2833.284
+ [8,] 1719.738 1300.000 1300.000  650.000  650.000 1719.738 2833.284    0.000
+ [9,] 2600.000 2343.608  650.000 1719.738 1719.738  650.000 1719.738 1125.833
+[10,] 2600.000 2343.608  650.000 1719.738 1719.738  650.000 1719.738 1125.833
+          [,9]    [,10]
+ [1,] 2600.000 2600.000
+ [2,] 2343.608 2343.608
+ [3,]  650.000  650.000
+ [4,] 1719.738 1719.738
+ [5,] 1719.738 1719.738
+ [6,]  650.000  650.000
+ [7,] 1719.738 1719.738
+ [8,] 1125.833 1125.833
+ [9,]    0.000    0.000
+[10,]    0.000    0.000</code></pre>
 </div>
 </div>
 
