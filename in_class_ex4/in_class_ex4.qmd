@@ -157,3 +157,16 @@ summary(flow_data)
 The print report above reveals that variables *ORIGIN_AGE7_12*, *ORIGIN_AGE13_24*, *ORIGIN_AGE25_64*, *DESTIN_AGE7_12*, *DESTIN_AGE13_24*, *DESTIN_AGE25_64* consist of 0 values.
 
 In view of this, code chunk below will be used to replace zero values to 0.99.
+
+```{r}
+flow_data$SCHOOL_COUNT.y <- ifelse(
+  flow_data$SCHOOL_COUNT.y == 0,
+  0.99, flow_data$SCHOOL_COUNT.y)
+flow_data$BUSINESS_COUNT <- ifelse(
+  flow_data$BUSINESS_COUNT == 0,
+  0.99, flow_data$BUSINESS_COUNT)
+```
+
+```{r}
+summary(flow_data)
+```

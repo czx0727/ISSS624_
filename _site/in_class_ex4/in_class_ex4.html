@@ -567,6 +567,47 @@ First 10 features:
 </div>
 <p>The print report above reveals that variables <em>ORIGIN_AGE7_12</em>, <em>ORIGIN_AGE13_24</em>, <em>ORIGIN_AGE25_64</em>, <em>DESTIN_AGE7_12</em>, <em>DESTIN_AGE13_24</em>, <em>DESTIN_AGE25_64</em> consist of 0 values.</p>
 <p>In view of this, code chunk below will be used to replace zero values to 0.99.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>SCHOOL_COUNT.y <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>SCHOOL_COUNT.y <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.99</span>, flow_data<span class="sc">$</span>SCHOOL_COUNT.y)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>BUSINESS_COUNT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>BUSINESS_COUNT <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.99</span>, flow_data<span class="sc">$</span>BUSINESS_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(flow_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ORIGIN_SZ          DESTIN_SZ             TRIPS             DIST      
+ Length:14734       Length:14734       Min.   :     1   Min.   :   50  
+ Class :character   Class :character   1st Qu.:    14   1st Qu.: 3346  
+ Mode  :character   Mode  :character   Median :    76   Median : 6067  
+                                       Mean   :  1021   Mean   : 6880  
+                                       3rd Qu.:   426   3rd Qu.: 9729  
+                                       Max.   :232187   Max.   :26136  
+ ORIGIN_AGE7_12    ORIGIN_AGE13_24    ORIGIN_AGE25_64    DESTIN_AGE7_12   
+ Min.   :   0.99   Min.   :    0.99   Min.   :    0.99   Min.   :   0.99  
+ 1st Qu.: 240.00   1st Qu.:  440.00   1st Qu.: 2200.00   1st Qu.: 240.00  
+ Median : 700.00   Median : 1350.00   Median : 6810.00   Median : 720.00  
+ Mean   :1031.86   Mean   : 2268.84   Mean   :10487.62   Mean   :1033.40  
+ 3rd Qu.:1480.00   3rd Qu.: 3260.00   3rd Qu.:15770.00   3rd Qu.:1500.00  
+ Max.   :6340.00   Max.   :16380.00   Max.   :74610.00   Max.   :6340.00  
+ DESTIN_AGE13_24    DESTIN_AGE25_64    SCHOOL_COUNT.x    RETAIL_COUNT   
+ Min.   :    0.99   Min.   :    0.99   Min.   : 0.990   Min.   :  0.99  
+ 1st Qu.:  460.00   1st Qu.: 2200.00   1st Qu.: 0.990   1st Qu.:  0.99  
+ Median : 1420.00   Median : 7030.00   Median : 1.000   Median :  3.00  
+ Mean   : 2290.35   Mean   :10574.46   Mean   : 1.987   Mean   : 16.47  
+ 3rd Qu.: 3260.00   3rd Qu.:15830.00   3rd Qu.: 2.000   3rd Qu.: 12.00  
+ Max.   :16380.00   Max.   :74610.00   Max.   :12.000   Max.   :307.00  
+ SCHOOL_COUNT.y   BUSINESS_COUNT            geometry    
+ Min.   : 0.990   Min.   :  0.99   LINESTRING   :14734  
+ 1st Qu.: 0.990   1st Qu.:  0.99   epsg:3414    :    0  
+ Median : 1.000   Median :  3.00   +proj=tmer...:    0  
+ Mean   : 1.984   Mean   : 16.47                        
+ 3rd Qu.: 2.000   3rd Qu.: 12.00                        
+ Max.   :12.000   Max.   :307.00                        </code></pre>
+</div>
+</div>
 
 
 </section>
