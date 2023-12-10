@@ -1,0 +1,45 @@
+---
+title: "In-class Exercise 4: Calibrating Spatial Interaction Models with R"
+author: "Chai Zhixuan"
+editor: visual
+date: 2023-12-10
+date-format: long
+date-modified: "last-modified"
+---
+
+## **Overview**
+
+This in-class exercise is a continuation of Hands-on Exercise 3, In-class Exercise 3 and In-class Exercise 4: Preparing Spatial Interaction Modelling Variables. We will continue our journey of calibrating Spatial Interaction Models by using propulsiveness and attractiveness variables prepared in earlier in-class exercise.
+
+## **Getting Started**
+
+```{r}
+pacman::p_load(tmap, sf, performance, knitr,
+               AER, MASS, ggpubr, tidyverse,
+               epiDisplay)
+```
+
+## **The Data**
+
+```{r}
+flow_data <- read_rds("data/rds/flow_data_tidy.rds")
+```
+
+```{r}
+glimpse(flow_data)
+```
+
+```{r}
+kable(head(flow_data[, 1:5], n = 5))
+```
+
+### **Preparing inter-zonal flow data**
+
+```{r}
+# flow_data$FlowNoIntra <- ifelse(
+#   flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 
+#   0, flow_data$TRIPS)
+# flow_data$offset <- ifelse(
+#   flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 
+#   0.000001, 1)
+```

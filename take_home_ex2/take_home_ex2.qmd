@@ -340,7 +340,7 @@ tm_shape() +
 
 For passengers volume equal or greater than 50,000, it is concentrated in Woodlands region.
 
-# 6. Assemble propulsive and attractiveness variables
+# 6 Assemble propulsive and attractiveness variables
 
 ## 6.1 Geospatial
 
@@ -760,3 +760,266 @@ write_rds(distPair, "data/rds/distPair.rds")
 # 8 Spatial Interaction Modelling
 
 ## 8.1 Preparing Flow Data
+
+```{r}
+head(flow_data, 10)
+```
+
+### **8.1.1 Separating intra-flow from passenger volume df**
+
+Code chunk below is used to add three new fields in `flow_data` dataframe.
+
+```{r}
+flow_data$FlowNoIntra <- ifelse(
+  flow_data$FID.x == flow_data$FID.y, 
+  0, flow_data$MORNING_PEAK)
+flow_data$offset <- ifelse(
+  flow_data$FID.x == flow_data$FID.y, 
+  0.000001, 1)
+```
+
+### 8.1.2 **Combining flow data with distance value**
+
+```{r}
+flow_data$FID.x <- as.factor(flow_data$FID.x)
+flow_data$FID.y <- as.factor(flow_data$FID.y)
+```
+
+Now, `left_join()` of **dplyr** will be used to *flow_data* dataframe and *distPair* dataframe. The output is called *flow_data1*.
+
+```{r}
+flow_data$FID.x <- as.integer(as.character(flow_data$FID.x))
+flow_data$FID.y <- as.integer(as.character(flow_data$FID.y))
+
+
+flow_data1 <- flow_data %>%
+  left_join (distPair,
+             by = c("FID.x" = "orig",
+                    "FID.y" = "dest"))
+```
+
+We will remove duplicate
+
+```{r}
+duplicate <- flow_data1 %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
+```
+
+```{r}
+flow_data1 <- unique(flow_data1)
+```
+
+We will called the output data file *SIM_data*. it is in rds data file format.
+
+```{r}
+write_rds(flow_data1, "data/rds/SIM_data.rds")
+```
+
+## **8.2 Calibrating Spatial Interaction Models**
+
+### 8.2.1 **Importing the modelling data**
+
+```{r}
+SIM_data <- read_rds("data/rds/SIM_data.rds")
+```
+
+### 8.2.2 **Visualising the dependent variable**
+
+```{r}
+ggplot(data = SIM_data,
+       aes(x = MORNING_PEAK)) +
+  geom_histogram()
+```
+
+Notice that the distribution is highly skewed and not resemble bell shape or also known as normal distribution.
+
+Next, let us visualise the relation between the dependent variable and one of the key independent variable in Spatial Interaction Model, namely distance.
+
+```{r}
+ggplot(data = SIM_data,
+       aes(x = dist,
+           y = MORNING_PEAK)) +
+  geom_point() +
+  geom_smooth(method = lm)
+```
+
+.
+
+### **8.2.3 Checking for variables with zero values**
+
+Since Poisson Regression is based of log and log 0 is undefined, it is important for us to ensure that no 0 values in the explanatory variables.
+
+In the code chunk below, summary() of Base R is used to compute the summary statistics of all variables in *SIM_data* data frame.
+
+```{r}
+summary(SIM_data)
+```
+
+Since we have replaced the zero values. No further action is required.
+
+Change FID.x and FID.y to character
+
+```{r}
+SIM_data$FID.x <- as.character(SIM_data$FID.x)
+SIM_data$FID.y <- as.character(SIM_data$FID.y)
+```
+
+Inter-zonal flow will be selected from flow_data and save into a new output data.frame called *inter_zonal_flow* by using the code chunk below.
+
+```{r}
+inter_zonal_flow <- SIM_data %>%
+  filter(FlowNoIntra > 0)
+```
+
+```{r}
+summary(inter_zonal_flow)
+```
+
+Remove NA:
+
+```{r}
+inter_zonal_flow <- na.omit(inter_zonal_flow)
+```
+
+```{r}
+summary(inter_zonal_flow)
+```
+
+## 8.3 **Origin (Production) constrained SIM**
+
+The code chunk used to calibrate to model is shown below. FID.x is the origin:
+
+```{r}
+orcSIM <- glm(formula = MORNING_PEAK ~ 
+                  FID.x +
+                  log(SCHOOL_COUNT)+
+                  log(BUSINESS_COUNT)+
+                  log(FINANCE_COUNT)+
+                  log(HDB_COUNT)+
+                  log(TRAIN_COUNT)+
+                  log(dist) - 1,
+              family = poisson(link = "log"),
+              data = inter_zonal_flow,
+              na.action = na.exclude)
+summary(orcSIM)
+```
+
+### 8.3.1 **Goodness of fit**
+
+```{r}
+CalcRSquared <- function(observed, estimated){
+  r <- cor(observed, estimated)
+  R2 <- r^2
+  R2
+}
+```
+
+```{r}
+CalcRSquared(orcSIM$data$MORNING_PEAK, orcSIM$fitted.values)
+```
+
+## 8.4 **Doubly constrained model**
+
+```{r}
+dbcSIM_Poisson <- glm(formula = MORNING_PEAK ~ 
+                  FID.x +
+                  FID.y +
+                  log(SCHOOL_COUNT)+
+                  log(BUSINESS_COUNT)+
+                  log(FINANCE_COUNT)+
+                  log(HDB_COUNT)+
+                  log(TRAIN_COUNT)+
+                  log(dist),
+              family = poisson(link = "log"),
+              data = inter_zonal_flow,
+              na.action = na.exclude)
+summary(dbcSIM_Poisson)
+```
+
+```{r}
+CalcRSquared(dbcSIM_Poisson$data$MORNING_PEAK,
+             dbcSIM_Poisson$fitted.values)
+```
+
+# 8.5 **Model comparison**
+
+## 8.5.1 **Statistical measures**
+
+First of all, let us create a list called *model_list* by using the code chunk below.
+
+```{r}
+model_list <- list(
+  Origin_Constrained = orcSIM,
+  Doubly_Constrained = dbcSIM_Poisson)
+```
+
+Next, we will compute the RMSE of all the models in *model_list* file by using the code chunk below.
+
+```{r}
+compare_performance(model_list,
+                    metrics = "RMSE")
+```
+
+The print above reveals that doubly constrained SIM is the best model among the two SIMs because it has the smallest RMSE value of 970.640.
+
+## 8.5.2 **Visualising fitted values**
+
+Firstly we will extract the fitted values from Origin-constrained Model by using the code chunk below.
+
+```{r}
+df <- as.data.frame(orcSIM$fitted.values) %>%
+  round(digits = 0)
+```
+
+Next, we will append the fitted values into *inter_zonal_flow* data frame by using the code chunk below.
+
+```{r}
+inter_zonal_flow <- inter_zonal_flow %>%
+  cbind(df) %>%
+  rename(orcTRIPS = "orcSIM$fitted.values")
+```
+
+I will do the same for dbcSIM_Poisson
+
+```{r}
+df1 <- as.data.frame(dbcSIM_Poisson$fitted.values) %>%
+  round(digits = 0)
+```
+
+```{r}
+inter_zonal_flow <- inter_zonal_flow %>%
+  cbind(df1) %>%
+  rename(dbcTRIPS = "dbcSIM_Poisson$fitted.values")
+```
+
+Next, two scatterplots will be created by using [`geom_point()`](https://ggplot2.tidyverse.org/reference/geom_point.html) and other appropriate functions of [**ggplot2**](https://ggplot2.tidyverse.org/) package.
+
+```{r}
+orc_p <- ggplot(data = inter_zonal_flow,
+                aes(x = orcTRIPS,
+                    y = MORNING_PEAK)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,100000),
+                  ylim=c(0,100000))
+
+dbc_p <- ggplot(data = inter_zonal_flow,
+                aes(x = dbcTRIPS,
+                    y = MORNING_PEAK)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,100000),
+                  ylim=c(0,100000))
+```
+
+Now, we will put all the graphs into a single visual for better comparison by using the code chunk below.
+
+```{r}
+ggarrange(orc_p, dbc_p,
+          ncol = 2,
+          nrow = 1)
+```
+
+# 9 Modelling Results
