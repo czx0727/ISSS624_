@@ -181,7 +181,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../in_class_ex3/in_class_ex3.html" rel="" target="">
  <span class="dropdown-text">In-class Exercise 3</span></a>
   </li>  
-        <li class="dropdown-header">In-class Exercise 4</li>
+        <li>
+    <a class="dropdown-item" href="../in_class_ex4/in_class_ex4.html" rel="" target="">
+ <span class="dropdown-text">In-class Exercise 4</span></a>
+  </li>  
         <li class="dropdown-header">In-class Exercise 5</li>
     </ul>
   </li>
@@ -266,6 +269,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#converting-from-sf-data.table-to-spatialpolygonsdataframe" id="toc-converting-from-sf-data.table-to-spatialpolygonsdataframe" class="nav-link" data-scroll-target="#converting-from-sf-data.table-to-spatialpolygonsdataframe">7.1 <strong>Converting from sf data.table to SpatialPolygonsDataFrame</strong></a></li>
   <li><a href="#computing-the-distance-matrix" id="toc-computing-the-distance-matrix" class="nav-link" data-scroll-target="#computing-the-distance-matrix">7.2 <strong>Computing the distance matrix</strong></a></li>
   </ul></li>
+  <li><a href="#spatial-interaction-modelling" id="toc-spatial-interaction-modelling" class="nav-link" data-scroll-target="#spatial-interaction-modelling">8 Spatial Interaction Modelling</a>
+  <ul class="collapse">
+  <li><a href="#preparing-flow-data" id="toc-preparing-flow-data" class="nav-link" data-scroll-target="#preparing-flow-data">8.1 Preparing Flow Data</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -298,7 +305,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 9, 2023</p>
+      <p class="date-modified">December 10, 2023</p>
     </div>
   </div>
     
@@ -318,7 +325,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The code chunk below installs and loads the various packages</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tmap, sf, DT, stplanr, sp,</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               performance,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               performance,reshape2,httr,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               ggpubr, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
@@ -329,7 +336,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="data"><strong>3.1 Data</strong></h2>
 <section id="importing-the-od-data" class="level3">
 <h3 class="anchored" data-anchor-id="importing-the-od-data"><strong>3.1.1 Importing the OD data</strong></h3>
-<p>Firstly, we will import the&nbsp;<em>Passenger Volume by Origin Destination Bus Stops</em>&nbsp;data set downloaded from LTA DataMall by using&nbsp;<code>read_csv()</code>&nbsp;of&nbsp;<strong>readr</strong>&nbsp;package. Oct 2023 data will be used.</p>
+<p>Firstly, we will import the&nbsp;<em>Passenger Volume by Origin Destination Bus Stops</em>&nbsp;data set downloaded from LTA DataMall by using&nbsp;<code>read_csv()</code>&nbsp;of&nbsp;<strong>readr</strong>&nbsp;package. Oct 2023 data will be used. Detailed explanation of how the dataset is obtained is in Take Home Exercise 1.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>odbus <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/origin_destination_bus_202310.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -504,7 +511,7 @@ Writing 2299 features with 0 fields and geometry type Polygon.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `hexagon' from data source 
   `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
-Simple feature collection with 38387 features and 1 field
+Simple feature collection with 42985 features and 1 field
 Geometry type: POLYGON
 Dimension:     XY
 Bounding box:  xmin: 3220.122 ymin: 26049.09 xmax: 48970.12 ymax: 50947.32
@@ -546,7 +553,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(odbus6_9, od_data, by = c(ORIGIN_PT_CODE = "BUS_STOP_N")): Detected an unexpected many-to-many relationship between `x` and `y`.
 ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 9409 of `y` matches multiple rows in `x`.
+ℹ Row 10753 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
 </div>
@@ -570,7 +577,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(od_data_1, od_data, by = c(DESTIN_BS = "BUS_STOP_N")): Detected an unexpected many-to-many relationship between `x` and `y`.
 ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 9395 of `y` matches multiple rows in `x`.
+ℹ Row 10737 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
 </div>
@@ -631,7 +638,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 </section>
 <section id="creating-desire-lines" class="level2">
 <h2 class="anchored" data-anchor-id="creating-desire-lines">5.2 <strong>Creating desire lines</strong></h2>
-<p>In this code chunk below,&nbsp;<code>od2line()</code>&nbsp;of&nbsp;<strong>stplanr</strong>&nbsp;package is used to create the desire lines.</p>
+<p>In this code chunk below,&nbsp;<code>od2line()</code>&nbsp;of&nbsp;<strong>stplanr</strong>&nbsp;package is used to create the desire lines at the hexagon layer.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>flowLine <span class="ot">&lt;-</span> <span class="fu">od2line</span>(<span class="at">flow =</span> od_data_3, </span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">zones =</span> hexagon,</span>
@@ -781,7 +788,7 @@ shorter object length</code></pre>
 <h2 class="anchored" data-anchor-id="geospatial">6.1 Geospatial</h2>
 <p>For geospatial, I will be using the following:</p>
 <ol type="1">
-<li><em>Business</em></li>
+<li><em>Business:</em> This dataset is used to illustrated people commuting to work</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>business <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
@@ -798,28 +805,42 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop<span class="sc">$</span><span class="st">`</span><span class="at">BUSINESS_COUNT</span><span class="st">`</span><span class="ot">&lt;-</span> <span class="fu">lengths</span>(</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_intersects</span>(</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>    hexagon_busstop, business))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hexagon_busstop<span class="sc">$</span>BUSINESS_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   0.000   0.000   5.696   5.000 117.000 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>tmap mode set to plotting</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
-<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(business) <span class="sc">+</span></span>
-<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_busstop) <span class="sc">+</span></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(business) <span class="sc">+</span></span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid" width="672"></p>
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <ol start="2" type="1">
-<li><em>FinServ</em></li>
+<li><em>FinServ:</em> This dataset is used to illustrate people working in the financial services sector</li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>finserv <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"FinServ"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>finserv <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"FinServ"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `FinServ' from data source 
   `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
@@ -831,28 +852,42 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop<span class="sc">$</span><span class="st">`</span><span class="at">FINANCE_COUNT</span><span class="st">`</span><span class="ot">&lt;-</span> <span class="fu">lengths</span>(</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_intersects</span>(</span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>    hexagon_busstop, finserv))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hexagon_busstop<span class="sc">$</span>FINANCE_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   0.000   1.000   4.286   5.000  91.000 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>tmap mode set to plotting</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
-<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
-<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(finserv) <span class="sc">+</span></span>
-<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_busstop) <span class="sc">+</span></span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(finserv) <span class="sc">+</span></span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="672"></p>
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <ol start="3" type="1">
-<li>Train Station Exit Layer</li>
+<li>Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop</li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
-<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"Train_Station_Exit_Layer"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"Train_Station_Exit_Layer"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `Train_Station_Exit_Layer' from data source 
   `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
@@ -864,28 +899,42 @@ Projected CRS: SVY21</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop<span class="sc">$</span><span class="st">`</span><span class="at">TRAIN_COUNT</span><span class="st">`</span><span class="ot">&lt;-</span> <span class="fu">lengths</span>(</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_intersects</span>(</span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>    hexagon_busstop, train))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hexagon_busstop<span class="sc">$</span>TRAIN_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   0.000   0.000   0.749   1.000  11.000 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>tmap mode set to plotting</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
-<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
-<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(train) <span class="sc">+</span></span>
-<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_busstop) <span class="sc">+</span></span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(train) <span class="sc">+</span></span>
+<span id="cb93-6"><a href="#cb93-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid" width="672"></p>
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-48-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <ol start="4" type="1">
 <li>Rapid Transit System Station</li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>mrt <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
-<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"RapidTransitSystemStation"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>mrt <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"RapidTransitSystemStation"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `RapidTransitSystemStation' from data source 
   `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'</code></pre>
@@ -904,20 +953,48 @@ Projected CRS: SVY21</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>tmap mode set to plotting</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
-<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
-<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(train) <span class="sc">+</span></span>
-<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_busstop) <span class="sc">+</span></span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(train) <span class="sc">+</span></span>
+<span id="cb101-7"><a href="#cb101-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid" width="672"></p>
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-50-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>tmap_options(check.and.fix = TRUE) is used as Non closed ring is detected in this dataset</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Due to issue with the shape file, it will not be used in <strong>Spatial Interaction Models</strong></p>
 </div>
 </div>
 </section>
@@ -925,35 +1002,311 @@ Projected CRS: SVY21</code></pre>
 <h2 class="anchored" data-anchor-id="aspatial">6.2 Aspatial</h2>
 <p>For aspatial, I will be using the following:</p>
 <ol type="1">
-<li>HDB</li>
+<li>HDB: This dataset is used to understand the location of HBD in the hexagon layer</li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/aspatial/hdb.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/aspatial/hdb.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>coordinates <span class="ot">&lt;-</span> data[, <span class="fu">c</span>(<span class="st">"lng"</span>, <span class="st">"lat"</span>)]  </span>
-<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>spatial_points <span class="ot">&lt;-</span> <span class="fu">SpatialPointsDataFrame</span>(coordinates, data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>coordinates <span class="ot">&lt;-</span> data[, <span class="fu">c</span>(<span class="st">"lng"</span>, <span class="st">"lat"</span>)]  </span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>spatial_points <span class="ot">&lt;-</span> <span class="fu">SpatialPointsDataFrame</span>(coordinates, data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Convert to CRS3414:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a SpatialPoints object</span></span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>coordinates <span class="ot">&lt;-</span> data[, <span class="fu">c</span>(<span class="st">"lng"</span>, <span class="st">"lat"</span>)]</span>
+<span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a>spatial_points <span class="ot">&lt;-</span> <span class="fu">SpatialPoints</span>(<span class="at">coords =</span> coordinates)</span>
+<span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-5"><a href="#cb105-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the current CRS (WGS84 - EPSG:4326)</span></span>
+<span id="cb105-6"><a href="#cb105-6" aria-hidden="true" tabindex="-1"></a><span class="fu">proj4string</span>(spatial_points) <span class="ot">&lt;-</span> <span class="fu">CRS</span>(<span class="st">"+proj=longlat +datum=WGS84"</span>)</span>
+<span id="cb105-7"><a href="#cb105-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-8"><a href="#cb105-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert SpatialPoints to an sf object</span></span>
+<span id="cb105-9"><a href="#cb105-9" aria-hidden="true" tabindex="-1"></a>sf_points <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(spatial_points)</span>
+<span id="cb105-10"><a href="#cb105-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-11"><a href="#cb105-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define EPSG:3414 CRS</span></span>
+<span id="cb105-12"><a href="#cb105-12" aria-hidden="true" tabindex="-1"></a>epsg_3414_crs <span class="ot">&lt;-</span> <span class="fu">st_crs</span>(<span class="dv">3414</span>)</span>
+<span id="cb105-13"><a href="#cb105-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-14"><a href="#cb105-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform the sf object to EPSG:3414</span></span>
+<span id="cb105-15"><a href="#cb105-15" aria-hidden="true" tabindex="-1"></a>sf_points_3414 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(sf_points, <span class="at">crs =</span> epsg_3414_crs)</span>
+<span id="cb105-16"><a href="#cb105-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb105-17"><a href="#cb105-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert back to SpatialPoints</span></span>
+<span id="cb105-18"><a href="#cb105-18" aria-hidden="true" tabindex="-1"></a>spatial_points_3414 <span class="ot">&lt;-</span> <span class="fu">as</span>(sf_points_3414, <span class="st">"Spatial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>tmap mode set to plotting</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
-<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
-<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(spatial_points) <span class="sc">+</span></span>
-<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_busstop) <span class="sc">+</span></span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(spatial_points_3414) <span class="sc">+</span></span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
 </div>
+<div class="cell-output-display">
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-54-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>sf_spatial_points_3414 <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(spatial_points_3414)</span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>intersections <span class="ot">&lt;-</span> <span class="fu">st_intersects</span>(hexagon_busstop, sf_spatial_points_3414)</span>
+<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-5"><a href="#cb110-5" aria-hidden="true" tabindex="-1"></a>hexagon_busstop<span class="sc">$</span>HDB_COUNT <span class="ot">&lt;-</span> <span class="fu">lengths</span>(intersections)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hexagon_busstop<span class="sc">$</span>HDB_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.00    0.00    8.00   17.66   32.00   74.00 </code></pre>
+</div>
+</div>
+<ol start="2" type="1">
+<li><em>School Directory and Information</em> - Dataset is taken from <a href="https://beta.data.gov.sg/">Data@Gov</a>. This information is useful as the morning period will consist of students going to school</li>
+</ol>
+<p>Concepts learned from In-Class Ex 4 will be used to extract the data from SLA API</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>url<span class="ot">&lt;-</span><span class="st">"https://www.onemap.gov.sg/api/common/elastic/search"</span></span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>csv<span class="ot">&lt;-</span><span class="fu">read_csv</span>(<span class="st">"data/aspatial/Generalinformationofschools.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Currect projection of shape spatial_points unknown. Long-lat (WGS84)
-is assumed.</code></pre>
+<pre><code>Rows: 346 Columns: 31
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (31): school_name, url_address, address, postal_code, telephone_no, tele...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>postcodes<span class="ot">&lt;-</span>csv<span class="sc">$</span><span class="st">`</span><span class="at">postal_code</span><span class="st">`</span></span>
+<span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a>found<span class="ot">&lt;-</span><span class="fu">data.frame</span>()</span>
+<span id="cb115-4"><a href="#cb115-4" aria-hidden="true" tabindex="-1"></a>not_found<span class="ot">&lt;-</span><span class="fu">data.frame</span>()</span>
+<span id="cb115-5"><a href="#cb115-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-6"><a href="#cb115-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(postcode <span class="cf">in</span> postcodes){</span>
+<span id="cb115-7"><a href="#cb115-7" aria-hidden="true" tabindex="-1"></a>  query<span class="ot">&lt;-</span><span class="fu">list</span>(<span class="st">'searchVal'</span><span class="ot">=</span>postcode,<span class="st">'returnGeom'</span><span class="ot">=</span><span class="st">'Y'</span>,<span class="st">'getAddrDetails'</span><span class="ot">=</span><span class="st">'Y'</span>,<span class="st">'pageNum'</span><span class="ot">=</span><span class="st">'1'</span>)</span>
+<span id="cb115-8"><a href="#cb115-8" aria-hidden="true" tabindex="-1"></a>  res<span class="ot">&lt;-</span> <span class="fu">GET</span>(url,<span class="at">query=</span>query)</span>
+<span id="cb115-9"><a href="#cb115-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb115-10"><a href="#cb115-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>((<span class="fu">content</span>(res)<span class="sc">$</span>found)<span class="sc">!=</span><span class="dv">0</span>){</span>
+<span id="cb115-11"><a href="#cb115-11" aria-hidden="true" tabindex="-1"></a>    found<span class="ot">&lt;-</span><span class="fu">rbind</span>(found,<span class="fu">data.frame</span>(<span class="fu">content</span>(res))[<span class="dv">4</span><span class="sc">:</span><span class="dv">13</span>])</span>
+<span id="cb115-12"><a href="#cb115-12" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span>{</span>
+<span id="cb115-13"><a href="#cb115-13" aria-hidden="true" tabindex="-1"></a>    not_found <span class="ot">=</span> <span class="fu">data.frame</span>(postcode)</span>
+<span id="cb115-14"><a href="#cb115-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb115-15"><a href="#cb115-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, the code chunk below will be used to combine both&nbsp;<em>found</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;data.frames into a single tibble data.frame called&nbsp;<em>merged</em>. At the same time, we will write&nbsp;<em>merged</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;tibble data.frames into two separate csv files called&nbsp;<em>schools</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;respectively.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">=</span> <span class="fu">merge</span>(csv, found, <span class="at">by.x =</span> <span class="st">'postal_code'</span>, <span class="at">by.y =</span> <span class="st">'results.POSTAL'</span>, <span class="at">all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(merged, <span class="at">file =</span> <span class="st">"data/aspatial/schools.csv"</span>)</span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(not_found, <span class="at">file =</span> <span class="st">"data/aspatial/not_found.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>I will manually clean up for ZhengHua Secondary School (<a href="https://www.google.com/search?q=zhenghua+secondary+school&amp;rlz=1C1YTUH_enSG1024SG1038&amp;oq=zhe&amp;gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7Mg0IARAuGK8BGMcBGIAEMgYIAhBFGEAyBggDEEUYOTIKCAQQLhixAxiABDINCAUQLhivARjHARiABDINCAYQLhiDARixAxiABDIGCAcQRRg80gEIMzMyM2owajeoAgCwAgA&amp;sourceid=chrome&amp;ie=UTF-8">link</a>). File is saved as schools1.csv</p>
+<p>Next, I will import&nbsp;<em>schools1.csv</em>&nbsp;into R environment and at the same time tidying the data by selecting only the necessary fields as well as rename some fields.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>schools <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/schools1.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb117-2"><a href="#cb117-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">latitude =</span> <span class="st">"results.LATITUDE"</span>,</span>
+<span id="cb117-3"><a href="#cb117-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">longitude =</span> <span class="st">"results.LONGITUDE"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb117-4"><a href="#cb117-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(postal_code, school_name, latitude, longitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+Rows: 350 Columns: 41
+── Column specification
+──────────────────────────────────────────────────────── Delimiter: "," chr
+(35): school_name, url_address, address, telephone_no, telephone_no_2, f... dbl
+(6): ...1, postal_code, results.X, results.Y, results.LATITUDE, results...
+ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+Specify the column types or set `show_col_types = FALSE` to quiet this message.
+• `` -&gt; `...1`</code></pre>
+</div>
+</div>
+<p>I convert schools1 tibble data.frame data into a simple feature tibble data.frame called&nbsp;<em>schools_sf</em>&nbsp;by using values in latitude and longitude fields.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>schools_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(schools, </span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
+<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">crs=</span><span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb119-4"><a href="#cb119-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Plot is shown below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_busstop) <span class="sc">+</span></span>
+<span id="cb120-5"><a href="#cb120-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb120-6"><a href="#cb120-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(schools_sf) <span class="sc">+</span></span>
+<span id="cb120-7"><a href="#cb120-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid" width="672"></p>
+<p><img src="take_home_ex2_files/figure-html/unnamed-chunk-61-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>I will count count the number of schools located inside the hexagon layer.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop<span class="sc">$</span><span class="st">`</span><span class="at">SCHOOL_COUNT</span><span class="st">`</span><span class="ot">&lt;-</span> <span class="fu">lengths</span>(</span>
+<span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_intersects</span>(</span>
+<span id="cb122-3"><a href="#cb122-3" aria-hidden="true" tabindex="-1"></a>    hexagon_busstop, schools_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>I will examine the summary statistics of the derived variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(hexagon_busstop<span class="sc">$</span><span class="st">`</span><span class="at">SCHOOL_COUNT</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.0000  0.0000  0.4354  1.0000  5.0000 </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If&nbsp;<code>log()</code>&nbsp;is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1.</p>
+</div>
+</div>
+<p>The data will be joined with od_data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_tidy <span class="ot">&lt;-</span> hexagon_busstop <span class="sc">%&gt;%</span></span>
+<span id="cb125-2"><a href="#cb125-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb125-3"><a href="#cb125-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(FID, SCHOOL_COUNT, BUSINESS_COUNT, FINANCE_COUNT,TRAIN_COUNT,HDB_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>flow_data <span class="ot">&lt;-</span> od_data_2 <span class="sc">%&gt;%</span></span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(hexagon_busstop_tidy,</span>
+<span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"FID.y"</span> <span class="ot">=</span> <span class="st">"FID"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in left_join(., hexagon_busstop_tidy, by = c(FID.y = "FID")): Detected an unexpected many-to-many relationship between `x` and `y`.
+ℹ Row 1 of `x` matches multiple rows in `y`.
+ℹ Row 9 of `y` matches multiple rows in `x`.
+ℹ If a many-to-many relationship is expected, set `relationship =
+  "many-to-many"` to silence this warning.</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>FID.y is the destination. It is unique join field between od_data_2 and hexagon_busstop_tidy.</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(flow_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     FID.x          FID.y       MORNING_PEAK      SCHOOL_COUNT   
+ Min.   :   1   Min.   :   1   Min.   :    1.0   Min.   :0.0000  
+ 1st Qu.:1338   1st Qu.:1337   1st Qu.:    7.0   1st Qu.:0.0000  
+ Median :1709   Median :1723   Median :   34.0   Median :0.0000  
+ Mean   :1689   Mean   :1682   Mean   :  343.3   Mean   :0.4483  
+ 3rd Qu.:2049   3rd Qu.:2033   3rd Qu.:  160.0   3rd Qu.:1.0000  
+ Max.   :2951   Max.   :2951   Max.   :74894.0   Max.   :5.0000  
+                                                 NA's   :144     
+ BUSINESS_COUNT   FINANCE_COUNT     TRAIN_COUNT       HDB_COUNT    
+ Min.   :  0.00   Min.   : 0.000   Min.   : 0.000   Min.   : 0.00  
+ 1st Qu.:  0.00   1st Qu.: 1.000   1st Qu.: 0.000   1st Qu.: 0.00  
+ Median :  1.00   Median : 4.000   Median : 0.000   Median :13.00  
+ Mean   :  5.84   Mean   : 8.147   Mean   : 1.356   Mean   :19.04  
+ 3rd Qu.:  5.00   3rd Qu.: 9.000   3rd Qu.: 2.000   3rd Qu.:33.00  
+ Max.   :117.00   Max.   :91.000   Max.   :11.000   Max.   :74.00  
+ NA's   :144      NA's   :144      NA's   :144      NA's   :144    </code></pre>
+</div>
+</div>
+<p>The code chunk below will be used to replace zero values to 0.99.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>SCHOOL_COUNT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>SCHOOL_COUNT <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.99</span>, flow_data<span class="sc">$</span>SCHOOL_COUNT)</span>
+<span id="cb130-4"><a href="#cb130-4" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>BUSINESS_COUNT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb130-5"><a href="#cb130-5" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>BUSINESS_COUNT <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb130-6"><a href="#cb130-6" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.99</span>, flow_data<span class="sc">$</span>BUSINESS_COUNT)</span>
+<span id="cb130-7"><a href="#cb130-7" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>FINANCE_COUNT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb130-8"><a href="#cb130-8" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>FINANCE_COUNT <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb130-9"><a href="#cb130-9" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.99</span>, flow_data<span class="sc">$</span>FINANCE_COUNT)</span>
+<span id="cb130-10"><a href="#cb130-10" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>TRAIN_COUNT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb130-11"><a href="#cb130-11" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>TRAIN_COUNT <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb130-12"><a href="#cb130-12" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.99</span>, flow_data<span class="sc">$</span>TRAIN_COUNT)</span>
+<span id="cb130-13"><a href="#cb130-13" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>HDB_COUNT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb130-14"><a href="#cb130-14" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>HDB_COUNT <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb130-15"><a href="#cb130-15" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.99</span>, flow_data<span class="sc">$</span>HDB_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb131"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(flow_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     FID.x          FID.y       MORNING_PEAK      SCHOOL_COUNT  
+ Min.   :   1   Min.   :   1   Min.   :    1.0   Min.   :0.990  
+ 1st Qu.:1338   1st Qu.:1337   1st Qu.:    7.0   1st Qu.:0.990  
+ Median :1709   Median :1723   Median :   34.0   Median :0.990  
+ Mean   :1689   Mean   :1682   Mean   :  343.3   Mean   :1.119  
+ 3rd Qu.:2049   3rd Qu.:2033   3rd Qu.:  160.0   3rd Qu.:1.000  
+ Max.   :2951   Max.   :2951   Max.   :74894.0   Max.   :5.000  
+                                                 NA's   :144    
+ BUSINESS_COUNT    FINANCE_COUNT     TRAIN_COUNT       HDB_COUNT    
+ Min.   :  0.990   Min.   : 0.990   Min.   : 0.990   Min.   : 0.99  
+ 1st Qu.:  0.990   1st Qu.: 1.000   1st Qu.: 0.990   1st Qu.: 0.99  
+ Median :  1.000   Median : 4.000   Median : 0.990   Median :13.00  
+ Mean   :  6.293   Mean   : 8.375   Mean   : 1.951   Mean   :19.33  
+ 3rd Qu.:  5.000   3rd Qu.: 9.000   3rd Qu.: 2.000   3rd Qu.:33.00  
+ Max.   :117.000   Max.   :91.000   Max.   :11.000   Max.   :74.00  
+ NA's   :144       NA's   :144      NA's   :144      NA's   :144    </code></pre>
+</div>
+</div>
+<p>Next we will remove duplicate record:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>duplicate <span class="ot">&lt;-</span> flow_data <span class="sc">%&gt;%</span></span>
+<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb133-3"><a href="#cb133-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>()<span class="sc">&gt;</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb133-4"><a href="#cb133-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>flow_data <span class="ot">&lt;-</span> <span class="fu">unique</span>(flow_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(flow_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     FID.x          FID.y       MORNING_PEAK      SCHOOL_COUNT  
+ Min.   :   1   Min.   :   1   Min.   :    1.0   Min.   :0.990  
+ 1st Qu.:1313   1st Qu.:1318   1st Qu.:    6.0   1st Qu.:0.990  
+ Median :1702   Median :1700   Median :   31.0   Median :0.990  
+ Mean   :1674   Mean   :1669   Mean   :  300.4   Mean   :1.098  
+ 3rd Qu.:2032   3rd Qu.:2026   3rd Qu.:  143.0   3rd Qu.:1.000  
+ Max.   :2951   Max.   :2951   Max.   :74894.0   Max.   :5.000  
+                                                 NA's   :144    
+ BUSINESS_COUNT    FINANCE_COUNT     TRAIN_COUNT       HDB_COUNT    
+ Min.   :  0.990   Min.   : 0.990   Min.   : 0.990   Min.   : 0.99  
+ 1st Qu.:  0.990   1st Qu.: 0.990   1st Qu.: 0.990   1st Qu.: 0.99  
+ Median :  1.000   Median : 2.000   Median : 0.990   Median : 6.00  
+ Mean   :  5.881   Mean   : 7.324   Mean   : 1.773   Mean   :15.52  
+ 3rd Qu.:  5.000   3rd Qu.: 7.000   3rd Qu.: 2.000   3rd Qu.:27.00  
+ Max.   :117.000   Max.   :91.000   Max.   :11.000   Max.   :74.00  
+ NA's   :144       NA's   :144      NA's   :144      NA's   :144    </code></pre>
+</div>
+</div>
+<p>I will save flow_data sf tibble data.frame into an rds file and call the file&nbsp;<em>flow_data_tidy</em>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(flow_data,</span>
+<span id="cb137-2"><a href="#cb137-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"data/rds/flow_data_tidy.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The explanatory variables to be used in the <strong>Spatial Interaction Modelling</strong> will be :</p>
+<ol type="1">
+<li>Business</li>
+<li>Finance Service</li>
+<li>Train Station Exit Layer</li>
+<li>HDB</li>
+<li>School Directory and information</li>
+</ol>
 </section>
 </section>
 <section id="computing-distance-matrix" class="level1">
@@ -962,17 +1315,17 @@ is assumed.</code></pre>
 <h2 class="anchored" data-anchor-id="converting-from-sf-data.table-to-spatialpolygonsdataframe">7.1 <strong>Converting from sf data.table to SpatialPolygonsDataFrame</strong></h2>
 <p>First&nbsp;<a href="https://r-spatial.github.io/sf/reference/coerce-methods.html"><code>as.Spatial()</code></a>&nbsp;will be used to convert&nbsp;<em>mpsz</em>&nbsp;from sf tibble data frame to SpatialPolygonsDataFrame of sp object as shown in the code chunk below</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(hexagon_busstop, <span class="st">"Spatial"</span>)</span>
-<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_sp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(hexagon_busstop, <span class="st">"Spatial"</span>)</span>
+<span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_sp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>class       : SpatialPolygonsDataFrame 
 features    : 5152 
 extent      : 3320.122, 48495.12, 26106.82, 50499.87  (xmin, xmax, ymin, ymax)
 crs         : +proj=tmerc +lat_0=1.36666666666667 +lon_0=103.833333333333 +k=1 +x_0=28001.642 +y_0=38744.572 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs 
-variables   : 4
-names       :  FID, BUS_STOP_N, BUS_ROOF_N,       LOC_DESC 
-min values  :    1,      01012,        B01,  18 WOODSVILLE 
-max values  : 2951,      99189,        UNK, ZUELLIG PHARMA </code></pre>
+variables   : 9
+names       :  FID, BUS_STOP_N, BUS_ROOF_N,       LOC_DESC, BUSINESS_COUNT, FINANCE_COUNT, TRAIN_COUNT, HDB_COUNT, SCHOOL_COUNT 
+min values  :    1,      01012,        B01,  18 WOODSVILLE,              0,             0,           0,         0,            0 
+max values  : 2951,      99189,        UNK, ZUELLIG PHARMA,            117,            91,          11,        74,            5 </code></pre>
 </div>
 </div>
 </section>
@@ -980,9 +1333,9 @@ max values  : 2951,      99189,        UNK, ZUELLIG PHARMA </code></pre>
 <h2 class="anchored" data-anchor-id="computing-the-distance-matrix">7.2 <strong>Computing the distance matrix</strong></h2>
 <p>Next,&nbsp;<a href="https://www.rdocumentation.org/packages/sp/versions/2.1-1/topics/spDistsN1"><code>spDists()</code></a>&nbsp;of sp package will be used to compute the Euclidean distance between the centroids of the hexagon layer.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>dist <span class="ot">&lt;-</span> <span class="fu">spDists</span>(hexagon_busstop_sp, </span>
-<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">longlat =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dist, <span class="at">n=</span><span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>dist <span class="ot">&lt;-</span> <span class="fu">spDists</span>(hexagon_busstop_sp, </span>
+<span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">longlat =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb140-3"><a href="#cb140-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dist, <span class="at">n=</span><span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]
  [1,]    0.000  650.000 2343.608 1125.833 1125.833 2978.674 4059.249 1719.738
@@ -1008,6 +1361,83 @@ max values  : 2951,      99189,        UNK, ZUELLIG PHARMA </code></pre>
 [10,]    0.000    0.000</code></pre>
 </div>
 </div>
+<p>Next, I will rename column and rows based on FID</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a>sz_names <span class="ot">&lt;-</span> hexagon_busstop<span class="sc">$</span>FID</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dist) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(sz_names)</span>
+<span id="cb143-2"><a href="#cb143-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(dist) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(sz_names)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we will pivot the distance matrix into a long table by using the row and column subzone codes as show in the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a>distPair <span class="ot">&lt;-</span> <span class="fu">melt</span>(dist) <span class="sc">%&gt;%</span></span>
+<span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dist =</span> value)</span>
+<span id="cb144-3"><a href="#cb144-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(distPair, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Var1 Var2     dist
+1     1    1    0.000
+2    44    1  650.000
+3    46    1 2343.608
+4    66    1 1125.833
+5    66    1 1125.833
+6    68    1 2978.674
+7    69    1 4059.249
+8    88    1 1719.738
+9    89    1 2600.000
+10   89    1 2600.000</code></pre>
+</div>
+</div>
+<p>To update the intra-zonal distances, I will select and find out the minimum value of the distance by using&nbsp;<code>summary()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a>distPair <span class="sc">%&gt;%</span></span>
+<span id="cb146-2"><a href="#cb146-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(dist <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb146-3"><a href="#cb146-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Var1           Var2           dist      
+ Min.   :   1   Min.   :   1   Min.   :  650  
+ 1st Qu.:1086   1st Qu.:1086   1st Qu.: 7881  
+ Median :1618   Median :1618   Median :12654  
+ Mean   :1547   Mean   :1547   Mean   :13322  
+ 3rd Qu.:2030   3rd Qu.:2030   3rd Qu.:17884  
+ Max.   :2951   Max.   :2951   Max.   :44982  </code></pre>
+</div>
+</div>
+<p>Next, a constant distance value of 300m is added into intra-zones distance.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb148"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a>distPair<span class="sc">$</span>dist <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(distPair<span class="sc">$</span>dist <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb148-2"><a href="#cb148-2" aria-hidden="true" tabindex="-1"></a>                        <span class="dv">300</span>, distPair<span class="sc">$</span>dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The code chunk below will be used to check the result data.frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a>distPair <span class="sc">%&gt;%</span></span>
+<span id="cb149-2"><a href="#cb149-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Var1           Var2           dist      
+ Min.   :   1   Min.   :   1   Min.   :  300  
+ 1st Qu.:1087   1st Qu.:1087   1st Qu.: 7881  
+ Median :1618   Median :1618   Median :12654  
+ Mean   :1547   Mean   :1547   Mean   :13305  
+ 3rd Qu.:2030   3rd Qu.:2030   3rd Qu.:17884  
+ Max.   :2951   Max.   :2951   Max.   :44982  </code></pre>
+</div>
+</div>
+<p>The code chunk below is used to rename the origin and destination fields.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a>distPair <span class="ot">&lt;-</span> distPair <span class="sc">%&gt;%</span></span>
+<span id="cb151-2"><a href="#cb151-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">orig =</span> Var1,</span>
+<span id="cb151-3"><a href="#cb151-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">dest =</span> Var2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Lastly, the code chunk below is used to save the dataframe for future use.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb152"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb152-1"><a href="#cb152-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(distPair, <span class="st">"data/rds/distPair.rds"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="spatial-interaction-modelling" class="level1">
+<h1>8 Spatial Interaction Modelling</h1>
+<section id="preparing-flow-data" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-flow-data">8.1 Preparing Flow Data</h2>
 
 
 </section>

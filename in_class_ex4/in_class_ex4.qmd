@@ -1,5 +1,5 @@
 ---
-title: "In-class Exercise 4: Geospatial Data Science With R"
+title: "In-class Exercise 4: Geospatial Data Science With R- Preparing Spatial Interaction Modelling Variables"
 author: "Chai Zhixuan"
 editor: visual
 date: 2023-12-09

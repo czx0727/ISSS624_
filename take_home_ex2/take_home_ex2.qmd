@@ -19,7 +19,7 @@ The code chunk below installs and loads the various packages
 
 ```{r}
 pacman::p_load(tmap, sf, DT, stplanr, sp,
-               performance,
+               performance,reshape2,httr,
                ggpubr, tidyverse)
 ```
 
@@ -29,7 +29,7 @@ pacman::p_load(tmap, sf, DT, stplanr, sp,
 
 ### **3.1.1 Importing the OD data**
 
-Firstly, we will import the *Passenger Volume by Origin Destination Bus Stops* data set downloaded from LTA DataMall by using `read_csv()` of **readr** package. Oct 2023 data will be used.
+Firstly, we will import the *Passenger Volume by Origin Destination Bus Stops* data set downloaded from LTA DataMall by using `read_csv()` of **readr** package. Oct 2023 data will be used. Detailed explanation of how the dataset is obtained is in Take Home Exercise 1.
 
 ```{r}
 odbus <- read_csv("data/aspatial/origin_destination_bus_202310.csv")
@@ -250,7 +250,7 @@ head(od_data_3)
 
 ## 5.2 **Creating desire lines**
 
-In this code chunk below, `od2line()` of **stplanr** package is used to create the desire lines.
+In this code chunk below, `od2line()` of **stplanr** package is used to create the desire lines at the hexagon layer.
 
 ```{r}
 flowLine <- od2line(flow = od_data_3, 
@@ -340,13 +340,13 @@ tm_shape() +
 
 For passengers volume equal or greater than 50,000, it is concentrated in Woodlands region.
 
-# 6. Assemble propulsive and attractiveness variables 
+# 6. Assemble propulsive and attractiveness variables
 
 ## 6.1 Geospatial
 
 For geospatial, I will be using the following:
 
-1.  *Business*
+1.  *Business:* This dataset is used to illustrated people commuting to work
 
 ```{r}
 business <- st_read(dsn = "data/geospatial",
@@ -355,14 +355,26 @@ business <- st_read(dsn = "data/geospatial",
 ```
 
 ```{r}
+hexagon_busstop$`BUSINESS_COUNT`<- lengths(
+  st_intersects(
+    hexagon_busstop, business))
+```
+
+```{r}
+summary(hexagon_busstop$BUSINESS_COUNT)
+```
+
+```{r}
 tmap_mode("plot")
 tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
   tm_polygons() +
 tm_shape(business) +
   tm_dots() 
 ```
 
-2.  *FinServ*
+2.  *FinServ:* This dataset is used to illustrate people working in the financial services sector
 
 ```{r}
 finserv <- st_read(dsn = "data/geospatial",
@@ -371,14 +383,26 @@ finserv <- st_read(dsn = "data/geospatial",
 ```
 
 ```{r}
+hexagon_busstop$`FINANCE_COUNT`<- lengths(
+  st_intersects(
+    hexagon_busstop, finserv))
+```
+
+```{r}
+summary(hexagon_busstop$FINANCE_COUNT)
+```
+
+```{r}
 tmap_mode("plot")
 tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
   tm_polygons() +
 tm_shape(finserv) +
   tm_dots() 
 ```
 
-3.  Train Station Exit Layer
+3.  Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop
 
 ```{r}
 train <- st_read(dsn = "data/geospatial",
@@ -387,8 +411,20 @@ train <- st_read(dsn = "data/geospatial",
 ```
 
 ```{r}
+hexagon_busstop$`TRAIN_COUNT`<- lengths(
+  st_intersects(
+    hexagon_busstop, train))
+```
+
+```{r}
+summary(hexagon_busstop$TRAIN_COUNT)
+```
+
+```{r}
 tmap_mode("plot")
 tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
   tm_polygons() +
 tm_shape(train) +
   tm_dots() 
@@ -407,15 +443,25 @@ tmap_mode("plot")
 tmap_options(check.and.fix = TRUE)
 tm_shape(mpsz) +
   tm_polygons() +
+tm_shape(hexagon_busstop) +
+  tm_polygons() +
 tm_shape(train) +
   tm_dots() 
 ```
+
+::: callout-note
+tmap_options(check.and.fix = TRUE) is used as Non closed ring is detected in this dataset
+:::
+
+::: callout-important
+Due to issue with the shape file, it will not be used in **Spatial Interaction Models**
+:::
 
 ## 6.2 Aspatial
 
 For aspatial, I will be using the following:
 
-1.  HDB
+1.  HDB: This dataset is used to understand the location of HBD in the hexagon layer
 
 ```{r}
 data <- read.csv("data/aspatial/hdb.csv")
@@ -426,13 +472,214 @@ coordinates <- data[, c("lng", "lat")]
 spatial_points <- SpatialPointsDataFrame(coordinates, data)
 ```
 
+Convert to CRS3414:
+
+```{r}
+
+# Create a SpatialPoints object
+coordinates <- data[, c("lng", "lat")]
+spatial_points <- SpatialPoints(coords = coordinates)
+
+# Define the current CRS (WGS84 - EPSG:4326)
+proj4string(spatial_points) <- CRS("+proj=longlat +datum=WGS84")
+
+# Convert SpatialPoints to an sf object
+sf_points <- st_as_sf(spatial_points)
+
+# Define EPSG:3414 CRS
+epsg_3414_crs <- st_crs(3414)
+
+# Transform the sf object to EPSG:3414
+sf_points_3414 <- st_transform(sf_points, crs = epsg_3414_crs)
+
+# Convert back to SpatialPoints
+spatial_points_3414 <- as(sf_points_3414, "Spatial")
+
+
+```
+
 ```{r}
 tmap_mode("plot")
 tm_shape(mpsz) +
   tm_polygons() +
-tm_shape(spatial_points) +
+tm_shape(hexagon_busstop) +
+  tm_polygons() +
+tm_shape(spatial_points_3414) +
   tm_dots()
 ```
+
+```{r}
+sf_spatial_points_3414 <- st_as_sf(spatial_points_3414)
+
+intersections <- st_intersects(hexagon_busstop, sf_spatial_points_3414)
+
+hexagon_busstop$HDB_COUNT <- lengths(intersections)
+```
+
+```{r}
+summary(hexagon_busstop$HDB_COUNT)
+```
+
+2.  *School Directory and Information* - Dataset is taken from [Data\@Gov](https://beta.data.gov.sg/). This information is useful as the morning period will consist of students going to school
+
+Concepts learned from In-Class Ex 4 will be used to extract the data from SLA API
+
+```{r}
+url<-"https://www.onemap.gov.sg/api/common/elastic/search"
+
+csv<-read_csv("data/aspatial/Generalinformationofschools.csv")
+postcodes<-csv$`postal_code`
+
+found<-data.frame()
+not_found<-data.frame()
+
+for(postcode in postcodes){
+  query<-list('searchVal'=postcode,'returnGeom'='Y','getAddrDetails'='Y','pageNum'='1')
+  res<- GET(url,query=query)
+  
+  if((content(res)$found)!=0){
+    found<-rbind(found,data.frame(content(res))[4:13])
+  } else{
+    not_found = data.frame(postcode)
+  }
+}
+```
+
+Next, the code chunk below will be used to combine both *found* and *not_found* data.frames into a single tibble data.frame called *merged*. At the same time, we will write *merged* and *not_found* tibble data.frames into two separate csv files called *schools* and *not_found* respectively.
+
+```{r}
+merged = merge(csv, found, by.x = 'postal_code', by.y = 'results.POSTAL', all = TRUE)
+write.csv(merged, file = "data/aspatial/schools.csv")
+write.csv(not_found, file = "data/aspatial/not_found.csv")
+```
+
+I will manually clean up for ZhengHua Secondary School ([link](https://www.google.com/search?q=zhenghua+secondary+school&rlz=1C1YTUH_enSG1024SG1038&oq=zhe&gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7Mg0IARAuGK8BGMcBGIAEMgYIAhBFGEAyBggDEEUYOTIKCAQQLhixAxiABDINCAUQLhivARjHARiABDINCAYQLhiDARixAxiABDIGCAcQRRg80gEIMzMyM2owajeoAgCwAgA&sourceid=chrome&ie=UTF-8)). File is saved as schools1.csv
+
+Next, I will import *schools1.csv* into R environment and at the same time tidying the data by selecting only the necessary fields as well as rename some fields.
+
+```{r}
+schools <- read_csv("data/aspatial/schools1.csv") %>%
+  rename(latitude = "results.LATITUDE",
+         longitude = "results.LONGITUDE")%>%
+  select(postal_code, school_name, latitude, longitude)
+```
+
+I convert schools1 tibble data.frame data into a simple feature tibble data.frame called *schools_sf* by using values in latitude and longitude fields.
+
+```{r}
+schools_sf <- st_as_sf(schools, 
+                       coords = c("longitude", "latitude"),
+                       crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+Plot is shown below:
+
+```{r}
+tmap_options(check.and.fix = TRUE)
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
+  tm_polygons() +
+tm_shape(schools_sf) +
+  tm_dots()
+```
+
+I will count count the number of schools located inside the hexagon layer.
+
+```{r}
+hexagon_busstop$`SCHOOL_COUNT`<- lengths(
+  st_intersects(
+    hexagon_busstop, schools_sf))
+```
+
+I will examine the summary statistics of the derived variable.
+
+```{r}
+summary(hexagon_busstop$`SCHOOL_COUNT`)
+```
+
+::: callout-important
+The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If `log()` is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1.
+:::
+
+The data will be joined with od_data:
+
+```{r}
+hexagon_busstop_tidy <- hexagon_busstop %>%
+  st_drop_geometry() %>%
+  select(FID, SCHOOL_COUNT, BUSINESS_COUNT, FINANCE_COUNT,TRAIN_COUNT,HDB_COUNT)
+```
+
+```{r}
+flow_data <- od_data_2 %>%
+  left_join(hexagon_busstop_tidy,
+            by = c("FID.y" = "FID"))
+```
+
+::: callout-note
+FID.y is the destination. It is unique join field between od_data_2 and hexagon_busstop_tidy.
+:::
+
+```{r}
+summary(flow_data)
+```
+
+The code chunk below will be used to replace zero values to 0.99.
+
+```{r}
+flow_data$SCHOOL_COUNT <- ifelse(
+  flow_data$SCHOOL_COUNT == 0,
+  0.99, flow_data$SCHOOL_COUNT)
+flow_data$BUSINESS_COUNT <- ifelse(
+  flow_data$BUSINESS_COUNT == 0,
+  0.99, flow_data$BUSINESS_COUNT)
+flow_data$FINANCE_COUNT <- ifelse(
+  flow_data$FINANCE_COUNT == 0,
+  0.99, flow_data$FINANCE_COUNT)
+flow_data$TRAIN_COUNT <- ifelse(
+  flow_data$TRAIN_COUNT == 0,
+  0.99, flow_data$TRAIN_COUNT)
+flow_data$HDB_COUNT <- ifelse(
+  flow_data$HDB_COUNT == 0,
+  0.99, flow_data$HDB_COUNT)
+```
+
+```{r}
+summary(flow_data)
+```
+
+Next we will remove duplicate record:
+
+```{r}
+duplicate <- flow_data %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
+```
+
+```{r}
+flow_data <- unique(flow_data)
+```
+
+```{r}
+summary(flow_data)
+```
+
+I will save flow_data sf tibble data.frame into an rds file and call the file *flow_data_tidy*.
+
+```{r}
+write_rds(flow_data,
+          "data/rds/flow_data_tidy.rds")
+```
+
+The explanatory variables to be used in the **Spatial Interaction Modelling** will be :
+
+1.  Business
+2.  Finance Service
+3.  Train Station Exit Layer
+4.  HDB
+5.  School Directory and information
 
 # 7 **Computing Distance Matrix**
 
@@ -454,3 +701,62 @@ dist <- spDists(hexagon_busstop_sp,
                 longlat = FALSE)
 head(dist, n=c(10, 10))
 ```
+
+Next, I will rename column and rows based on FID
+
+```{r}
+sz_names <- hexagon_busstop$FID
+```
+
+```{r}
+colnames(dist) <- paste0(sz_names)
+rownames(dist) <- paste0(sz_names)
+```
+
+Next, we will pivot the distance matrix into a long table by using the row and column subzone codes as show in the code chunk below.
+
+```{r}
+distPair <- melt(dist) %>%
+  rename(dist = value)
+head(distPair, 10)
+```
+
+To update the intra-zonal distances, I will select and find out the minimum value of the distance by using `summary()`.
+
+```{r}
+distPair %>%
+  filter(dist > 0) %>%
+  summary()
+```
+
+Next, a constant distance value of 300m is added into intra-zones distance.
+
+```{r}
+distPair$dist <- ifelse(distPair$dist == 0,
+                        300, distPair$dist)
+```
+
+The code chunk below will be used to check the result data.frame.
+
+```{r}
+distPair %>%
+  summary()
+```
+
+The code chunk below is used to rename the origin and destination fields.
+
+```{r}
+distPair <- distPair %>%
+  rename(orig = Var1,
+         dest = Var2)
+```
+
+Lastly, the code chunk below is used to save the dataframe for future use.
+
+```{r}
+write_rds(distPair, "data/rds/distPair.rds") 
+```
+
+# 8 Spatial Interaction Modelling
+
+## 8.1 Preparing Flow Data
