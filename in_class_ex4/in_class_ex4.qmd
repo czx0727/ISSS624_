@@ -13,66 +13,147 @@ date-modified: "last-modified"
 pacman:: p_load(tidyverse, sf, httr, tmap)
 ```
 
-# Geocoding using SLA API
+# **Counting number of schools in each URA Planning Subzone**
+
+## **Downloading General information of schools data from data.gov.sg**
+
+To get started, you are required to download *General information of schools* data set of School Directory and Information from [data.gov.sg](https://beta.data.gov.sg/).
+
+## **Geocoding using SLA API**
 
 ```{r}
-url <- "https://www.onemap.gov.sg/api/common/elastic/search"
+url<-"https://www.onemap.gov.sg/api/common/elastic/search"
+
+csv<-read_csv("data/aspatial/Generalinformationofschools.csv")
+postcodes<-csv$`postal_code`
+
+found<-data.frame()
+not_found<-data.frame()
+
+for(postcode in postcodes){
+  query<-list('searchVal'=postcode,'returnGeom'='Y','getAddrDetails'='Y','pageNum'='1')
+  res<- GET(url,query=query)
+  
+  if((content(res)$found)!=0){
+    found<-rbind(found,data.frame(content(res))[4:13])
+  } else{
+    not_found = data.frame(postcode)
+  }
+}
+```
+
+Next, the code chunk below will be used to combine both *found* and *not_found* data.frames into a single tibble data.frame called *merged*. At the same time, we will write *merged* and *not_found* tibble data.frames into two separate csv files called *schools* and *not_found* respectively.
+
+```{r}
+merged = merge(csv, found, by.x = 'postal_code', by.y = 'results.POSTAL', all = TRUE)
+write.csv(merged, file = "data/aspatial/schools.csv")
+write.csv(not_found, file = "data/aspatial/not_found.csv")
+```
+
+::: callout-note
+Update for ZhengHua Sec - `results.LATITUDE` and `results.LONGITUDE` fields of the ungeocoded record in `schoolss.csv` manually. ([link](https://www.google.com/search?q=zhenghua+secondary+school&rlz=1C1YTUH_enSG1024SG1038&oq=zheng&gs_lcrp=EgZjaHJvbWUqCggAEAAY4wIYgAQyCggAEAAY4wIYgAQyDQgBEC4YrwEYxwEYgAQyBggCEEUYOTINCAMQLhivARjHARiABDINCAQQLhiDARixAxiABDIKCAUQLhixAxiABDINCAYQLhiDARixAxiABDIGCAcQRRg80gEIMjA2MmowajeoAgCwAgA&sourceid=chrome&ie=UTF-8))
+:::
+
+## **Tidying schools data.frame**
+
+```{r}
+schools <- read_csv("data/aspatial/schools1.csv") %>%
+  rename(latitude = "results.LATITUDE",
+         longitude = "results.LONGITUDE")%>%
+  select(postal_code, school_name, latitude, longitude)
+```
+
+## **Converting an aspatial data into sf tibble data.frame**
+
+```{r}
+schools_sf <- st_as_sf(schools, 
+                       coords = c("longitude", "latitude"),
+                       crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+## **Plotting a point simple feature layer**
+
+```{r}
+mpsz <- st_read(dsn = "data/geospatial/",
+                layer = "MPSZ-2019") %>%
+  st_transform(crs = 3414)
 ```
 
 ```{r}
-csv <- read_csv("data/aspatial/Generalinformationofschools.csv")
-postcodes <- csv$'postal_code'
+tmap_options(check.and.fix = TRUE)
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(schools_sf) +
+  tm_dots()
+```
 
-# found <- data.frame()
-# not_found <- data.frame()
-# 
-# for(postcode in postcodes){
-#   query <- list('searchVAL'=postcode, 'returnGeom' = 'Y', 'getAddrDetails' = 'Y', 'pageNum' = '1')
-#   res <- GET(url,query=query)
-#   
-#   if((content(res)$found)!=0){
-#     found <-rbind(found,data.frame(content(res))[4:13])
-#   } else{
-#     not_found = data.frame(postcode)
-#   }
-#     
-# }
+## **Performing point-in-polygon count process**
+
+```{r}
+mpsz$`SCHOOL_COUNT`<- lengths(
+  st_intersects(
+    mpsz, schools_sf))
 ```
 
 ```{r}
-# merged = merge(csv,found, by.x ='postal_code', by.y ='results.POSTAL', all = TRUE)
-# 
-# write.csv(merged, file="data/aspatial/schools.csv")
-# write.csv(not_found, file ="data/aspatial/not_found.csv")
+summary(mpsz$SCHOOL_COUNT)
 ```
 
-# Converting an aspatial data into sf tibble data.frame
+::: callout-note
+The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If `log()` is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1.
+:::
+
+## **Data Integration and Final Touch-up**
 
 ```{r}
-# school <- read.csv("data/aspatial/schools.csv") %>%
-#   rename(latitude = "results.LATITUDE",
-#          longitude = "results.LONGITUDE") %>%
-#   select(postal_code, school_name, latitude, longitude)
-```
-
-Change from decimal degree to metres
-
-```{r}
-# schools_sf <- st_as_sf(schools,
-#                        coords = c("longitude", "latitude"),
-#                        crs=4326) %>%
-#   st_transform(crs = 3414)
+business_sf <- st_read(dsn = "data/geospatial",
+                      layer = "Business")
 ```
 
 ```{r}
-# tmap_mode("view")
-# tm_shape(schools_sf) +
-#   tm_dots() +
-# tm_view(set_zoom_limits = c(11,14))
+tmap_options(check.and.fix = TRUE)
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(business_sf) +
+  tm_dots()
 ```
 
 ```{r}
-# mpsz$'SCHOOL_COUNT' <- lengths(
-#   st_intersects(
-#     mpsz, schools_sf))
+mpsz$`BUSINESS_COUNT`<- lengths(
+  st_intersects(
+    mpsz, business_sf))
 ```
+
+```{r}
+summary(mpsz$BUSINESS_COUNT)
+```
+
+```{r}
+flow_data <- read_rds("data/rds/flow_data_tidy.rds")
+flow_data
+```
+
+```{r}
+mpsz_tidy <- mpsz %>%
+  st_drop_geometry() %>%
+  select(SUBZONE_C, SCHOOL_COUNT, BUSINESS_COUNT)
+```
+
+```{r}
+flow_data <- flow_data %>%
+  left_join(mpsz_tidy,
+            by = c("DESTIN_SZ" = "SUBZONE_C")) %>%
+  rename(TRIPS = MORNING_PEAK,
+         DIST = dist)
+```
+
+## **Checking for variables with zero values**
+
+```{r}
+summary(flow_data)
+```
+
+The print report above reveals that variables *ORIGIN_AGE7_12*, *ORIGIN_AGE13_24*, *ORIGIN_AGE25_64*, *DESTIN_AGE7_12*, *DESTIN_AGE13_24*, *DESTIN_AGE25_64* consist of 0 values.
+
+In view of this, code chunk below will be used to replace zero values to 0.99.

@@ -181,7 +181,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../in_class_ex3/in_class_ex3.html" rel="" target="">
  <span class="dropdown-text">In-class Exercise 3</span></a>
   </li>  
-        <li class="dropdown-header">In-class Exercise 4</li>
+        <li>
+    <a class="dropdown-item" href="../in_class_ex4/in_class_ex4.html" rel="" target="">
+ <span class="dropdown-text">In-class Exercise 4</span></a>
+  </li>  
         <li class="dropdown-header">In-class Exercise 5</li>
     </ul>
   </li>
@@ -227,8 +230,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
-  <li><a href="#geocoding-using-sla-api" id="toc-geocoding-using-sla-api" class="nav-link" data-scroll-target="#geocoding-using-sla-api">Geocoding using SLA API</a></li>
-  <li><a href="#converting-an-aspatial-data-into-sf-tibble-data.frame" id="toc-converting-an-aspatial-data-into-sf-tibble-data.frame" class="nav-link" data-scroll-target="#converting-an-aspatial-data-into-sf-tibble-data.frame">Converting an aspatial data into sf tibble data.frame</a></li>
+  <li><a href="#counting-number-of-schools-in-each-ura-planning-subzone" id="toc-counting-number-of-schools-in-each-ura-planning-subzone" class="nav-link" data-scroll-target="#counting-number-of-schools-in-each-ura-planning-subzone"><strong>Counting number of schools in each URA Planning Subzone</strong></a>
+  <ul class="collapse">
+  <li><a href="#downloading-general-information-of-schools-data-from-data.gov.sg" id="toc-downloading-general-information-of-schools-data-from-data.gov.sg" class="nav-link" data-scroll-target="#downloading-general-information-of-schools-data-from-data.gov.sg"><strong>Downloading General information of schools data from data.gov.sg</strong></a></li>
+  <li><a href="#geocoding-using-sla-api" id="toc-geocoding-using-sla-api" class="nav-link" data-scroll-target="#geocoding-using-sla-api"><strong>Geocoding using SLA API</strong></a></li>
+  <li><a href="#tidying-schools-data.frame" id="toc-tidying-schools-data.frame" class="nav-link" data-scroll-target="#tidying-schools-data.frame"><strong>Tidying schools data.frame</strong></a></li>
+  <li><a href="#converting-an-aspatial-data-into-sf-tibble-data.frame" id="toc-converting-an-aspatial-data-into-sf-tibble-data.frame" class="nav-link" data-scroll-target="#converting-an-aspatial-data-into-sf-tibble-data.frame"><strong>Converting an aspatial data into sf tibble data.frame</strong></a></li>
+  <li><a href="#plotting-a-point-simple-feature-layer" id="toc-plotting-a-point-simple-feature-layer" class="nav-link" data-scroll-target="#plotting-a-point-simple-feature-layer"><strong>Plotting a point simple feature layer</strong></a></li>
+  <li><a href="#performing-point-in-polygon-count-process" id="toc-performing-point-in-polygon-count-process" class="nav-link" data-scroll-target="#performing-point-in-polygon-count-process"><strong>Performing point-in-polygon count process</strong></a></li>
+  <li><a href="#data-integration-and-final-touch-up" id="toc-data-integration-and-final-touch-up" class="nav-link" data-scroll-target="#data-integration-and-final-touch-up"><strong>Data Integration and Final Touch-up</strong></a></li>
+  <li><a href="#checking-for-variables-with-zero-values" id="toc-checking-for-variables-with-zero-values" class="nav-link" data-scroll-target="#checking-for-variables-with-zero-values"><strong>Checking for variables with zero values</strong></a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -261,7 +273,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 9, 2023</p>
+      <p class="date-modified">December 10, 2023</p>
     </div>
   </div>
     
@@ -276,13 +288,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span> <span class="fu">p_load</span>(tidyverse, sf, httr, tmap)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="geocoding-using-sla-api" class="level1">
-<h1>Geocoding using SLA API</h1>
+<section id="counting-number-of-schools-in-each-ura-planning-subzone" class="level1">
+<h1><strong>Counting number of schools in each URA Planning Subzone</strong></h1>
+<section id="downloading-general-information-of-schools-data-from-data.gov.sg" class="level2">
+<h2 class="anchored" data-anchor-id="downloading-general-information-of-schools-data-from-data.gov.sg"><strong>Downloading General information of schools data from data.gov.sg</strong></h2>
+<p>To get started, you are required to download&nbsp;<em>General information of schools</em>&nbsp;data set of School Directory and Information from&nbsp;<a href="https://beta.data.gov.sg/">data.gov.sg</a>.</p>
+</section>
+<section id="geocoding-using-sla-api" class="level2">
+<h2 class="anchored" data-anchor-id="geocoding-using-sla-api"><strong>Geocoding using SLA API</strong></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">"https://www.onemap.gov.sg/api/common/elastic/search"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>csv <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/Generalinformationofschools.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>url<span class="ot">&lt;-</span><span class="st">"https://www.onemap.gov.sg/api/common/elastic/search"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>csv<span class="ot">&lt;-</span><span class="fu">read_csv</span>(<span class="st">"data/aspatial/Generalinformationofschools.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Rows: 346 Columns: 31
 ── Column specification ────────────────────────────────────────────────────────
@@ -292,58 +309,267 @@ chr (31): school_name, url_address, address, postal_code, telephone_no, tele...
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>postcodes <span class="ot">&lt;-</span> csv<span class="sc">$</span><span class="st">'postal_code'</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># found &lt;- data.frame()</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># not_found &lt;- data.frame()</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># for(postcode in postcodes){</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   query &lt;- list('searchVAL'=postcode, 'returnGeom' = 'Y', 'getAddrDetails' = 'Y', 'pageNum' = '1')</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   res &lt;- GET(url,query=query)</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   </span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   if((content(res)$found)!=0){</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#     found &lt;-rbind(found,data.frame(content(res))[4:13])</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   } else{</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#     not_found = data.frame(postcode)</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#   }</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#     </span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>postcodes<span class="ot">&lt;-</span>csv<span class="sc">$</span><span class="st">`</span><span class="at">postal_code</span><span class="st">`</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>found<span class="ot">&lt;-</span><span class="fu">data.frame</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>not_found<span class="ot">&lt;-</span><span class="fu">data.frame</span>()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(postcode <span class="cf">in</span> postcodes){</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  query<span class="ot">&lt;-</span><span class="fu">list</span>(<span class="st">'searchVal'</span><span class="ot">=</span>postcode,<span class="st">'returnGeom'</span><span class="ot">=</span><span class="st">'Y'</span>,<span class="st">'getAddrDetails'</span><span class="ot">=</span><span class="st">'Y'</span>,<span class="st">'pageNum'</span><span class="ot">=</span><span class="st">'1'</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  res<span class="ot">&lt;-</span> <span class="fu">GET</span>(url,<span class="at">query=</span>query)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>((<span class="fu">content</span>(res)<span class="sc">$</span>found)<span class="sc">!=</span><span class="dv">0</span>){</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    found<span class="ot">&lt;-</span><span class="fu">rbind</span>(found,<span class="fu">data.frame</span>(<span class="fu">content</span>(res))[<span class="dv">4</span><span class="sc">:</span><span class="dv">13</span>])</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span>{</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    not_found <span class="ot">=</span> <span class="fu">data.frame</span>(postcode)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Next, the code chunk below will be used to combine both&nbsp;<em>found</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;data.frames into a single tibble data.frame called&nbsp;<em>merged</em>. At the same time, we will write&nbsp;<em>merged</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;tibble data.frames into two separate csv files called&nbsp;<em>schools</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;respectively.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># merged = merge(csv,found, by.x ='postal_code', by.y ='results.POSTAL', all = TRUE)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># write.csv(merged, file="data/aspatial/schools.csv")</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># write.csv(not_found, file ="data/aspatial/not_found.csv")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">=</span> <span class="fu">merge</span>(csv, found, <span class="at">by.x =</span> <span class="st">'postal_code'</span>, <span class="at">by.y =</span> <span class="st">'results.POSTAL'</span>, <span class="at">all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(merged, <span class="at">file =</span> <span class="st">"data/aspatial/schools.csv"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(not_found, <span class="at">file =</span> <span class="st">"data/aspatial/not_found.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Update for ZhengHua Sec -&nbsp;<code>results.LATITUDE</code>&nbsp;and&nbsp;<code>results.LONGITUDE</code>&nbsp;fields of the ungeocoded record in&nbsp;<code>schoolss.csv</code>&nbsp;manually. (<a href="https://www.google.com/search?q=zhenghua+secondary+school&amp;rlz=1C1YTUH_enSG1024SG1038&amp;oq=zheng&amp;gs_lcrp=EgZjaHJvbWUqCggAEAAY4wIYgAQyCggAEAAY4wIYgAQyDQgBEC4YrwEYxwEYgAQyBggCEEUYOTINCAMQLhivARjHARiABDINCAQQLhiDARixAxiABDIKCAUQLhixAxiABDINCAYQLhiDARixAxiABDIGCAcQRRg80gEIMjA2MmowajeoAgCwAgA&amp;sourceid=chrome&amp;ie=UTF-8">link</a>)</p>
+</div>
 </div>
 </section>
-<section id="converting-an-aspatial-data-into-sf-tibble-data.frame" class="level1">
-<h1>Converting an aspatial data into sf tibble data.frame</h1>
+<section id="tidying-schools-data.frame" class="level2">
+<h2 class="anchored" data-anchor-id="tidying-schools-data.frame"><strong>Tidying schools data.frame</strong></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># school &lt;- read.csv("data/aspatial/schools.csv") %&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   rename(latitude = "results.LATITUDE",</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#          longitude = "results.LONGITUDE") %&gt;%</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(postal_code, school_name, latitude, longitude)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>schools <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/schools1.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">latitude =</span> <span class="st">"results.LATITUDE"</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">longitude =</span> <span class="st">"results.LONGITUDE"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(postal_code, school_name, latitude, longitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>New names:
+Rows: 350 Columns: 41
+── Column specification
+──────────────────────────────────────────────────────── Delimiter: "," chr
+(35): school_name, url_address, address, telephone_no, telephone_no_2, f... dbl
+(6): ...1, postal_code, results.X, results.Y, results.LATITUDE, results...
+ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+Specify the column types or set `show_col_types = FALSE` to quiet this message.
+• `` -&gt; `...1`</code></pre>
 </div>
-<p>Change from decimal degree to metres</p>
+</div>
+</section>
+<section id="converting-an-aspatial-data-into-sf-tibble-data.frame" class="level2">
+<h2 class="anchored" data-anchor-id="converting-an-aspatial-data-into-sf-tibble-data.frame"><strong>Converting an aspatial data into sf tibble data.frame</strong></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># schools_sf &lt;- st_as_sf(schools,</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#                        coords = c("longitude", "latitude"),</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#                        crs=4326) %&gt;%</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   st_transform(crs = 3414)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>schools_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(schools, </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">crs=</span><span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="plotting-a-point-simple-feature-layer" class="level2">
+<h2 class="anchored" data-anchor-id="plotting-a-point-simple-feature-layer"><strong>Plotting a point simple feature layer</strong></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial/"</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"MPSZ-2019"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `MPSZ-2019' from data source 
+  `C:\czx0727\ISSS624_\in_class_ex4\data\geospatial' using driver `ESRI Shapefile'
+Simple feature collection with 332 features and 6 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 103.6057 ymin: 1.158699 xmax: 104.0885 ymax: 1.470775
+Geodetic CRS:  WGS 84</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tmap_mode("view")</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># tm_shape(schools_sf) +</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   tm_dots() +</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># tm_view(set_zoom_limits = c(11,14))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(schools_sf) <span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="in_class_ex4_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="performing-point-in-polygon-count-process" class="level2">
+<h2 class="anchored" data-anchor-id="performing-point-in-polygon-count-process"><strong>Performing point-in-polygon count process</strong></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>mpsz<span class="sc">$</span><span class="st">`</span><span class="at">SCHOOL_COUNT</span><span class="st">`</span><span class="ot">&lt;-</span> <span class="fu">lengths</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_intersects</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    mpsz, schools_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mpsz$'SCHOOL_COUNT' &lt;- lengths(</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   st_intersects(</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#     mpsz, schools_sf))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mpsz<span class="sc">$</span>SCHOOL_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   0.000   0.000   1.051   2.000  12.000 </code></pre>
 </div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If&nbsp;<code>log()</code>&nbsp;is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1.</p>
+</div>
+</div>
+</section>
+<section id="data-integration-and-final-touch-up" class="level2">
+<h2 class="anchored" data-anchor-id="data-integration-and-final-touch-up"><strong>Data Integration and Final Touch-up</strong></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>business_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">layer =</span> <span class="st">"Business"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `Business' from data source 
+  `C:\czx0727\ISSS624_\in_class_ex4\data\geospatial' using driver `ESRI Shapefile'
+Simple feature collection with 6550 features and 3 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 3669.148 ymin: 25408.41 xmax: 47034.83 ymax: 50148.54
+Projected CRS: SVY21 / Singapore TM</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(business_sf) <span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The shape mpsz is invalid. See sf::st_is_valid</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="in_class_ex4_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>mpsz<span class="sc">$</span><span class="st">`</span><span class="at">BUSINESS_COUNT</span><span class="st">`</span><span class="ot">&lt;-</span> <span class="fu">lengths</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_intersects</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    mpsz, business_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mpsz<span class="sc">$</span>BUSINESS_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.00    0.00    2.00   19.73   13.00  307.00 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>flow_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/flow_data_tidy.rds"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>flow_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 14734 features and 12 fields
+Geometry type: LINESTRING
+Dimension:     XY
+Bounding box:  xmin: 5105.594 ymin: 25813.33 xmax: 49483.22 ymax: 49552.79
+Projected CRS: SVY21 / Singapore TM
+First 10 features:
+   ORIGIN_SZ DESTIN_SZ MORNING_PEAK      dist ORIGIN_AGE7_12 ORIGIN_AGE13_24
+1     AMSZ01    AMSZ01         1998   50.0000            310             710
+2     AMSZ01    AMSZ02         8289  810.4491            310             710
+3     AMSZ01    AMSZ03         8971 1360.9294            310             710
+4     AMSZ01    AMSZ04         2252  840.4432            310             710
+5     AMSZ01    AMSZ05         6136 1076.7916            310             710
+6     AMSZ01    AMSZ06         2148  805.2979            310             710
+7     AMSZ01    AMSZ07         1620 1798.7526            310             710
+8     AMSZ01    AMSZ08         1925 2576.0199            310             710
+9     AMSZ01    AMSZ09         1773 1204.2846            310             710
+10    AMSZ01    AMSZ10           63 1417.8035            310             710
+   ORIGIN_AGE25_64 DESTIN_AGE7_12 DESTIN_AGE13_24 DESTIN_AGE25_64 SCHOOL_COUNT
+1             2780         310.00          710.00         2780.00         0.99
+2             2780        1140.00         2770.00        15700.00         2.00
+3             2780        1010.00         2650.00        14240.00         2.00
+4             2780         980.00         2000.00        11320.00         1.00
+5             2780         810.00         1920.00         9650.00         3.00
+6             2780        1050.00         2390.00        12460.00         2.00
+7             2780         420.00         1120.00         3620.00         0.99
+8             2780         390.00         1150.00         4350.00         0.99
+9             2780        1190.00         3260.00        13350.00         3.00
+10            2780           0.99            0.99            0.99         1.00
+   RETAIL_COUNT                       geometry
+1          1.00 LINESTRING (29501.77 39419....
+2          0.99 LINESTRING (29501.77 39419....
+3          6.00 LINESTRING (29501.77 39419....
+4          0.99 LINESTRING (29501.77 39419....
+5          0.99 LINESTRING (29501.77 39419....
+6          0.99 LINESTRING (29501.77 39419....
+7          1.00 LINESTRING (29501.77 39419....
+8        117.00 LINESTRING (29501.77 39419....
+9          0.99 LINESTRING (29501.77 39419....
+10        20.00 LINESTRING (29501.77 39419....</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mpsz_tidy <span class="ot">&lt;-</span> mpsz <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(SUBZONE_C, SCHOOL_COUNT, BUSINESS_COUNT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>flow_data <span class="ot">&lt;-</span> flow_data <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(mpsz_tidy,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"DESTIN_SZ"</span> <span class="ot">=</span> <span class="st">"SUBZONE_C"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">TRIPS =</span> MORNING_PEAK,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">DIST =</span> dist)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="checking-for-variables-with-zero-values" class="level2">
+<h2 class="anchored" data-anchor-id="checking-for-variables-with-zero-values"><strong>Checking for variables with zero values</strong></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(flow_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ORIGIN_SZ          DESTIN_SZ             TRIPS             DIST      
+ Length:14734       Length:14734       Min.   :     1   Min.   :   50  
+ Class :character   Class :character   1st Qu.:    14   1st Qu.: 3346  
+ Mode  :character   Mode  :character   Median :    76   Median : 6067  
+                                       Mean   :  1021   Mean   : 6880  
+                                       3rd Qu.:   426   3rd Qu.: 9729  
+                                       Max.   :232187   Max.   :26136  
+ ORIGIN_AGE7_12    ORIGIN_AGE13_24    ORIGIN_AGE25_64    DESTIN_AGE7_12   
+ Min.   :   0.99   Min.   :    0.99   Min.   :    0.99   Min.   :   0.99  
+ 1st Qu.: 240.00   1st Qu.:  440.00   1st Qu.: 2200.00   1st Qu.: 240.00  
+ Median : 700.00   Median : 1350.00   Median : 6810.00   Median : 720.00  
+ Mean   :1031.86   Mean   : 2268.84   Mean   :10487.62   Mean   :1033.40  
+ 3rd Qu.:1480.00   3rd Qu.: 3260.00   3rd Qu.:15770.00   3rd Qu.:1500.00  
+ Max.   :6340.00   Max.   :16380.00   Max.   :74610.00   Max.   :6340.00  
+ DESTIN_AGE13_24    DESTIN_AGE25_64    SCHOOL_COUNT.x    RETAIL_COUNT   
+ Min.   :    0.99   Min.   :    0.99   Min.   : 0.990   Min.   :  0.99  
+ 1st Qu.:  460.00   1st Qu.: 2200.00   1st Qu.: 0.990   1st Qu.:  0.99  
+ Median : 1420.00   Median : 7030.00   Median : 1.000   Median :  3.00  
+ Mean   : 2290.35   Mean   :10574.46   Mean   : 1.987   Mean   : 16.47  
+ 3rd Qu.: 3260.00   3rd Qu.:15830.00   3rd Qu.: 2.000   3rd Qu.: 12.00  
+ Max.   :16380.00   Max.   :74610.00   Max.   :12.000   Max.   :307.00  
+ SCHOOL_COUNT.y  BUSINESS_COUNT            geometry    
+ Min.   : 0.00   Min.   :  0.00   LINESTRING   :14734  
+ 1st Qu.: 0.00   1st Qu.:  0.00   epsg:3414    :    0  
+ Median : 1.00   Median :  3.00   +proj=tmer...:    0  
+ Mean   : 1.58   Mean   : 16.17                        
+ 3rd Qu.: 2.00   3rd Qu.: 12.00                        
+ Max.   :12.00   Max.   :307.00                        </code></pre>
+</div>
+</div>
+<p>The print report above reveals that variables <em>ORIGIN_AGE7_12</em>, <em>ORIGIN_AGE13_24</em>, <em>ORIGIN_AGE25_64</em>, <em>DESTIN_AGE7_12</em>, <em>DESTIN_AGE13_24</em>, <em>DESTIN_AGE25_64</em> consist of 0 values.</p>
+<p>In view of this, code chunk below will be used to replace zero values to 0.99.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
