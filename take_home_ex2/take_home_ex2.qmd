@@ -20,7 +20,7 @@ The code chunk below installs and loads the various packages
 ```{r}
 pacman::p_load(tmap, sf, DT, stplanr, sp,
                performance,reshape2,httr,
-               ggpubr, tidyverse)
+               ggpubr, tidyverse, corrplot)
 ```
 
 # **3 Data Preparation**
@@ -845,7 +845,17 @@ ggplot(data = SIM_data,
   geom_smooth(method = lm)
 ```
 
-.
+Notice that their relationship hardly resemble linear relationship.
+
+On the other hand, if we plot the scatter plot by using the log transformed version of both variables, we can see that their relationship is more resemble linear relationship.
+
+```{r}
+ggplot(data = SIM_data,
+       aes(x = log(dist),
+           y = log(MORNING_PEAK))) +
+  geom_point() +
+  geom_smooth(method = lm)
+```
 
 ### **8.2.3 Checking for variables with zero values**
 
@@ -887,26 +897,39 @@ inter_zonal_flow <- na.omit(inter_zonal_flow)
 summary(inter_zonal_flow)
 ```
 
-## 8.3 **Origin (Production) constrained SIM**
+### 8.2.3 Correlation Analysis
 
-The code chunk used to calibrate to model is shown below. FID.x is the origin:
+Before I proceed to do SIM, I will determine if there are any correlations between the variables
 
 ```{r}
-orcSIM <- glm(formula = MORNING_PEAK ~ 
-                  FID.x +
+vars.cor = cor(inter_zonal_flow[,4:8])
+corrplot.mixed(vars.cor,
+         lower = "ellipse", 
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               tl.col = "black")
+
+```
+
+FINANCE_COUNT and TRAIN_COUNT seems to be correlated, I will remove FINANCE_COUNT in the final analysis.
+
+## **8.3 Unconstrained Spatial Interaction Model**
+
+The code chunk used to calibrate to model is shown below:
+
+```{r}
+uncSIM <- glm(formula = MORNING_PEAK ~ 
                   log(SCHOOL_COUNT)+
                   log(BUSINESS_COUNT)+
-                  log(FINANCE_COUNT)+
                   log(HDB_COUNT)+
                   log(TRAIN_COUNT)+
-                  log(dist) - 1,
+                  log(dist),
               family = poisson(link = "log"),
               data = inter_zonal_flow,
               na.action = na.exclude)
-summary(orcSIM)
+uncSIM
 ```
-
-### 8.3.1 **Goodness of fit**
 
 ```{r}
 CalcRSquared <- function(observed, estimated){
@@ -916,11 +939,59 @@ CalcRSquared <- function(observed, estimated){
 }
 ```
 
+### 8.3.1 **Goodness of fit**
+
+```{r}
+CalcRSquared(uncSIM$data$MORNING_PEAK, uncSIM$fitted.values)
+```
+
+## 8.4 **Origin (Production) constrained SIM**
+
+The code chunk used to calibrate to model is shown below. FID.x is the origin:
+
+```{r}
+orcSIM <- glm(formula = MORNING_PEAK ~ 
+                  FID.x +
+                  log(SCHOOL_COUNT)+
+                  log(BUSINESS_COUNT)+
+                  log(HDB_COUNT)+
+                  log(TRAIN_COUNT)+
+                  log(dist) - 1,
+              family = poisson(link = "log"),
+              data = inter_zonal_flow,
+              na.action = na.exclude)
+summary(orcSIM)
+```
+
+### 8.4.1 **Goodness of fit**
+
 ```{r}
 CalcRSquared(orcSIM$data$MORNING_PEAK, orcSIM$fitted.values)
 ```
 
-## 8.4 **Doubly constrained model**
+## 8.5 **Destination constrained**
+
+```{r}
+decSIM <- glm(formula = MORNING_PEAK ~ 
+                  FID.y +
+                  log(SCHOOL_COUNT)+
+                  log(BUSINESS_COUNT)+
+                  log(HDB_COUNT)+
+                  log(TRAIN_COUNT)+
+                  log(dist) - 1,
+              family = poisson(link = "log"),
+              data = inter_zonal_flow,
+              na.action = na.exclude)
+summary(decSIM)
+```
+
+### 8.5.1 **Goodness of fit**
+
+```{r}
+CalcRSquared(decSIM$data$MORNING_PEAK, decSIM$fitted.values)
+```
+
+## 8.6 **Doubly constrained model**
 
 ```{r}
 dbcSIM_Poisson <- glm(formula = MORNING_PEAK ~ 
@@ -938,14 +1009,26 @@ dbcSIM_Poisson <- glm(formula = MORNING_PEAK ~
 summary(dbcSIM_Poisson)
 ```
 
+::: callout-important
+Coefficients: (5 not defined because of singularities). There is a need to relook at correlation between the variables.
+:::
+
+```{r}
+cor.test(inter_zonal_flow)
+```
+
+### 8.6.1 **Goodness of fit**
+
 ```{r}
 CalcRSquared(dbcSIM_Poisson$data$MORNING_PEAK,
              dbcSIM_Poisson$fitted.values)
 ```
 
-# 8.5 **Model comparison**
+## 
 
-## 8.5.1 **Statistical measures**
+# 9 **Model comparison**
+
+## 9.1 **Statistical measures**
 
 First of all, let us create a list called *model_list* by using the code chunk below.
 
@@ -964,7 +1047,7 @@ compare_performance(model_list,
 
 The print above reveals that doubly constrained SIM is the best model among the two SIMs because it has the smallest RMSE value of 970.640.
 
-## 8.5.2 **Visualising fitted values**
+## 9.2 **Visualising fitted values**
 
 Firstly we will extract the fitted values from Origin-constrained Model by using the code chunk below.
 
@@ -1022,4 +1105,4 @@ ggarrange(orc_p, dbc_p,
           nrow = 1)
 ```
 
-# 9 Modelling Results
+# 10 Modelling Results
