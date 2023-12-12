@@ -899,7 +899,21 @@ summary(inter_zonal_flow)
 
 ### 8.2.3 Correlation Analysis
 
-Before I proceed to do SIM, I will determine if there are any correlations between the variables
+Before I proceed to do SIM, I will determine if there are any correlations between the variables.
+
+Ensure all columns are numeric:
+
+```{r}
+inter_zonal_flow$SCHOOL_COUNT<- as.numeric(inter_zonal_flow$SCHOOL_COUNT)
+
+inter_zonal_flow$BUSINESS_COUNT<- as.numeric(inter_zonal_flow$BUSINESS_COUNT)
+
+inter_zonal_flow$HDB_COUNT<- as.numeric(inter_zonal_flow$HDB_COUNT)
+
+inter_zonal_flow$TRAIN_COUNT<- as.numeric(inter_zonal_flow$TRAIN_COUNT)
+
+inter_zonal_flow$FINANCE_COUNT<- as.numeric(inter_zonal_flow$FINANCE_COUNT)                
+```
 
 ```{r}
 vars.cor = cor(inter_zonal_flow[,4:8])
@@ -1009,22 +1023,12 @@ dbcSIM_Poisson <- glm(formula = MORNING_PEAK ~
 summary(dbcSIM_Poisson)
 ```
 
-::: callout-important
-Coefficients: (5 not defined because of singularities). There is a need to relook at correlation between the variables.
-:::
-
-```{r}
-cor.test(inter_zonal_flow)
-```
-
 ### 8.6.1 **Goodness of fit**
 
 ```{r}
 CalcRSquared(dbcSIM_Poisson$data$MORNING_PEAK,
              dbcSIM_Poisson$fitted.values)
 ```
-
-## 
 
 # 9 **Model comparison**
 
@@ -1034,7 +1038,9 @@ First of all, let us create a list called *model_list* by using the code chunk
 
 ```{r}
 model_list <- list(
+  Unconstrained= uncSIM,
   Origin_Constrained = orcSIM,
+  Destination_Constrained = decSIM,
   Doubly_Constrained = dbcSIM_Poisson)
 ```
 
@@ -1045,11 +1051,11 @@ compare_performance(model_list,
                     metrics = "RMSE")
 ```
 
-The print above reveals that doubly constrained SIM is the best model among the two SIMs because it has the smallest RMSE value of 970.640.
+The print above reveals that doubly constrained SIM is the best model among the 4 SIMs because it has the smallest RMSE value.
 
 ## 9.2 **Visualising fitted values**
 
-Firstly we will extract the fitted values from Origin-constrained Model by using the code chunk below.
+Firstly we will extract the fitted values from **Origin-constrained Model** by using the code chunk below.
 
 ```{r}
 df <- as.data.frame(orcSIM$fitted.values) %>%
@@ -1064,7 +1070,7 @@ inter_zonal_flow <- inter_zonal_flow %>%
   rename(orcTRIPS = "orcSIM$fitted.values")
 ```
 
-I will do the same for dbcSIM_Poisson
+I will do the same for **dbcSIM_Poisson**
 
 ```{r}
 df1 <- as.data.frame(dbcSIM_Poisson$fitted.values) %>%
@@ -1077,7 +1083,33 @@ inter_zonal_flow <- inter_zonal_flow %>%
   rename(dbcTRIPS = "dbcSIM_Poisson$fitted.values")
 ```
 
-Next, two scatterplots will be created by using [`geom_point()`](https://ggplot2.tidyverse.org/reference/geom_point.html) and other appropriate functions of [**ggplot2**](https://ggplot2.tidyverse.org/) package.
+I will do the same for **uncSIM**
+
+```{r}
+df2 <- as.data.frame(uncSIM$fitted.values) %>%
+  round(digits = 0)
+```
+
+```{r}
+inter_zonal_flow <- inter_zonal_flow %>%
+  cbind(df2) %>%
+  rename(uncTRIPS = "uncSIM$fitted.values")
+```
+
+I will do the same for **decSIM**
+
+```{r}
+df3 <- as.data.frame(decSIM$fitted.values) %>%
+  round(digits = 0)
+```
+
+```{r}
+inter_zonal_flow <- inter_zonal_flow %>%
+  cbind(df3) %>%
+  rename(decTRIPS = "decSIM$fitted.values")
+```
+
+Next, 4 scatterplots will be created by using [`geom_point()`](https://ggplot2.tidyverse.org/reference/geom_point.html) and other appropriate functions of [**ggplot2**](https://ggplot2.tidyverse.org/) package.
 
 ```{r}
 orc_p <- ggplot(data = inter_zonal_flow,
@@ -1095,14 +1127,52 @@ dbc_p <- ggplot(data = inter_zonal_flow,
   geom_smooth(method = lm) +
   coord_cartesian(xlim=c(0,100000),
                   ylim=c(0,100000))
+
+
+unc_p <- ggplot(data = inter_zonal_flow,
+                aes(x = uncTRIPS,
+                    y = MORNING_PEAK)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,100000),
+                  ylim=c(0,100000))
+
+
+dec_p <- ggplot(data = inter_zonal_flow,
+                aes(x = decTRIPS,
+                    y = MORNING_PEAK)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,100000),
+                  ylim=c(0,100000))
 ```
 
 Now, we will put all the graphs into a single visual for better comparison by using the code chunk below.
 
 ```{r}
-ggarrange(orc_p, dbc_p,
+ggarrange(unc_p, orc_p, dec_p, dbc_p,
           ncol = 2,
-          nrow = 1)
+          nrow = 2)
 ```
 
 # 10 Modelling Results
+
+From the various models, it seems to suggest that the doubly constrained model is the best. With the lowest RMSE and the best fit plot of MORNING_PEAK against TRIPS.
+
+However, the coefficient of the different variables are removed (N/A). Further investigation is needed to further determine any collinearity between the variables.
+
+In this aspect, Origin Constraint is the best model to be used.
+
+We observed that the coefficient is the largest for TRAIN_COUNT, followed by SCHOOL_COUNT, then BUSINESS_COUNT.
+
+One reason may be passengers transit between MRT and buses, in which the number of passengers who alighted from MRT will affect the number of passengers who are taking buses.
+
+For schools, parents may be bringing their children to school. Business, surprisingly, has a less impact compared to schools, but also accounts for passengers who are going to work between 6am to 9am.
+
+HDB_Count is of a less impact as probably passengers may walk a certain distance to another bus stop to take the required bus to their destination.
+
+# 11 Conclusion
+
+In conclusion, the bus passengers' volume stands as a pivotal factor affecting the daily lives of students, workers, and various sectors within society. The insights gleaned from existing studies emphasize the critical role of public transportation in ensuring mobility and accessibility for these demographic segments.
+
+Further investigation tailored to the specific needs of students and workers, as well as a granular breakdown across sectors, is imperative. Delving deeper into the nuances of bus passenger volume within these demographics is essential for crafting more efficient and targeted transportation systems. Such focused research endeavors hold the promise of informing strategic policy-making and facilitating the development of transportation infrastructure that better caters to the diverse requirements of students, workers, and the broader society.
