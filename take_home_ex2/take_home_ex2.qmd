@@ -74,7 +74,7 @@ odbus6_9 <- read_rds("data/rds/odbus6_9.rds")
 
 ### **3.1.2 Importing Geospatial data into R**
 
-For the purpose of this exercise, three geospatial data will be used. They are:
+For the purpose of this exercise, three geospatial data will be used first. They are:
 
 -   BusStop: This data provides the location of bus stop as at last quarter of 2023.
 
@@ -82,7 +82,7 @@ For the purpose of this exercise, three geospatial data will be used. They are:
 
 -   Hexagon: analytical hexagon data of 375m (this distance is the perpendicular distance between the centre of the hexagon and its edges) to represent the [traffic analysis zone (TAZ)](https://tmg.utoronto.ca/files/Reports/Traffic-Zone-Guidance_March-2021_Final.pdf).
 
-First 2 data sets are in ESRI shapefile format. Last file will be derived from R in the later setion
+First 2 data sets are in ESRI shapefile format. Last file will be derived from R in the later section [4.2 Creating Hexagon layer].
 
 ```{r}
 busstop <- st_read(dsn = "data/geospatial",
@@ -152,7 +152,7 @@ od_data <- st_join(busstop_mpsz , hexagon,
 
 ## 4.4 Combine Hexagon and Busstop
 
-Combing Hexagon and busstop will give the hexagon shape to the
+I will combine the Hexagon and busstop.
 
 ```{r}
 hexagon_busstop <- st_join(hexagon, busstop, by = c("FID" = "FID"))
@@ -169,6 +169,8 @@ write_rds(hexagon_busstop, "data/rds/hexagon_busstop.rds")
 ```
 
 ## 4.5 Combine odbus6_9 with od_data
+
+I will combine the Hexagon and Busstop_Mpsz with the odbus6_9 data to give me od_data1 for the unique identifier of the origin:
 
 ```{r}
 od_data_1 <- left_join(odbus6_9 , od_data,
@@ -195,14 +197,14 @@ od_data_1 <- unique(od_data_1)
 
 It will be a good practice to confirm if the duplicating records issue has been addressed fully.
 
-Next, we will update od_data data frame with Combine Hexagon and Busstop_Mpsz.
+Next, we will update od_data data frame with Combine Hexagon and Busstop_Mpsz with destination:
 
 ```{r}
 od_data_2 <- left_join(od_data_1 , od_data,
             by = c("DESTIN_BS" = "BUS_STOP_N")) 
 ```
 
-Before continue, it is a good practice for us to check for duplicating records.
+Before continue, it is a good practice for us to check for duplicating records once again.
 
 ```{r}
 duplicate <- od_data_2 %>%
@@ -298,7 +300,9 @@ tm_shape() +
            alpha = 0.3)
 ```
 
-For passengers volume greater or equal to 5000, we can observe from the map above that between Woodlands and area such as Tuas, Jurong, Woodlands and Tampines areas. There are also small pockets of areas in the central of Singapore.
+For passengers volume greater or equal to 5000, we can observe from the map above that there are passenger flow between Woodlands and areas such as Tuas, Jurong, Woodlands and Tampines areas. There are also small pockets of areas in the central of Singapore.
+
+The flow is most noticeable between Woodlands and Tampines.
 
 ## 5.5 Morning Peak (Greater than or equal to 10000)
 
@@ -402,7 +406,7 @@ tm_shape(finserv) +
   tm_dots() 
 ```
 
-3.  Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop
+3.  Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop (latest update Aug 23 - Taken from [datamall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html))
 
 ```{r}
 train <- st_read(dsn = "data/geospatial",
@@ -430,7 +434,7 @@ tm_shape(train) +
   tm_dots() 
 ```
 
-4.  Rapid Transit System Station
+4.  Rapid Transit System Station (latest update Feb 23 - Taken from [datamall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html))
 
 ```{r}
 mrt <- st_read(dsn = "data/geospatial",
@@ -454,7 +458,7 @@ tmap_options(check.and.fix = TRUE) is used as Non closed ring is detected in thi
 :::
 
 ::: callout-important
-Due to issue with the shape file, it will not be used in **Spatial Interaction Models**
+Due to issue with the shape file, Rapid Transit System Station will not be used in **Spatial Interaction Models**
 :::
 
 ## 6.2 Aspatial
@@ -618,7 +622,7 @@ flow_data <- od_data_2 %>%
 ```
 
 ::: callout-note
-FID.y is the destination. It is unique join field between od_data_2 and hexagon_busstop_tidy.
+FID.y is the destination. It is unique join field between od_data_2 and hexagon_busstop_tidy. In this study, I am interested in the destination of the travelling trip.
 :::
 
 ```{r}
@@ -735,6 +739,10 @@ Next, a constant distance value of 300m is added into intra-zones distance.
 distPair$dist <- ifelse(distPair$dist == 0,
                         300, distPair$dist)
 ```
+
+::: callout-note
+300m is used as half of the minimum distance of 650m is around 300m
+:::
 
 The code chunk below will be used to check the result data.frame.
 
@@ -1157,19 +1165,19 @@ ggarrange(unc_p, orc_p, dec_p, dbc_p,
 
 # 10 Modelling Results
 
-From the various models, it seems to suggest that the doubly constrained model is the best. With the lowest RMSE and the best fit plot of MORNING_PEAK against TRIPS.
+From the various models, it seems to suggest that the doubly constrained model is the best as it has the lowest RMSE and the best fit plot of MORNING_PEAK against TRIPS.
 
-However, the coefficient of the different variables are removed (N/A). Further investigation is needed to further determine any collinearity between the variables.
+However, the coefficient of the different variables are removed (indicated as NA). Further investigation is needed to further examine on these findings.
 
-In this aspect, Origin Constraint is the best model to be used.
+In this aspect, Origin Constraint is the best model to be used (despite a low R2 of 31%).
 
-We observed that the coefficient is the largest for TRAIN_COUNT, followed by SCHOOL_COUNT, then BUSINESS_COUNT.
+We observed that the coefficient is the largest for TRAIN_COUNT, followed by SCHOOL_COUNT, BUSINESS_COUNT and HDB_COUNT. All variables are directly related to MORNING_PEAK, and all of the explanatory variables contribute significantly in explaining the MORNING_PEAK as p values are less than 5%.
 
-One reason may be passengers transit between MRT and buses, in which the number of passengers who alighted from MRT will affect the number of passengers who are taking buses.
+One reason may be that passengers transit between MRT and buses to commute to work or school, in which the number of passengers who alighted from MRT will affect the number of passengers who are taking buses.
 
-For schools, parents may be bringing their children to school. Business, surprisingly, has a less impact compared to schools, but also accounts for passengers who are going to work between 6am to 9am.
+For schools, parents may be bringing their children to school. Business, surprisingly, has a less impact compared to schools, but also accounts for passengers who are going to work between 6am to 9am. One reason may be the concept of working from home where people do not need to head to office daily ([link](https://www.straitstimes.com/business/more-than-7-in-10-s-poreans-prefer-remote-work-arrangements-higher-than-global-average-imf-economists))
 
-HDB_Count is of a less impact as probably passengers may walk a certain distance to another bus stop to take the required bus to their destination.
+HDB_Count is of the least impact as probably passengers may walk a certain distance to another bus stop to take the required bus service to their destination and do not take the bus services which is the nearest to their house.
 
 # 11 Conclusion
 
