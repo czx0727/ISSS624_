@@ -343,7 +343,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 12, 2023</p>
+      <p class="date-modified">December 15, 2023</p>
     </div>
   </div>
     
@@ -354,17 +354,47 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level1">
 <h1><strong>1 Overview</strong></h1>
-<p>In this study, I will continue my geospatial analytics learning journey to demonstrate the potential value of geospatial data science and analysis (GDSA) to integrate publicly available data from multiple sources for building a spatial interaction models to determine factors affecting urban mobility patterns of public bus transit.</p>
+<p>In this study, I will continue my geospatial analytics learning journey to demonstrate the potential value of geospatial data science and analysis (GDSA) to integrate publicly available data from multiple sources for building a spatial interaction models to determine factors affecting urban mobility patterns of public bus transit. This study will tap on more data such as HDB, School Directory and Information, Train Station Exit Layer, Financial Service, Business data.</p>
 </section>
 <section id="getting-started" class="level1">
 <h1><strong>2 Getting Started</strong></h1>
 <section id="setting-the-analytical-tools" class="level2">
 <h2 class="anchored" data-anchor-id="setting-the-analytical-tools"><strong>2.1 Setting the Analytical Tools</strong></h2>
-<p>The code chunk below installs and loads the various packages</p>
+<p>The code chunk below installs and loads the various packages.</p>
+<p>For the purpose of this study, 11 r packages will be used. They are:</p>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html">tmap</a> for plotting cartographicquality thematic maps.</li>
+</ul>
+<!-- -->
+<ul>
+<li><p><a href="https://r-spatial.github.io/sf/">sf</a> for importing, integrating, processing and transforming geospatial data.</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/DT/index.html">DT</a> for working with HTTP organised by HTTP verbs.</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/stplanr/index.html">stplanr</a> for transport planning and analysis</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/sp/index.html">sp</a> for spatial data</p></li>
+<li><p><a href="https://easystats.github.io/performance/">performance</a> for computing model comparison matrices such as rmse.</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/reshape2/index.html">reshape2</a> for melt function</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/httr/index.html">httr</a> for working with HTTP</p></li>
+<li><p><a href="https://rpkgs.datanovia.com/ggpubr/">ggpubr</a> for creating publication quality statistical graphics.</p></li>
+<li><p><a href="https://www.tidyverse.org/">tidyverse</a> for importing, integrating, wrangling and visualising data.</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html">corrplot</a> for correlation matrix</p></li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tmap, sf, DT, stplanr, sp,</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>               performance,reshape2,httr,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>               ggpubr, tidyverse, corrplot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>From <a href="https://r4gdsa.netlify.app/chap16#converting-from-sf-data.table-to-spatialpolygonsdataframe">link</a>, past experience shows that computing distance matrix by using <strong>sf function</strong> took relatively longer time that sp method especially the data set is large. In view of this, sp method is used in the code chunks below.</p>
+</div>
 </div>
 </section>
 </section>
@@ -374,7 +404,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="data"><strong>3.1 Data</strong></h2>
 <section id="importing-the-od-data" class="level3">
 <h3 class="anchored" data-anchor-id="importing-the-od-data"><strong>3.1.1 Importing the OD data</strong></h3>
-<p>Firstly, we will import the&nbsp;<em>Passenger Volume by Origin Destination Bus Stops</em>&nbsp;data set downloaded from LTA DataMall by using&nbsp;<code>read_csv()</code>&nbsp;of&nbsp;<strong>readr</strong>&nbsp;package. Oct 2023 data will be used. Detailed explanation of how the dataset is obtained is in Take Home Exercise 1.</p>
+<p>Firstly, I will import the&nbsp;<em>Passenger Volume by Origin Destination Bus Stops</em>&nbsp;data set downloaded from LTA DataMall by using&nbsp;<code>read_csv()</code>&nbsp;of&nbsp;<strong>readr</strong>&nbsp;package. <strong>Oct 2023</strong> data will be used. Detailed explanation of how the dataset is obtained is in <a href="https://czx-isss624.netlify.app/take_home_ex1/take_home_ex1#aspatial-data">Take Home Exercise 1</a>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>odbus <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/origin_destination_bus_202310.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -388,7 +418,7 @@ dbl (2): TIME_PER_HOUR, TOTAL_TRIPS
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
 </div>
-<p>Let use display the&nbsp;<em>odbus</em>&nbsp;tibble data table by using the code chunk below.</p>
+<p>I will display the&nbsp;<em>odbus</em>&nbsp;tibble data table by using the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(odbus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -403,12 +433,12 @@ $ DESTINATION_PT_CODE &lt;chr&gt; "10051", "10051", "90079", "90079", "17229", "
 $ TOTAL_TRIPS         &lt;dbl&gt; 3, 5, 3, 5, 4, 1, 24, 2, 1, 7, 3, 2, 5, 1, 1, 1, 1…</code></pre>
 </div>
 </div>
-<p>A quick check of odbus tibble data frame shows that the values in OROGIN_PT_CODE and DESTINATON_PT_CODE are in numeric data type. Hence, the code chunk below is used to convert these data values into character data type.</p>
+<p>A quick check of odbus tibble data frame shows that the values in ORIGIN_PT_CODE and DESTINATON_PT_CODE are in numeric data type. Hence, the code chunk below is used to convert these data values into character data type.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>odbus<span class="sc">$</span>ORIGIN_PT_CODE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(odbus<span class="sc">$</span>ORIGIN_PT_CODE)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>odbus<span class="sc">$</span>DESTINATION_PT_CODE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(odbus<span class="sc">$</span>DESTINATION_PT_CODE) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>For the purpose of this exercise, we will extract commuting flows on weekday and between 6 and 9 o’clock. This will mainly be people going to school or work.</p>
+<p>For this study, I will extract commuting flows on weekday and between 6 and 9 o’clock. This will mainly be people going to school or work.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>odbus6_9 <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKDAY"</span>) <span class="sc">%&gt;%</span></span>
@@ -422,7 +452,7 @@ $ TOTAL_TRIPS         &lt;dbl&gt; 3, 5, 3, 5, 4, 1, 24, 2, 1, 7, 3, 2, 5, 1, 1, 
 the `.groups` argument.</code></pre>
 </div>
 </div>
-<p>We will save the output in rds format for future used.</p>
+<p>I will save the output in rds format for future used.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(odbus6_9, <span class="st">"data/rds/odbus6_9.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -526,7 +556,7 @@ all geometries</code></pre>
 </section>
 <section id="creating-hexagon-layer" class="level2">
 <h2 class="anchored" data-anchor-id="creating-hexagon-layer">4.2 Creating Hexagon layer</h2>
-<p>Now, I am going to create a hexagon layer:</p>
+<p>Now, I am going to create a hexagon layer from the guidance of this <a href="https://urbandatapalette.com/post/2021-08-tessellation-sf/">link</a>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># cell size of layer of 250m</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>area_honeycomb_grid <span class="ot">=</span> <span class="fu">st_make_grid</span>(busstop_mpsz, <span class="fu">c</span>(<span class="dv">750</span>, <span class="dv">750</span>), <span class="at">what =</span> <span class="st">"polygons"</span>, <span class="at">square =</span> <span class="cn">FALSE</span>, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
@@ -549,7 +579,7 @@ Writing 2299 features with 0 fields and geometry type Polygon.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `hexagon' from data source 
   `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
-Simple feature collection with 61377 features and 1 field
+Simple feature collection with 63676 features and 1 field
 Geometry type: POLYGON
 Dimension:     XY
 Bounding box:  xmin: 3220.122 ymin: 26049.09 xmax: 48970.12 ymax: 50947.32
@@ -559,7 +589,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 </section>
 <section id="combine-hexagon-and-busstop_mpsz" class="level2">
 <h2 class="anchored" data-anchor-id="combine-hexagon-and-busstop_mpsz">4.3 Combine Hexagon and Busstop_Mpsz</h2>
-<p>Next, we are going to combine the datset busstop_mpsz and hexagon</p>
+<p>Next, we are going to combine the datset busstop_mpsz and hexagon. This will give me the hexagon layer together with Busstop_mpsz.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>od_data <span class="ot">&lt;-</span> <span class="fu">st_join</span>(busstop_mpsz , hexagon,</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"geometry"</span> <span class="ot">=</span> <span class="st">"geometry"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -567,7 +597,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 </section>
 <section id="combine-hexagon-and-busstop" class="level2">
 <h2 class="anchored" data-anchor-id="combine-hexagon-and-busstop">4.4 Combine Hexagon and Busstop</h2>
-<p>I will combine the Hexagon and busstop.</p>
+<p>I will combine the Hexagon and busstop. This will sieve out areas with bus stops in hexagon format.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop <span class="ot">&lt;-</span> <span class="fu">st_join</span>(hexagon, busstop, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"FID"</span> <span class="ot">=</span> <span class="st">"FID"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -582,7 +612,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 </section>
 <section id="combine-odbus6_9-with-od_data" class="level2">
 <h2 class="anchored" data-anchor-id="combine-odbus6_9-with-od_data">4.5 Combine odbus6_9 with od_data</h2>
-<p>I will combine the Hexagon and Busstop_Mpsz with the odbus6_9 data to give me od_data1 for the unique identifier of the origin:</p>
+<p>I will combine the Hexagon and Busstop_Mpsz with the odbus6_9 data to give me od_data1 for the unique identifier which is the <strong>origin</strong>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>od_data_1 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(odbus6_9 , od_data,</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ORIGIN_PT_CODE"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>)) <span class="sc">%&gt;%</span></span>
@@ -592,7 +622,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(odbus6_9, od_data, by = c(ORIGIN_PT_CODE = "BUS_STOP_N")): Detected an unexpected many-to-many relationship between `x` and `y`.
 ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 16129 of `y` matches multiple rows in `x`.
+ℹ Row 16801 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
 </div>
@@ -609,14 +639,14 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>od_data_1 <span class="ot">&lt;-</span> <span class="fu">unique</span>(od_data_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>It will be a good practice to confirm if the duplicating records issue has been addressed fully.</p>
-<p>Next, we will update od_data data frame with Combine Hexagon and Busstop_Mpsz with destination:</p>
+<p>Next, we will update od_data data frame with Combine Hexagon and Busstop_Mpsz with <strong>destination:</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>od_data_2 <span class="ot">&lt;-</span> <span class="fu">left_join</span>(od_data_1 , od_data,</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"DESTIN_BS"</span> <span class="ot">=</span> <span class="st">"BUS_STOP_N"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(od_data_1, od_data, by = c(DESTIN_BS = "BUS_STOP_N")): Detected an unexpected many-to-many relationship between `x` and `y`.
 ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 16105 of `y` matches multiple rows in `x`.
+ℹ Row 16776 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
 </div>
@@ -828,7 +858,20 @@ shorter object length</code></pre>
 <h2 class="anchored" data-anchor-id="geospatial">6.1 Geospatial</h2>
 <p>For geospatial, I will be using the following:</p>
 <ol type="1">
-<li><em>Business:</em> This dataset is used to illustrated people commuting to work</li>
+<li><p><em>Business:</em> This dataset is used to illustrated people commuting to work</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Data is prepared by Prof Kam - ISSS624</p>
+</div>
+</div></li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>business <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
@@ -877,6 +920,19 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <ol start="2" type="1">
 <li><em>FinServ:</em> This dataset is used to illustrate people working in the financial services sector</li>
 </ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Data is prepared by Prof Kam - ISSS624</p>
+</div>
+</div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>finserv <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
 <span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"FinServ"</span>) <span class="sc">%&gt;%</span></span>
@@ -922,8 +978,10 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 </div>
 </div>
 <ol start="3" type="1">
-<li>Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop (latest update Aug 23 - Taken from <a href="https://datamall.lta.gov.sg/content/datamall/en/static-data.html">datamall</a>)</li>
+<li>Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop. Steps to obtain the data is shown below:</li>
 </ol>
+<p>In <a href="https://datamall.lta.gov.sg/content/datamall/en/static-data.html">datamall</a> -&gt; Go to static datasets -&gt; under search bar type “Train Station Exit Point” -&gt; download shp file</p>
+<p><img src="images/1.PNG" class="img-fluid" width="581"></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
 <span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"Train_Station_Exit_Layer"</span>) <span class="sc">%&gt;%</span></span>
@@ -969,8 +1027,10 @@ Projected CRS: SVY21</code></pre>
 </div>
 </div>
 <ol start="4" type="1">
-<li>Rapid Transit System Station (latest update Feb 23 - Taken from <a href="https://datamall.lta.gov.sg/content/datamall/en/static-data.html">datamall</a>)</li>
+<li>Rapid Transit System Station. This is for the location of MRT. Steps to obtain the data is shown below:</li>
 </ol>
+<p>In <a href="https://datamall.lta.gov.sg/content/datamall/en/static-data.html">datamall</a> -&gt; Go to static datasets -&gt; under search bar type “Train Station” -&gt; download shp file</p>
+<p><img src="images/2.PNG" class="img-fluid" width="587"></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>mrt <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>,</span>
 <span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">layer =</span> <span class="st">"RapidTransitSystemStation"</span>) <span class="sc">%&gt;%</span></span>
@@ -1044,6 +1104,19 @@ Important
 <ol type="1">
 <li>HDB: This dataset is used to understand the location of HBD in the hexagon layer</li>
 </ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Data is prepared by Prof Kam - ISSS624</p>
+</div>
+</div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/aspatial/hdb.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -1107,7 +1180,11 @@ Important
 <ol start="2" type="1">
 <li><em>School Directory and Information</em> - Dataset is taken from <a href="https://beta.data.gov.sg/">Data@Gov</a>. This information is useful as the morning period will consist of students going to school</li>
 </ol>
-<p>Concepts learned from In-Class Ex 4 will be used to extract the data from SLA API</p>
+<p>a. Steps in <a href="https://beta.data.gov.sg/">Data@Gov</a>: Type in “School Directory and Information” in search bar</p>
+<p><img src="images/3.PNG" class="img-fluid" width="578"></p>
+<p>b. <a href="https://www.onemap.gov.sg/apidocs/">SLA API</a> -&gt; To note on API document -&gt; Search</p>
+<p><img src="images/4.PNG" class="img-fluid" width="578"></p>
+<p>Concepts learned from <a href="https://isss624.netlify.app/in-class_ex/in-class_ex4/in-class_ex4-gds#counting-number-of-schools-in-each-ura-planning-subzone">In-Class Ex 4</a> will be used to extract the data from SLA API</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>url<span class="ot">&lt;-</span><span class="st">"https://www.onemap.gov.sg/api/common/elastic/search"</span></span>
 <span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1137,13 +1214,13 @@ chr (31): school_name, url_address, address, postal_code, telephone_no, tele...
 <span id="cb115-14"><a href="#cb115-14" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb115-15"><a href="#cb115-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next, the code chunk below will be used to combine both&nbsp;<em>found</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;data.frames into a single tibble data.frame called&nbsp;<em>merged</em>. At the same time, we will write&nbsp;<em>merged</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;tibble data.frames into two separate csv files called&nbsp;<em>schools</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;respectively.</p>
+<p>Next, the code chunk below will be used to combine both&nbsp;<em>found</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;data.frames into a single tibble data.frame called&nbsp;<em>merged</em>. At the same time, I will write&nbsp;<em>merged</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;tibble data.frames into two separate csv files called&nbsp;<em>schools</em>&nbsp;and&nbsp;<em>not_found</em>&nbsp;respectively.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">=</span> <span class="fu">merge</span>(csv, found, <span class="at">by.x =</span> <span class="st">'postal_code'</span>, <span class="at">by.y =</span> <span class="st">'results.POSTAL'</span>, <span class="at">all =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(merged, <span class="at">file =</span> <span class="st">"data/aspatial/schools.csv"</span>)</span>
 <span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(not_found, <span class="at">file =</span> <span class="st">"data/aspatial/not_found.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>I will manually clean up for ZhengHua Secondary School (<a href="https://www.google.com/search?q=zhenghua+secondary+school&amp;rlz=1C1YTUH_enSG1024SG1038&amp;oq=zhe&amp;gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7Mg0IARAuGK8BGMcBGIAEMgYIAhBFGEAyBggDEEUYOTIKCAQQLhixAxiABDINCAUQLhivARjHARiABDINCAYQLhiDARixAxiABDIGCAcQRRg80gEIMzMyM2owajeoAgCwAgA&amp;sourceid=chrome&amp;ie=UTF-8">link</a>). File is saved as schools1.csv</p>
+<p>I will manually clean up for ZhengHua Secondary School for the coordinates (<a href="https://www.google.com/search?q=zhenghua+secondary+school&amp;rlz=1C1YTUH_enSG1024SG1038&amp;oq=zhe&amp;gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7Mg0IARAuGK8BGMcBGIAEMgYIAhBFGEAyBggDEEUYOTIKCAQQLhixAxiABDINCAUQLhivARjHARiABDINCAYQLhiDARixAxiABDIGCAcQRRg80gEIMzMyM2owajeoAgCwAgA&amp;sourceid=chrome&amp;ie=UTF-8">link</a>). File is saved as <strong>schools1.csv</strong></p>
 <p>Next, I will import&nbsp;<em>schools1.csv</em>&nbsp;into R environment and at the same time tidying the data by selecting only the necessary fields as well as rename some fields.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>schools <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/schools1.csv"</span>) <span class="sc">%&gt;%</span></span>
@@ -1209,7 +1286,7 @@ Important
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If&nbsp;<code>log()</code>&nbsp;is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1.</p>
+<p>The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If&nbsp;<code>log()</code>&nbsp;is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1. This is the same for other data.</p>
 </div>
 </div>
 <p>The data will be joined with od_data:</p>
@@ -1264,7 +1341,7 @@ Note
  NA's   :144      NA's   :144      NA's   :144      NA's   :144    </code></pre>
 </div>
 </div>
-<p>The code chunk below will be used to replace zero values to 0.99.</p>
+<p>The code chunk below will be used to replace zero values to 0.99 for the propulsive and attractiveness variables.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>flow_data<span class="sc">$</span>SCHOOL_COUNT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
 <span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>  flow_data<span class="sc">$</span>SCHOOL_COUNT <span class="sc">==</span> <span class="dv">0</span>,</span>
@@ -1303,7 +1380,7 @@ Note
  NA's   :144       NA's   :144      NA's   :144      NA's   :144    </code></pre>
 </div>
 </div>
-<p>Next we will remove duplicate record:</p>
+<p>Next I will remove duplicate record:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>duplicate <span class="ot">&lt;-</span> flow_data <span class="sc">%&gt;%</span></span>
 <span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
@@ -1353,7 +1430,7 @@ Note
 <h1>7 <strong>Computing Distance Matrix</strong></h1>
 <section id="converting-from-sf-data.table-to-spatialpolygonsdataframe" class="level2">
 <h2 class="anchored" data-anchor-id="converting-from-sf-data.table-to-spatialpolygonsdataframe">7.1 <strong>Converting from sf data.table to SpatialPolygonsDataFrame</strong></h2>
-<p>First&nbsp;<a href="https://r-spatial.github.io/sf/reference/coerce-methods.html"><code>as.Spatial()</code></a>&nbsp;will be used to convert&nbsp;<em>mpsz</em>&nbsp;from sf tibble data frame to SpatialPolygonsDataFrame of sp object as shown in the code chunk below</p>
+<p>First&nbsp;<a href="https://r-spatial.github.io/sf/reference/coerce-methods.html"><code>as.Spatial()</code></a>&nbsp;will be used to convert&nbsp;hexagon_busstop&nbsp;from sf tibble data frame to SpatialPolygonsDataFrame of sp object as shown in the code chunk below</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(hexagon_busstop, <span class="st">"Spatial"</span>)</span>
 <span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a>hexagon_busstop_sp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1409,7 +1486,7 @@ max values  : 2951,      99189,        UNK, ZUELLIG PHARMA,            117,     
 <div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dist) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(sz_names)</span>
 <span id="cb143-2"><a href="#cb143-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(dist) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(sz_names)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next, we will pivot the distance matrix into a long table by using the row and column subzone codes as show in the code chunk below.</p>
+<p>Next, I will pivot the distance matrix into a long table by using the row and column subzone codes as show in the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a>distPair <span class="ot">&lt;-</span> <span class="fu">melt</span>(dist) <span class="sc">%&gt;%</span></span>
 <span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dist =</span> value)</span>
@@ -1540,7 +1617,7 @@ Note
 <span id="cb157-7"><a href="#cb157-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"FID.x"</span> <span class="ot">=</span> <span class="st">"orig"</span>,</span>
 <span id="cb157-8"><a href="#cb157-8" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"FID.y"</span> <span class="ot">=</span> <span class="st">"dest"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We will remove duplicate</p>
+<p>I will remove duplicate</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" aria-hidden="true" tabindex="-1"></a>duplicate <span class="ot">&lt;-</span> flow_data1 <span class="sc">%&gt;%</span></span>
 <span id="cb158-2"><a href="#cb158-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by_all</span>() <span class="sc">%&gt;%</span></span>
@@ -1550,7 +1627,7 @@ Note
 <div class="cell">
 <div class="sourceCode cell-code" id="cb159"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb159-1"><a href="#cb159-1" aria-hidden="true" tabindex="-1"></a>flow_data1 <span class="ot">&lt;-</span> <span class="fu">unique</span>(flow_data1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We will called the output data file&nbsp;<em>SIM_data</em>. it is in rds data file format.</p>
+<p>I will called the output data file&nbsp;<em>SIM_data</em>. I will save the file to rds data file format.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(flow_data1, <span class="st">"data/rds/SIM_data.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -1560,12 +1637,14 @@ Note
 <h2 class="anchored" data-anchor-id="calibrating-spatial-interaction-models"><strong>8.2 Calibrating Spatial Interaction Models</strong></h2>
 <section id="importing-the-modelling-data" class="level3">
 <h3 class="anchored" data-anchor-id="importing-the-modelling-data">8.2.1 <strong>Importing the modelling data</strong></h3>
+<p>I import back SIM_data</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a>SIM_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/SIM_data.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="visualising-the-dependent-variable" class="level3">
 <h3 class="anchored" data-anchor-id="visualising-the-dependent-variable">8.2.2 <strong>Visualising the dependent variable</strong></h3>
+<p>I will do a visualisation to understand why <a href="https://stats.oarc.ucla.edu/r/dae/poisson-regression/">poisson regression</a> will be used:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb162"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href="#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> SIM_data,</span>
 <span id="cb162-2"><a href="#cb162-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> MORNING_PEAK)) <span class="sc">+</span></span>
@@ -1577,7 +1656,7 @@ Note
 <p><img src="take_home_ex2_files/figure-html/unnamed-chunk-91-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Notice that the distribution is highly skewed and not resemble bell shape or also known as normal distribution.</p>
+<p>Notice that the distribution is highly skewed and not resemble bell shape or normal distribution.</p>
 <p>Next, let us visualise the relation between the dependent variable and one of the key independent variable in Spatial Interaction Model, namely distance.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb164"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb164-1"><a href="#cb164-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> SIM_data,</span>
@@ -1598,8 +1677,8 @@ Note
 <p><img src="take_home_ex2_files/figure-html/unnamed-chunk-92-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Notice that their relationship hardly resemble linear relationship.</p>
-<p>On the other hand, if we plot the scatter plot by using the log transformed version of both variables, we can see that their relationship is more resemble linear relationship.</p>
+<p>The relationship hardly resemble linear relationship.</p>
+<p>I will further plot the scatter plot by using the log transformed version of both variables, I can see that their relationship is more resemble linear relationship.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb168"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb168-1"><a href="#cb168-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> SIM_data,</span>
 <span id="cb168-2"><a href="#cb168-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(dist),</span>
@@ -1622,7 +1701,7 @@ Note
 </section>
 <section id="checking-for-variables-with-zero-values" class="level3">
 <h3 class="anchored" data-anchor-id="checking-for-variables-with-zero-values"><strong>8.2.3 Checking for variables with zero values</strong></h3>
-<p>Since Poisson Regression is based of log and log 0 is undefined, it is important for us to ensure that no 0 values in the explanatory variables.</p>
+<p>Since Poisson Regression is based of log and log 0 is undefined, it is important to ensure that no 0 values in the explanatory variables.</p>
 <p>In the code chunk below, summary() of Base R is used to compute the summary statistics of all variables in <em>SIM_data</em> data frame.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb172"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb172-1"><a href="#cb172-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(SIM_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1654,7 +1733,7 @@ Note
 </div>
 </div>
 <p>Since we have replaced the zero values. No further action is required.</p>
-<p>Change FID.x and FID.y to character</p>
+<p>Now, I will change FID.x and FID.y to character. Both must be in categorical data type to do poisson regression:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb174"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb174-1"><a href="#cb174-1" aria-hidden="true" tabindex="-1"></a>SIM_data<span class="sc">$</span>FID.x <span class="ot">&lt;-</span> <span class="fu">as.character</span>(SIM_data<span class="sc">$</span>FID.x)</span>
 <span id="cb174-2"><a href="#cb174-2" aria-hidden="true" tabindex="-1"></a>SIM_data<span class="sc">$</span>FID.y <span class="ot">&lt;-</span> <span class="fu">as.character</span>(SIM_data<span class="sc">$</span>FID.y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1727,7 +1806,7 @@ Note
 <section id="correlation-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="correlation-analysis">8.2.3 Correlation Analysis</h3>
 <p>Before I proceed to do SIM, I will determine if there are any correlations between the variables.</p>
-<p>Ensure all columns are numeric:</p>
+<p>I will first ensure all columns are numeric:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb181"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb181-1"><a href="#cb181-1" aria-hidden="true" tabindex="-1"></a>inter_zonal_flow<span class="sc">$</span>SCHOOL_COUNT<span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(inter_zonal_flow<span class="sc">$</span>SCHOOL_COUNT)</span>
 <span id="cb181-2"><a href="#cb181-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1751,7 +1830,7 @@ Note
 <p><img src="take_home_ex2_files/figure-html/unnamed-chunk-101-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>FINANCE_COUNT and TRAIN_COUNT seems to be correlated, I will remove FINANCE_COUNT in the final analysis.</p>
+<p>FINANCE_COUNT and TRAIN_COUNT seems to be correlated (R = 0.64), I will remove FINANCE_COUNT in the final analysis.</p>
 </section>
 </section>
 <section id="unconstrained-spatial-interaction-model" class="level2">
@@ -2878,6 +2957,7 @@ Number of Fisher Scoring iterations: 7</code></pre>
 </section>
 <section id="destination-constrained" class="level2">
 <h2 class="anchored" data-anchor-id="destination-constrained">8.5 <strong>Destination constrained</strong></h2>
+<p>The code chunk used to calibrate to model is shown below. FID.y is the destination:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb192"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb192-1"><a href="#cb192-1" aria-hidden="true" tabindex="-1"></a>decSIM <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> MORNING_PEAK <span class="sc">~</span> </span>
 <span id="cb192-2"><a href="#cb192-2" aria-hidden="true" tabindex="-1"></a>                  FID.y <span class="sc">+</span></span>
@@ -3953,6 +4033,7 @@ Number of Fisher Scoring iterations: 8</code></pre>
 </section>
 <section id="doubly-constrained-model" class="level2">
 <h2 class="anchored" data-anchor-id="doubly-constrained-model">8.6 <strong>Doubly constrained model</strong></h2>
+<p>The code chunk used to calibrate to model is shown below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb196"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb196-1"><a href="#cb196-1" aria-hidden="true" tabindex="-1"></a>dbcSIM_Poisson <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> MORNING_PEAK <span class="sc">~</span> </span>
 <span id="cb196-2"><a href="#cb196-2" aria-hidden="true" tabindex="-1"></a>                  FID.x <span class="sc">+</span></span>
@@ -6058,7 +6139,7 @@ Number of Fisher Scoring iterations: 13</code></pre>
 <h1>9 <strong>Model comparison</strong></h1>
 <section id="statistical-measures" class="level2">
 <h2 class="anchored" data-anchor-id="statistical-measures">9.1 <strong>Statistical measures</strong></h2>
-<p>First of all, let us create a list called&nbsp;<em>model_list</em>&nbsp;by using the code chunk below.</p>
+<p>First of all, I will create a list called&nbsp;<em>model_list</em>&nbsp;by using the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb200"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb200-1"><a href="#cb200-1" aria-hidden="true" tabindex="-1"></a>model_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb200-2"><a href="#cb200-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Unconstrained=</span> uncSIM,</span>
@@ -6066,7 +6147,7 @@ Number of Fisher Scoring iterations: 13</code></pre>
 <span id="cb200-4"><a href="#cb200-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Destination_Constrained =</span> decSIM,</span>
 <span id="cb200-5"><a href="#cb200-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Doubly_Constrained =</span> dbcSIM_Poisson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next, we will compute the RMSE of all the models in&nbsp;<em>model_list</em>&nbsp;file by using the code chunk below.</p>
+<p>Next, I will compute the RMSE of all the models in&nbsp;<em>model_list</em>&nbsp;file by using the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb201"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb201-1"><a href="#cb201-1" aria-hidden="true" tabindex="-1"></a><span class="fu">compare_performance</span>(model_list,</span>
 <span id="cb201-2"><a href="#cb201-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">metrics =</span> <span class="st">"RMSE"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -6085,12 +6166,13 @@ Doubly_Constrained      |   glm |  970.640</code></pre>
 </section>
 <section id="visualising-fitted-values" class="level2">
 <h2 class="anchored" data-anchor-id="visualising-fitted-values">9.2 <strong>Visualising fitted values</strong></h2>
-<p>Firstly we will extract the fitted values from <strong>Origin-constrained Model</strong> by using the code chunk below.</p>
+<p>I will do a plot to visualise the observed values and the fitted values.</p>
+<p>Firstly I will extract the fitted values from <strong>Origin-constrained Model</strong> by using the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb203"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb203-1"><a href="#cb203-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(orcSIM<span class="sc">$</span>fitted.values) <span class="sc">%&gt;%</span></span>
 <span id="cb203-2"><a href="#cb203-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next, we will append the fitted values into&nbsp;<em>inter_zonal_flow</em>&nbsp;data frame by using the code chunk below.</p>
+<p>Next, I will append the fitted values into&nbsp;<em>inter_zonal_flow</em>&nbsp;data frame by using the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb204"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb204-1"><a href="#cb204-1" aria-hidden="true" tabindex="-1"></a>inter_zonal_flow <span class="ot">&lt;-</span> inter_zonal_flow <span class="sc">%&gt;%</span></span>
 <span id="cb204-2"><a href="#cb204-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(df) <span class="sc">%&gt;%</span></span>
@@ -6162,7 +6244,7 @@ Doubly_Constrained      |   glm |  970.640</code></pre>
 <span id="cb211-32"><a href="#cb211-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">100000</span>),</span>
 <span id="cb211-33"><a href="#cb211-33" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">100000</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now, we will put all the graphs into a single visual for better comparison by using the code chunk below.</p>
+<p>Now, I will put all the graphs into a single visual for better comparison by using the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb212"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb212-1"><a href="#cb212-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(unc_p, orc_p, dec_p, dbc_p,</span>
 <span id="cb212-2"><a href="#cb212-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">ncol =</span> <span class="dv">2</span>,</span>
@@ -6181,13 +6263,12 @@ Doubly_Constrained      |   glm |  970.640</code></pre>
 </section>
 <section id="modelling-results" class="level1">
 <h1>10 Modelling Results</h1>
-<p>From the various models, it seems to suggest that the doubly constrained model is the best as it has the lowest RMSE and the best fit plot of MORNING_PEAK against TRIPS.</p>
-<p>However, the coefficient of the different variables are removed (indicated as NA). Further investigation is needed to further examine on these findings.</p>
-<p>In this aspect, Origin Constraint is the best model to be used (despite a low R2 of 31%).</p>
-<p>We observed that the coefficient is the largest for TRAIN_COUNT, followed by SCHOOL_COUNT, BUSINESS_COUNT and HDB_COUNT. All variables are directly related to MORNING_PEAK, and all of the explanatory variables contribute significantly in explaining the MORNING_PEAK as p values are less than 5%.</p>
-<p>One reason may be that passengers transit between MRT and buses to commute to work or school, in which the number of passengers who alighted from MRT will affect the number of passengers who are taking buses.</p>
-<p>For schools, parents may be bringing their children to school. Business, surprisingly, has a less impact compared to schools, but also accounts for passengers who are going to work between 6am to 9am. One reason may be the concept of working from home where people do not need to head to office daily (<a href="https://www.straitstimes.com/business/more-than-7-in-10-s-poreans-prefer-remote-work-arrangements-higher-than-global-average-imf-economists">link</a>)</p>
-<p>HDB_Count is of the least impact as probably passengers may walk a certain distance to another bus stop to take the required bus service to their destination and do not take the bus services which is the nearest to their house.</p>
+<p>From the various models assessed, it appears that the doubly constrained model emerges as the most favorable, exhibiting the lowest RMSE and displaying the most fitting plot of MORNING_PEAK against TRIPS. However, the coefficients for different variables are absent (indicated as NA), necessitating further investigation into these results. There could potentially be a correlation between the destination and these variables.</p>
+<p>In this context, despite a modest R2 of 31%, the Origin Constraint model appears to be the most suitable for use in this preliminary study.</p>
+<p>It is notable that the coefficient for TRAIN_COUNT is the most significant, followed by SCHOOL_COUNT, BUSINESS_COUNT, and HDB_COUNT. All these variables show a direct relationship with MORNING_PEAK, and their respective p-values indicate significant contributions to explaining MORNING_PEAK, as they are less than 5%.</p>
+<p>Regarding the train station exit layer, this could be due to passengers switching between MRT and buses for their daily commute to work or school, where the number of alighting MRT passengers affects those taking buses.</p>
+<p>Concerning schools, it’s plausible that parents commuting with their children contribute to this trend. Surprisingly, businesses have a lesser impact compared to schools but still account for passengers traveling to work between 6 am to 9 am. One possible reason might be the increasing trend of remote work, reducing the necessity for daily office commutes (<a href="https://www.straitstimes.com/business/more-than-7-in-10-s-poreans-prefer-remote-work-arrangements-higher-than-global-average-imf-economists">link</a>).</p>
+<p>HDB_Count appears to have the least impact, possibly indicating that passengers are willing to walk a certain distance to another bus stop for their required bus service instead of opting for the nearest bus service to their homes.</p>
 </section>
 <section id="conclusion" class="level1">
 <h1>11 Conclusion</h1>

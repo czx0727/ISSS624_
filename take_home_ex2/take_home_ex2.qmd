@@ -9,13 +9,39 @@ date-modified: "last-modified"
 
 # **1 Overview**
 
-In this study, I will continue my geospatial analytics learning journey to demonstrate the potential value of geospatial data science and analysis (GDSA) to integrate publicly available data from multiple sources for building a spatial interaction models to determine factors affecting urban mobility patterns of public bus transit.
+In this study, I will continue my geospatial analytics learning journey to demonstrate the potential value of geospatial data science and analysis (GDSA) to integrate publicly available data from multiple sources for building a spatial interaction models to determine factors affecting urban mobility patterns of public bus transit. This study will tap on more data such as HDB, School Directory and Information, Train Station Exit Layer, Financial Service, Business data.
 
 # **2 Getting Started**
 
 ## **2.1 Setting the Analytical Tools**
 
-The code chunk below installs and loads the various packages
+The code chunk below installs and loads the various packages.
+
+For the purpose of this study, 11 r packages will be used. They are:
+
+-   [tmap](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) for plotting cartographicquality thematic maps.
+
+<!-- -->
+
+-   [sf](https://r-spatial.github.io/sf/) for importing, integrating, processing and transforming geospatial data.
+
+-   [DT](https://cran.r-project.org/web/packages/DT/index.html) for working with HTTP organised by HTTP verbs.
+
+-   [stplanr](https://cran.r-project.org/web/packages/stplanr/index.html) for transport planning and analysis
+
+-   [sp](https://cran.r-project.org/web/packages/sp/index.html) for spatial data
+
+-   [performance](https://easystats.github.io/performance/) for computing model comparison matrices such as rmse.
+
+-   [reshape2](https://cran.r-project.org/web/packages/reshape2/index.html) for melt function
+
+-   [httr](https://cran.r-project.org/web/packages/httr/index.html) for working with HTTP
+
+-   [ggpubr](https://rpkgs.datanovia.com/ggpubr/) for creating publication quality statistical graphics.
+
+-   [tidyverse](https://www.tidyverse.org/) for importing, integrating, wrangling and visualising data.
+
+-   [corrplot](https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html) for correlation matrix
 
 ```{r}
 pacman::p_load(tmap, sf, DT, stplanr, sp,
@@ -23,32 +49,36 @@ pacman::p_load(tmap, sf, DT, stplanr, sp,
                ggpubr, tidyverse, corrplot)
 ```
 
+::: callout-note
+From [link](https://r4gdsa.netlify.app/chap16#converting-from-sf-data.table-to-spatialpolygonsdataframe), past experience shows that computing distance matrix by using **sf function** took relatively longer time that sp method especially the data set is large. In view of this, sp method is used in the code chunks below.
+:::
+
 # **3 Data Preparation**
 
 ## **3.1 Data**
 
 ### **3.1.1 Importing the OD data**
 
-Firstly, we will import the *Passenger Volume by Origin Destination Bus Stops* data set downloaded from LTA DataMall by using `read_csv()` of **readr** package. Oct 2023 data will be used. Detailed explanation of how the dataset is obtained is in Take Home Exercise 1.
+Firstly, I will import the *Passenger Volume by Origin Destination Bus Stops* data set downloaded from LTA DataMall by using `read_csv()` of **readr** package. **Oct 2023** data will be used. Detailed explanation of how the dataset is obtained is in [Take Home Exercise 1](https://czx-isss624.netlify.app/take_home_ex1/take_home_ex1#aspatial-data).
 
 ```{r}
 odbus <- read_csv("data/aspatial/origin_destination_bus_202310.csv")
 ```
 
-Let use display the *odbus* tibble data table by using the code chunk below.
+I will display the *odbus* tibble data table by using the code chunk below.
 
 ```{r}
 glimpse(odbus)
 ```
 
-A quick check of odbus tibble data frame shows that the values in OROGIN_PT_CODE and DESTINATON_PT_CODE are in numeric data type. Hence, the code chunk below is used to convert these data values into character data type.
+A quick check of odbus tibble data frame shows that the values in ORIGIN_PT_CODE and DESTINATON_PT_CODE are in numeric data type. Hence, the code chunk below is used to convert these data values into character data type.
 
 ```{r}
 odbus$ORIGIN_PT_CODE <- as.factor(odbus$ORIGIN_PT_CODE)
 odbus$DESTINATION_PT_CODE <- as.factor(odbus$DESTINATION_PT_CODE) 
 ```
 
-For the purpose of this exercise, we will extract commuting flows on weekday and between 6 and 9 o'clock. This will mainly be people going to school or work.
+For this study, I will extract commuting flows on weekday and between 6 and 9 o'clock. This will mainly be people going to school or work.
 
 ```{r}
 odbus6_9 <- odbus %>%
@@ -60,7 +90,7 @@ odbus6_9 <- odbus %>%
   summarise(TRIPS = sum(TOTAL_TRIPS))
 ```
 
-We will save the output in rds format for future used.
+I will save the output in rds format for future used.
 
 ```{r}
 write_rds(odbus6_9, "data/rds/odbus6_9.rds")
@@ -121,7 +151,7 @@ write_rds(busstop_mpsz, "data/rds/busstop_mpsz.rds")
 
 ## 4.2 Creating Hexagon layer
 
-Now, I am going to create a hexagon layer:
+Now, I am going to create a hexagon layer from the guidance of this [link](https://urbandatapalette.com/post/2021-08-tessellation-sf/):
 
 ```{r}
 # cell size of layer of 250m
@@ -143,7 +173,7 @@ hexagon <- st_read(dsn = "data/geospatial",
 
 ## 4.3 Combine Hexagon and Busstop_Mpsz
 
-Next, we are going to combine the datset busstop_mpsz and hexagon
+Next, we are going to combine the datset busstop_mpsz and hexagon. This will give me the hexagon layer together with Busstop_mpsz.
 
 ```{r}
 od_data <- st_join(busstop_mpsz , hexagon,
@@ -152,7 +182,7 @@ od_data <- st_join(busstop_mpsz , hexagon,
 
 ## 4.4 Combine Hexagon and Busstop
 
-I will combine the Hexagon and busstop.
+I will combine the Hexagon and busstop. This will sieve out areas with bus stops in hexagon format.
 
 ```{r}
 hexagon_busstop <- st_join(hexagon, busstop, by = c("FID" = "FID"))
@@ -170,7 +200,7 @@ write_rds(hexagon_busstop, "data/rds/hexagon_busstop.rds")
 
 ## 4.5 Combine odbus6_9 with od_data
 
-I will combine the Hexagon and Busstop_Mpsz with the odbus6_9 data to give me od_data1 for the unique identifier of the origin:
+I will combine the Hexagon and Busstop_Mpsz with the odbus6_9 data to give me od_data1 for the unique identifier which is the **origin**:
 
 ```{r}
 od_data_1 <- left_join(odbus6_9 , od_data,
@@ -197,7 +227,7 @@ od_data_1 <- unique(od_data_1)
 
 It will be a good practice to confirm if the duplicating records issue has been addressed fully.
 
-Next, we will update od_data data frame with Combine Hexagon and Busstop_Mpsz with destination:
+Next, we will update od_data data frame with Combine Hexagon and Busstop_Mpsz with **destination:**
 
 ```{r}
 od_data_2 <- left_join(od_data_1 , od_data,
@@ -352,6 +382,10 @@ For geospatial, I will be using the following:
 
 1.  *Business:* This dataset is used to illustrated people commuting to work
 
+    ::: callout-note
+    Data is prepared by Prof Kam - ISSS624
+    :::
+
 ```{r}
 business <- st_read(dsn = "data/geospatial",
                    layer = "Business") %>%
@@ -380,6 +414,10 @@ tm_shape(business) +
 
 2.  *FinServ:* This dataset is used to illustrate people working in the financial services sector
 
+::: callout-note
+Data is prepared by Prof Kam - ISSS624
+:::
+
 ```{r}
 finserv <- st_read(dsn = "data/geospatial",
                    layer = "FinServ") %>%
@@ -406,7 +444,11 @@ tm_shape(finserv) +
   tm_dots() 
 ```
 
-3.  Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop (latest update Aug 23 - Taken from [datamall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html))
+3.  Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop. Steps to obtain the data is shown below:
+
+In [datamall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html) -\> Go to static datasets -\> under search bar type "Train Station Exit Point" -\> download shp file
+
+![](images/1.PNG){width="581"}
 
 ```{r}
 train <- st_read(dsn = "data/geospatial",
@@ -434,7 +476,11 @@ tm_shape(train) +
   tm_dots() 
 ```
 
-4.  Rapid Transit System Station (latest update Feb 23 - Taken from [datamall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html))
+4.  Rapid Transit System Station. This is for the location of MRT. Steps to obtain the data is shown below:
+
+In [datamall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html) -\> Go to static datasets -\> under search bar type "Train Station" -\> download shp file
+
+![](images/2.PNG){width="587"}
 
 ```{r}
 mrt <- st_read(dsn = "data/geospatial",
@@ -466,6 +512,10 @@ Due to issue with the shape file, Rapid Transit System Station will not be used 
 For aspatial, I will be using the following:
 
 1.  HDB: This dataset is used to understand the location of HBD in the hexagon layer
+
+::: callout-note
+Data is prepared by Prof Kam - ISSS624
+:::
 
 ```{r}
 data <- read.csv("data/aspatial/hdb.csv")
@@ -526,7 +576,15 @@ summary(hexagon_busstop$HDB_COUNT)
 
 2.  *School Directory and Information* - Dataset is taken from [Data\@Gov](https://beta.data.gov.sg/). This information is useful as the morning period will consist of students going to school
 
-Concepts learned from In-Class Ex 4 will be used to extract the data from SLA API
+a\. Steps in [Data\@Gov](https://beta.data.gov.sg/): Type in "School Directory and Information" in search bar
+
+![](images/3.PNG){width="578"}
+
+b\. [SLA API](https://www.onemap.gov.sg/apidocs/) -\> To note on API document -\> Search
+
+![](images/4.PNG){width="578"}
+
+Concepts learned from [In-Class Ex 4](https://isss624.netlify.app/in-class_ex/in-class_ex4/in-class_ex4-gds#counting-number-of-schools-in-each-ura-planning-subzone) will be used to extract the data from SLA API
 
 ```{r}
 url<-"https://www.onemap.gov.sg/api/common/elastic/search"
@@ -549,7 +607,7 @@ for(postcode in postcodes){
 }
 ```
 
-Next, the code chunk below will be used to combine both *found* and *not_found* data.frames into a single tibble data.frame called *merged*. At the same time, we will write *merged* and *not_found* tibble data.frames into two separate csv files called *schools* and *not_found* respectively.
+Next, the code chunk below will be used to combine both *found* and *not_found* data.frames into a single tibble data.frame called *merged*. At the same time, I will write *merged* and *not_found* tibble data.frames into two separate csv files called *schools* and *not_found* respectively.
 
 ```{r}
 merged = merge(csv, found, by.x = 'postal_code', by.y = 'results.POSTAL', all = TRUE)
@@ -557,7 +615,7 @@ write.csv(merged, file = "data/aspatial/schools.csv")
 write.csv(not_found, file = "data/aspatial/not_found.csv")
 ```
 
-I will manually clean up for ZhengHua Secondary School ([link](https://www.google.com/search?q=zhenghua+secondary+school&rlz=1C1YTUH_enSG1024SG1038&oq=zhe&gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7Mg0IARAuGK8BGMcBGIAEMgYIAhBFGEAyBggDEEUYOTIKCAQQLhixAxiABDINCAUQLhivARjHARiABDINCAYQLhiDARixAxiABDIGCAcQRRg80gEIMzMyM2owajeoAgCwAgA&sourceid=chrome&ie=UTF-8)). File is saved as schools1.csv
+I will manually clean up for ZhengHua Secondary School for the coordinates ([link](https://www.google.com/search?q=zhenghua+secondary+school&rlz=1C1YTUH_enSG1024SG1038&oq=zhe&gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7Mg0IARAuGK8BGMcBGIAEMgYIAhBFGEAyBggDEEUYOTIKCAQQLhixAxiABDINCAUQLhivARjHARiABDINCAYQLhiDARixAxiABDIGCAcQRRg80gEIMzMyM2owajeoAgCwAgA&sourceid=chrome&ie=UTF-8)). File is saved as **schools1.csv**
 
 Next, I will import *schools1.csv* into R environment and at the same time tidying the data by selecting only the necessary fields as well as rename some fields.
 
@@ -604,7 +662,7 @@ summary(hexagon_busstop$`SCHOOL_COUNT`)
 ```
 
 ::: callout-important
-The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If `log()` is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1.
+The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If `log()` is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1. This is the same for other data.
 :::
 
 The data will be joined with od_data:
@@ -629,7 +687,7 @@ FID.y is the destination. It is unique join field between od_data_2 and hexagon_
 summary(flow_data)
 ```
 
-The code chunk below will be used to replace zero values to 0.99.
+The code chunk below will be used to replace zero values to 0.99 for the propulsive and attractiveness variables.
 
 ```{r}
 flow_data$SCHOOL_COUNT <- ifelse(
@@ -653,7 +711,7 @@ flow_data$HDB_COUNT <- ifelse(
 summary(flow_data)
 ```
 
-Next we will remove duplicate record:
+Next I will remove duplicate record:
 
 ```{r}
 duplicate <- flow_data %>%
@@ -689,7 +747,7 @@ The explanatory variables to be used in the **Spatial Interaction Modelling** wi
 
 ## 7.1 **Converting from sf data.table to SpatialPolygonsDataFrame**
 
-First [`as.Spatial()`](https://r-spatial.github.io/sf/reference/coerce-methods.html) will be used to convert *mpsz* from sf tibble data frame to SpatialPolygonsDataFrame of sp object as shown in the code chunk below
+First [`as.Spatial()`](https://r-spatial.github.io/sf/reference/coerce-methods.html) will be used to convert hexagon_busstop from sf tibble data frame to SpatialPolygonsDataFrame of sp object as shown in the code chunk below
 
 ```{r}
 hexagon_busstop_sp <- as(hexagon_busstop, "Spatial")
@@ -717,7 +775,7 @@ colnames(dist) <- paste0(sz_names)
 rownames(dist) <- paste0(sz_names)
 ```
 
-Next, we will pivot the distance matrix into a long table by using the row and column subzone codes as show in the code chunk below.
+Next, I will pivot the distance matrix into a long table by using the row and column subzone codes as show in the code chunk below.
 
 ```{r}
 distPair <- melt(dist) %>%
@@ -806,7 +864,7 @@ flow_data1 <- flow_data %>%
                     "FID.y" = "dest"))
 ```
 
-We will remove duplicate
+I will remove duplicate
 
 ```{r}
 duplicate <- flow_data1 %>%
@@ -819,7 +877,7 @@ duplicate <- flow_data1 %>%
 flow_data1 <- unique(flow_data1)
 ```
 
-We will called the output data file *SIM_data*. it is in rds data file format.
+I will called the output data file *SIM_data*. I will save the file to rds data file format.
 
 ```{r}
 write_rds(flow_data1, "data/rds/SIM_data.rds")
@@ -829,11 +887,15 @@ write_rds(flow_data1, "data/rds/SIM_data.rds")
 
 ### 8.2.1 **Importing the modelling data**
 
+I import back SIM_data
+
 ```{r}
 SIM_data <- read_rds("data/rds/SIM_data.rds")
 ```
 
 ### 8.2.2 **Visualising the dependent variable**
+
+I will do a visualisation to understand why [poisson regression](https://stats.oarc.ucla.edu/r/dae/poisson-regression/) will be used:
 
 ```{r}
 ggplot(data = SIM_data,
@@ -841,7 +903,7 @@ ggplot(data = SIM_data,
   geom_histogram()
 ```
 
-Notice that the distribution is highly skewed and not resemble bell shape or also known as normal distribution.
+Notice that the distribution is highly skewed and not resemble bell shape or normal distribution.
 
 Next, let us visualise the relation between the dependent variable and one of the key independent variable in Spatial Interaction Model, namely distance.
 
@@ -853,9 +915,9 @@ ggplot(data = SIM_data,
   geom_smooth(method = lm)
 ```
 
-Notice that their relationship hardly resemble linear relationship.
+The relationship hardly resemble linear relationship.
 
-On the other hand, if we plot the scatter plot by using the log transformed version of both variables, we can see that their relationship is more resemble linear relationship.
+I will further plot the scatter plot by using the log transformed version of both variables, I can see that their relationship is more resemble linear relationship.
 
 ```{r}
 ggplot(data = SIM_data,
@@ -867,7 +929,7 @@ ggplot(data = SIM_data,
 
 ### **8.2.3 Checking for variables with zero values**
 
-Since Poisson Regression is based of log and log 0 is undefined, it is important for us to ensure that no 0 values in the explanatory variables.
+Since Poisson Regression is based of log and log 0 is undefined, it is important to ensure that no 0 values in the explanatory variables.
 
 In the code chunk below, summary() of Base R is used to compute the summary statistics of all variables in *SIM_data* data frame.
 
@@ -877,7 +939,7 @@ summary(SIM_data)
 
 Since we have replaced the zero values. No further action is required.
 
-Change FID.x and FID.y to character
+Now, I will change FID.x and FID.y to character. Both must be in categorical data type to do poisson regression:
 
 ```{r}
 SIM_data$FID.x <- as.character(SIM_data$FID.x)
@@ -909,7 +971,7 @@ summary(inter_zonal_flow)
 
 Before I proceed to do SIM, I will determine if there are any correlations between the variables.
 
-Ensure all columns are numeric:
+I will first ensure all columns are numeric:
 
 ```{r}
 inter_zonal_flow$SCHOOL_COUNT<- as.numeric(inter_zonal_flow$SCHOOL_COUNT)
@@ -934,7 +996,7 @@ corrplot.mixed(vars.cor,
 
 ```
 
-FINANCE_COUNT and TRAIN_COUNT seems to be correlated, I will remove FINANCE_COUNT in the final analysis.
+FINANCE_COUNT and TRAIN_COUNT seems to be correlated (R = 0.64), I will remove FINANCE_COUNT in the final analysis.
 
 ## **8.3 Unconstrained Spatial Interaction Model**
 
@@ -993,6 +1055,8 @@ CalcRSquared(orcSIM$data$MORNING_PEAK, orcSIM$fitted.values)
 
 ## 8.5 **Destination constrained**
 
+The code chunk used to calibrate to model is shown below. FID.y is the destination:
+
 ```{r}
 decSIM <- glm(formula = MORNING_PEAK ~ 
                   FID.y +
@@ -1014,6 +1078,8 @@ CalcRSquared(decSIM$data$MORNING_PEAK, decSIM$fitted.values)
 ```
 
 ## 8.6 **Doubly constrained model**
+
+The code chunk used to calibrate to model is shown below.
 
 ```{r}
 dbcSIM_Poisson <- glm(formula = MORNING_PEAK ~ 
@@ -1042,7 +1108,7 @@ CalcRSquared(dbcSIM_Poisson$data$MORNING_PEAK,
 
 ## 9.1 **Statistical measures**
 
-First of all, let us create a list called *model_list* by using the code chunk below.
+First of all, I will create a list called *model_list* by using the code chunk below.
 
 ```{r}
 model_list <- list(
@@ -1052,7 +1118,7 @@ model_list <- list(
   Doubly_Constrained = dbcSIM_Poisson)
 ```
 
-Next, we will compute the RMSE of all the models in *model_list* file by using the code chunk below.
+Next, I will compute the RMSE of all the models in *model_list* file by using the code chunk below.
 
 ```{r}
 compare_performance(model_list,
@@ -1063,14 +1129,16 @@ The print above reveals that doubly constrained SIM is the best model among the 
 
 ## 9.2 **Visualising fitted values**
 
-Firstly we will extract the fitted values from **Origin-constrained Model** by using the code chunk below.
+I will do a plot to visualise the observed values and the fitted values.
+
+Firstly I will extract the fitted values from **Origin-constrained Model** by using the code chunk below.
 
 ```{r}
 df <- as.data.frame(orcSIM$fitted.values) %>%
   round(digits = 0)
 ```
 
-Next, we will append the fitted values into *inter_zonal_flow* data frame by using the code chunk below.
+Next, I will append the fitted values into *inter_zonal_flow* data frame by using the code chunk below.
 
 ```{r}
 inter_zonal_flow <- inter_zonal_flow %>%
@@ -1155,7 +1223,7 @@ dec_p <- ggplot(data = inter_zonal_flow,
                   ylim=c(0,100000))
 ```
 
-Now, we will put all the graphs into a single visual for better comparison by using the code chunk below.
+Now, I will put all the graphs into a single visual for better comparison by using the code chunk below.
 
 ```{r}
 ggarrange(unc_p, orc_p, dec_p, dbc_p,
@@ -1165,19 +1233,17 @@ ggarrange(unc_p, orc_p, dec_p, dbc_p,
 
 # 10 Modelling Results
 
-From the various models, it seems to suggest that the doubly constrained model is the best as it has the lowest RMSE and the best fit plot of MORNING_PEAK against TRIPS.
+From the various models assessed, it appears that the doubly constrained model emerges as the most favorable, exhibiting the lowest RMSE and displaying the most fitting plot of MORNING_PEAK against TRIPS. However, the coefficients for different variables are absent (indicated as NA), necessitating further investigation into these results. There could potentially be a correlation between the destination and these variables.
 
-However, the coefficient of the different variables are removed (indicated as NA). Further investigation is needed to further examine on these findings.
+In this context, despite a modest R2 of 31%, the Origin Constraint model appears to be the most suitable for use in this preliminary study.
 
-In this aspect, Origin Constraint is the best model to be used (despite a low R2 of 31%).
+It is notable that the coefficient for TRAIN_COUNT is the most significant, followed by SCHOOL_COUNT, BUSINESS_COUNT, and HDB_COUNT. All these variables show a direct relationship with MORNING_PEAK, and their respective p-values indicate significant contributions to explaining MORNING_PEAK, as they are less than 5%.
 
-We observed that the coefficient is the largest for TRAIN_COUNT, followed by SCHOOL_COUNT, BUSINESS_COUNT and HDB_COUNT. All variables are directly related to MORNING_PEAK, and all of the explanatory variables contribute significantly in explaining the MORNING_PEAK as p values are less than 5%.
+Regarding the train station exit layer, this could be due to passengers switching between MRT and buses for their daily commute to work or school, where the number of alighting MRT passengers affects those taking buses.
 
-One reason may be that passengers transit between MRT and buses to commute to work or school, in which the number of passengers who alighted from MRT will affect the number of passengers who are taking buses.
+Concerning schools, it's plausible that parents commuting with their children contribute to this trend. Surprisingly, businesses have a lesser impact compared to schools but still account for passengers traveling to work between 6 am to 9 am. One possible reason might be the increasing trend of remote work, reducing the necessity for daily office commutes ([link](https://www.straitstimes.com/business/more-than-7-in-10-s-poreans-prefer-remote-work-arrangements-higher-than-global-average-imf-economists)).
 
-For schools, parents may be bringing their children to school. Business, surprisingly, has a less impact compared to schools, but also accounts for passengers who are going to work between 6am to 9am. One reason may be the concept of working from home where people do not need to head to office daily ([link](https://www.straitstimes.com/business/more-than-7-in-10-s-poreans-prefer-remote-work-arrangements-higher-than-global-average-imf-economists))
-
-HDB_Count is of the least impact as probably passengers may walk a certain distance to another bus stop to take the required bus service to their destination and do not take the bus services which is the nearest to their house.
+HDB_Count appears to have the least impact, possibly indicating that passengers are willing to walk a certain distance to another bus stop for their required bus service instead of opting for the nearest bus service to their homes.
 
 # 11 Conclusion
 
