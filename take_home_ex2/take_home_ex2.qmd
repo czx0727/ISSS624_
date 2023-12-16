@@ -368,7 +368,7 @@ For passengers volume equal or greater than 50,000, it is concentrated in Woodla
 
 For geospatial, I will be using the following:
 
-1.  *Business:* This dataset is used to illustrated people commuting to work
+1.  ***Business**:* This dataset is used to illustrated people commuting to work
 
     ::: callout-note
     Data is prepared by Prof Kam - ISSS624
@@ -400,7 +400,7 @@ tm_shape(business) +
   tm_dots() 
 ```
 
-2.  *FinServ:* This dataset is used to illustrate people working in the financial services sector
+2.  ***FinServ:*** This dataset is used to illustrate people working in the financial services sector
 
 ::: callout-note
 Data is prepared by Prof Kam - ISSS624
@@ -432,7 +432,7 @@ tm_shape(finserv) +
   tm_dots() 
 ```
 
-3.  Train Station Exit Layer: This dataset is used to indicate if there is any potential transition from train station to busstop. Steps to obtain the data is shown below:
+3.  **Train Station Exit Layer**: This dataset is used to indicate if there is any potential transition from train station to busstop. Steps to obtain the data is shown below:
 
 In [datamall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html) -\> Go to static datasets -\> under search bar type "Train Station Exit Point" -\> download shp file
 
@@ -464,7 +464,7 @@ tm_shape(train) +
   tm_dots() 
 ```
 
-4.  Rapid Transit System Station. This is for the location of MRT. Steps to obtain the data is shown below:
+4.  **Rapid Transit System Station**. This is for the location of MRT. Steps to obtain the data is shown below:
 
 In [datamall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html) -\> Go to static datasets -\> under search bar type "Train Station" -\> download shp file
 
@@ -499,7 +499,7 @@ Due to issue with the shape file, Rapid Transit System Station will not be used 
 
 For aspatial, I will be using the following:
 
-1.  HDB: This dataset is used to understand the location of HBD in the hexagon layer
+1.  **HDB:** This dataset is used to understand the location of HBD in the hexagon layer
 
 ::: callout-note
 Data is prepared by Prof Kam - ISSS624
@@ -562,7 +562,7 @@ hexagon_busstop$HDB_COUNT <- lengths(intersections)
 summary(hexagon_busstop$HDB_COUNT)
 ```
 
-2.  *School Directory and Information* - Dataset is taken from [Data\@Gov](https://beta.data.gov.sg/). This information is useful as the morning period will consist of students going to school
+2.  ***School Directory and Information*** - Dataset is taken from [Data\@Gov](https://beta.data.gov.sg/). This information is useful as the morning period will consist of students going to school
 
 a\. Steps in [Data\@Gov](https://beta.data.gov.sg/): Type in "School Directory and Information" in search bar
 
@@ -653,12 +653,61 @@ summary(hexagon_busstop$`SCHOOL_COUNT`)
 The summary statistics above reveals that there are excessive 0 values in SCHOOL_COUNT field. If `log()` is going to use to transform this field, additional step is required to ensure that all 0 will be replaced with a value between 0 and 1 but not 0 neither 1. This is the same for other data.
 :::
 
+3.  **University location -** As the school data covers only the primary, secondary schools and Junior Colleges, I have manually created the file *university.csv* by finding the name, postal, latitude and longitude of the 6 [autonomous universities](https://en.wikipedia.org/wiki/List_of_universities_in_Singapore) in Singapore.
+
+::: callout-note
+Data is specially prepared by Zhixuan for this take home exercise
+:::
+
+I will import *university.csv* into R environment
+
+```{r}
+university <- read_csv("data/aspatial/university.csv") %>%
+  rename(latitude = "results.LATITUDE",
+         longitude = "results.LONGITUDE")
+```
+
+I convert schools1 tibble data.frame data into a simple feature tibble data.frame called *schools_sf* by using values in latitude and longitude fields.
+
+```{r}
+university_sf <- st_as_sf(university, 
+                       coords = c("longitude", "latitude"),
+                       crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+Plot is shown below:
+
+```{r}
+tmap_options(check.and.fix = TRUE)
+tm_shape(mpsz) +
+  tm_polygons() +
+tm_shape(hexagon_busstop) +
+  tm_polygons() +
+tm_shape(university_sf) +
+  tm_dots()
+```
+
+I will count count the number of universities located inside the hexagon layer.
+
+```{r}
+hexagon_busstop$`UNIVERSITY_COUNT`<- lengths(
+  st_intersects(
+    hexagon_busstop, university_sf))
+```
+
+I will examine the summary statistics of the derived variable.
+
+```{r}
+summary(hexagon_busstop$`UNIVERSITY_COUNT`)
+```
+
 The data will be joined with od_data:
 
 ```{r}
 hexagon_busstop_tidy <- hexagon_busstop %>%
   st_drop_geometry() %>%
-  select(FID, SCHOOL_COUNT, BUSINESS_COUNT, FINANCE_COUNT,TRAIN_COUNT,HDB_COUNT)
+  select(FID, SCHOOL_COUNT, BUSINESS_COUNT, FINANCE_COUNT,TRAIN_COUNT,HDB_COUNT,UNIVERSITY_COUNT )
 ```
 
 ```{r}
@@ -693,6 +742,9 @@ flow_data$TRAIN_COUNT <- ifelse(
 flow_data$HDB_COUNT <- ifelse(
   flow_data$HDB_COUNT == 0,
   0.99, flow_data$HDB_COUNT)
+flow_data$UNIVERSITY_COUNT<- ifelse(
+  flow_data$UNIVERSITY_COUNT == 0,
+  0.99, flow_data$UNIVERSITY_COUNT)
 ```
 
 ```{r}
@@ -730,6 +782,7 @@ The explanatory variables to be used in the **Spatial Interaction Modelling** wi
 3.  Train Station Exit Layer
 4.  HDB
 5.  School Directory and information
+6.  University
 
 # 7 **Computing Distance Matrix**
 
@@ -970,11 +1023,16 @@ inter_zonal_flow$HDB_COUNT<- as.numeric(inter_zonal_flow$HDB_COUNT)
 
 inter_zonal_flow$TRAIN_COUNT<- as.numeric(inter_zonal_flow$TRAIN_COUNT)
 
-inter_zonal_flow$FINANCE_COUNT<- as.numeric(inter_zonal_flow$FINANCE_COUNT)                
+inter_zonal_flow$FINANCE_COUNT<- as.numeric(inter_zonal_flow$FINANCE_COUNT)
+
+inter_zonal_flow$UNIVERSITY_COUNT<- as.numeric(inter_zonal_flow$UNIVERSITY_COUNT)
+
+inter_zonal_flow$MORNING_PEAK<- as.numeric(inter_zonal_flow$MORNING_PEAK)
+
 ```
 
 ```{r}
-vars.cor = cor(inter_zonal_flow[,4:8])
+vars.cor = cor(inter_zonal_flow[,3:9])
 corrplot.mixed(vars.cor,
          lower = "ellipse", 
                upper = "number",
@@ -996,6 +1054,7 @@ uncSIM <- glm(formula = MORNING_PEAK ~
                   log(BUSINESS_COUNT)+
                   log(HDB_COUNT)+
                   log(TRAIN_COUNT)+
+                  log(UNIVERSITY_COUNT)+
                   log(dist),
               family = poisson(link = "log"),
               data = inter_zonal_flow,
@@ -1028,6 +1087,7 @@ orcSIM <- glm(formula = MORNING_PEAK ~
                   log(BUSINESS_COUNT)+
                   log(HDB_COUNT)+
                   log(TRAIN_COUNT)+
+                  log(UNIVERSITY_COUNT)+
                   log(dist) - 1,
               family = poisson(link = "log"),
               data = inter_zonal_flow,
@@ -1052,6 +1112,7 @@ decSIM <- glm(formula = MORNING_PEAK ~
                   log(BUSINESS_COUNT)+
                   log(HDB_COUNT)+
                   log(TRAIN_COUNT)+
+                  log(UNIVERSITY_COUNT)+
                   log(dist) - 1,
               family = poisson(link = "log"),
               data = inter_zonal_flow,
@@ -1078,6 +1139,7 @@ dbcSIM_Poisson <- glm(formula = MORNING_PEAK ~
                   log(FINANCE_COUNT)+
                   log(HDB_COUNT)+
                   log(TRAIN_COUNT)+
+                  log(UNIVERSITY_COUNT)+
                   log(dist),
               family = poisson(link = "log"),
               data = inter_zonal_flow,
