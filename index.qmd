@@ -2,8 +2,52 @@
 title: "ISSS624"
 ---
 
-Welcome to ISSS624 Geospatial Analytics Application.
+Welcome to ISSS624 Geospatial Analytics Application!
 
 In this webpage, I am going to share with you my learning journey!
+
+Please refer to the [about](https://czx-isss624.netlify.app/about) for more information.
+
+Below are the topics I have learned from the guidance of [Prof Kam](https://faculty.smu.edu.sg/profile/kam-tin-seong-486):
+
++------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
+| Date       | Topic                                                                                  | Link                                                                                       |
++============+========================================================================================+============================================================================================+
+| 18/11/2023 | Geospatial Data Science and Visualisation                                              | [Hands on Ex 1](https://czx-isss624.netlify.app/hands-on_exercise1)                        |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [Hands on Ex 1.1](https://czx-isss624.netlify.app/hands_on_ex1/hands_on_ex1.1)             |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [Hands on Ex 1.2](https://czx-isss624.netlify.app/hands_on_ex1/hands_on_ex1.2)             |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [In Class Ex 1](https://czx-isss624.netlify.app/in_class_ex1/in_class_ex1)                 |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [In Class Ex 1 Updated](https://czx-isss624.netlify.app/in_class_ex1/in_class_ex1_updated) |
++------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
+| 25/11/2023 | Global and Local Measure of Spatial Autocorrelation                                    | [Hands on Ex 2.1](https://czx-isss624.netlify.app/hands_on_ex2/hands_on_ex2.1)             |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [Hands on Ex 2.2](https://czx-isss624.netlify.app/hands_on_ex2/hands_on_ex2.2)             |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [Hands on Ex 2.3](https://czx-isss624.netlify.app/hands_on_ex2/hands_on_ex2.3)             |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [In Class Ex 2.1](https://czx-isss624.netlify.app/in_class_ex2/in_class_ex2)               |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [In Class Ex 2.2](https://czx-isss624.netlify.app/in_class_ex2/in_class_ex2.1)             |
++------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
+| 2/12/2023  | Spatial Interaction Models                                                             | [Hands on Ex 3](https://czx-isss624.netlify.app/hands_on_ex3/hands_on_ex3)                 |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [In Class Ex 3](https://czx-isss624.netlify.app/in_class_ex3/in_class_ex3)                 |
++------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
+| 9/12/2023  | Geographically Weighted Regression and Spatial Interaction Models                      | [Hands on Ex 4](https://czx-isss624.netlify.app/hands_on_ex4/hands_on_ex4)                 |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [In Class Ex 4](https://czx-isss624.netlify.app/in_class_ex4/in_class_ex4)                 |
+|            |                                                                                        |                                                                                            |
+|            |                                                                                        | [In Class Ex 4.1](https://czx-isss624.netlify.app/in_class_ex4/in_class_ex4.1)             |
++------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
+| 16/12/2023 | Spatial Econometric Interaction Models                                                 | [In Class Ex 5](https://czx-isss624.netlify.app/in_class_ex5/in_class_ex5)                 |
++------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
+| \-         | Geospatial Analytics for Public Good                                                   | [Take Home Exercise 1](https://czx-isss624.netlify.app/take_home_ex1/take_home_ex1)        |
++------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
+| \-         | Applied Spatial Interaction Models: A case study of Singapore public bus commuter flow | [Take Home Exercise 2](https://czx-isss624.netlify.app/take_home_ex2/take_home_ex2)        |
++------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
 
 ![](images/Singapore-Map.jpg)
