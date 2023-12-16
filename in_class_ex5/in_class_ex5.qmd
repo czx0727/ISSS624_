@@ -88,3 +88,20 @@ cor_image(cor_mat)
 ```
 
 ## Model Calibration 
+
+```{r}
+base_model <- spflow(
+  spflow_formula = log(1 + TRIPS) ~
+  O_(BUSSTOP_COUNT + AGE25_64) +
+  D_(SCHOOL_COUNT +
+  BUSINESS_COUNT +
+  RETAILS_COUNT +
+  FINSERV_COUNT) +
+  P_(log(DISTANCE + 1)),
+  spflow_networks = mpsz_multi_net)
+     
+     
+     
+base_model
+  
+```
