@@ -20,27 +20,15 @@ The code chunk below installs and loads the various packages.
 For the purpose of this study, 11 r packages will be used. They are:
 
 -   [tmap](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) for plotting cartographicquality thematic maps.
-
-<!-- -->
-
 -   [sf](https://r-spatial.github.io/sf/) for importing, integrating, processing and transforming geospatial data.
-
 -   [DT](https://cran.r-project.org/web/packages/DT/index.html) for working with HTTP organised by HTTP verbs.
-
 -   [stplanr](https://cran.r-project.org/web/packages/stplanr/index.html) for transport planning and analysis
-
 -   [sp](https://cran.r-project.org/web/packages/sp/index.html) for spatial data
-
 -   [performance](https://easystats.github.io/performance/) for computing model comparison matrices such as rmse.
-
 -   [reshape2](https://cran.r-project.org/web/packages/reshape2/index.html) for melt function
-
 -   [httr](https://cran.r-project.org/web/packages/httr/index.html) for working with HTTP
-
 -   [ggpubr](https://rpkgs.datanovia.com/ggpubr/) for creating publication quality statistical graphics.
-
 -   [tidyverse](https://www.tidyverse.org/) for importing, integrating, wrangling and visualising data.
-
 -   [corrplot](https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html) for correlation matrix
 
 ```{r}

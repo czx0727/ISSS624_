@@ -1,0 +1,90 @@
+---
+title: "In-class Exercise 5: Spatial Econometrics Interaction Modelling"
+author: "Chai Zhixuan"
+date: 2023-12-16
+date-format: long
+date-modified: "last-modified"
+---
+
+# Overview
+
+## Getting started
+
+```{r}
+devtools::install_github("LukeCe/spflow")
+```
+
+::: callout-note
+github from: https://cran.r-project.org/web/packages/spflow/index.html
+:::
+
+```{r}
+pacman::p_load(tmap, sf, spdep, sp, knitr,
+               tidyverse, spflow, reshape2, Matrix)
+```
+
+## The data
+
+```{r}
+mpsz_nb <- read_rds("data/rds/mpsz_nb.rds")
+mpsz_flow <- read_rds("data/rds/mpsz_flow.rds")
+mpsz_var <- read_rds("data/rds/mpsz_var.rds")
+```
+
+```{r}
+mpsz_net <- spflow_network(
+  id_net = "sg",
+  node_neighborhood = nb2mat(mpsz_nb$by_contiguity),
+  node_data = mpsz_var,
+  node_key_column = "SZ_CODE")
+
+mpsz_net
+```
+
+```{r}
+mpsz_net_pairs <- spflow_network_pair(
+  id_orig_net = "sg",
+  id_dest_net = "sg",
+  pair_data = mpsz_flow,
+  orig_key_column = "ORIGIN_SZ",
+  dest_key_column = "DESTIN_SZ")
+
+mpsz_net_pairs
+```
+
+```{r}
+mpsz_multi_net <- spflow_network_multi(mpsz_net, mpsz_net_pairs)
+
+mpsz_multi_net
+```
+
+## Correlation Analysis
+
+```{r}
+cor_formula <- log(1+ TRIPS) ~
+  BUSSTOP_COUNT +
+  AGE7_12 +
+  AGE13_24 +
+  AGE25_64 +
+  SCHOOL_COUNT +
+  BUSINESS_COUNT +
+  RETAILS_COUNT +
+  FINSERV_COUNT +
+  P_(log(DISTANCE + 1))
+```
+
+```{r}
+cor_mat <- pair_cor(
+  mpsz_multi_net,
+  spflow_formula = cor_formula,
+  add_lags_x = FALSE
+)
+
+colnames(cor_mat) <- paste0(
+  substr(
+    colnames(cor_mat),1,3),"...")
+
+cor_image(cor_mat)
+```
+
+## Model Calibration 
