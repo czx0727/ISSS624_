@@ -15,7 +15,7 @@ devtools::install_github("LukeCe/spflow")
 ```
 
 ::: callout-note
-github from: https://cran.r-project.org/web/packages/spflow/index.html
+The development version (0.1.0.9010) of **spflow** will be used instead of the released version (0.1.0). From github: https://cran.r-project.org/web/packages/spflow/index.html
 :::
 
 ```{r}
@@ -23,13 +23,25 @@ pacman::p_load(tmap, sf, spdep, sp, knitr,
                tidyverse, spflow, reshape2, Matrix)
 ```
 
-## The data
+## **Preparing spflow objects**
+
+Please refer to the in depth of in class exercise 5 [here](https://isss624.netlify.app/in-class_ex/in-class_ex5/in-class_ex5-seim).
+
+Three **spflow** objects are required, they are:
+
+-   [`spflow_network-class`](https://lukece.github.io/spflow/reference/spflow_network-class.html), an S4 class that contains all information on a spatial network which is composed by a set of nodes that are linked by some neighborhood relation.
+
+-   [`spflow_network_pair-class`](https://lukece.github.io/spflow/reference/spflow_network_pair-class.html), an S4 class which holds information on origin-destination (OD) pairs. Each OD pair is composed of two nodes, each belonging to one network. All origin nodes must belong to the same origin network should be contained in one `spflow_network-class`, and likewise for the destinations.
+
+-   [`spflow_network_multi-class`](https://lukece.github.io/spflow/reference/spflow_network_multi-class.html), an S4 class that gathers information on multiple objects of types `spflow_network-class` and `spflow_network_pair-class`. Its purpose is to ensure that the identification between the nodes that serve as origins or destinations, and the OD-pairs is consistent (similar to relational data bases).
 
 ```{r}
 mpsz_nb <- read_rds("data/rds/mpsz_nb.rds")
 mpsz_flow <- read_rds("data/rds/mpsz_flow.rds")
 mpsz_var <- read_rds("data/rds/mpsz_var.rds")
 ```
+
+### **Creating `spflow_network-class` objects**
 
 ```{r}
 mpsz_net <- spflow_network(
@@ -41,6 +53,8 @@ mpsz_net <- spflow_network(
 mpsz_net
 ```
 
+### **Creating `spflow_network-class` object**
+
 ```{r}
 mpsz_net_pairs <- spflow_network_pair(
   id_orig_net = "sg",
@@ -51,6 +65,8 @@ mpsz_net_pairs <- spflow_network_pair(
 
 mpsz_net_pairs
 ```
+
+### **Creating `spflow_network_multi-class` object**
 
 ```{r}
 mpsz_multi_net <- spflow_network_multi(mpsz_net, mpsz_net_pairs)
@@ -89,6 +105,16 @@ cor_image(cor_mat)
 
 ## Model Calibration
 
+The three different estimators currently supported by spflow are:
+
+-   **Maximum Likelihood Estimation (MLE)** which is the default estimation procedure. The matrix form estimation in the framework of this model was first developed by LeSage and Pace (2008) and then improved by Dargel (2021) . Spatial two-stage least squares (S2SLS)
+
+-   **Spatial Two-stage Least Squares (S2SLS)** estimator is an adaptation of the one proposed by Kelejian and Prucha (1998), to the case of origin-destination flows, with up to three neighborhood matrices Dargel (2021). A similar estimation is done by Tamesue and Tsutsumi (2016). The user can activate the S2SLS estimation via the estimation_control argument using the input spflow_control(estimation_method = \"s2sls\").
+
+-   **Bayesian Markov Chain Monte Carlo (MCMC)** estimator is based on the ideas of LeSage and Pace (2009) and incorporates the improvements proposed in Dargel (2021) . The estimation is based on a tuned Metropolis-Hastings sampler for the auto-regressive parameters, and for the remaining parameters it uses Gibbs sampling. The routine uses 5500 iterations of the sampling procedure and considers the first 2500 as burn-in period. The user can activate the S2SLS estimation via the estimation_control argument using the input spflow_control(estimation_method = \"mcmc\").
+
+### **The base model**
+
 ```{r}
 base_model <- spflow(
   spflow_formula = log(1 + TRIPS) ~
@@ -110,6 +136,8 @@ base_model
 understand the main variable and the lags
 :::
 
+### **Residual diagnostics**
+
 ```{r}
 old_par <- par(nfrow = c(1,3),
                nar = c(2,2,2,2))
@@ -127,6 +155,8 @@ colnames(corr_residual) <- substr(colnames(corr_residual),1,3)
 cor_image(corr_residual)
 ```
 
+### **Working with model control**
+
 ```{r}
 spflow_formula <- log(1 + TRIPS) ~
   O_(BUSSTOP_COUNT + AGE25_64) +
@@ -138,13 +168,19 @@ spflow_formula <- log(1 + TRIPS) ~
   
 model_control <- spflow_control(
   estimation_method = "mle",
-  model = "model_1"
+  model = "model_8"
 )
 
-mle_model <- spflow(
+mle_model8 <- spflow(
   spflow_formula,
   spflow_networks = mpsz_multi_net,
   estimation_control = model_control)
 
-mle_model
+mle_model8
+```
+
+```{r}
+old_par <- par(mfrow = c(1, 3), 
+               mar = c(2,2,2,2))
+spflow_moran_plots(mle_model8)
 ```
