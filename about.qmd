@@ -5,3 +5,12 @@ title: "About"
 I am Zhixuan!
 
 Navigate to the various tabs to view my learning journey!
+
+This website is made with the guidance from [Prof Kam](https://faculty.smu.edu.sg/profile/kam-tin-seong-486)
+
+I have taken this module in [AY23 Nov Term](https://isss624-ay2023-24nov.netlify.app/). Below are the reference to the various hands-on and in class exercise:
+
+1.  [In-class Exercise 1, 2, 4, 5](https://isss624.netlify.app/in-class_ex/in-class_ex1/in-class_ex1)
+2.  [Hands on Exercise 1, 2 , 3, 4 and In-class Exercise 3](https://r4gdsa.netlify.app/)
+
+Also, Prof Kam shared on the useful tips for this module located [here](https://r4dsa.netlify.app/)
