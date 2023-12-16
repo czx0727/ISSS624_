@@ -4,6 +4,8 @@ title: "ISSS624"
 
 Welcome to ISSS624 Geospatial Analytics Application!
 
+![](images/Singapore-Map.jpg){width="326"}
+
 In this webpage, I am going to share with you my learning journey!
 
 Please refer to the [about](https://czx-isss624.netlify.app/about) for more information.
@@ -49,5 +51,3 @@ Below are the topics I have learned from the guidance of [Prof Kam](https://facu
 +------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
 | \-         | Applied Spatial Interaction Models: A case study of Singapore public bus commuter flow | [Take Home Exercise 2](https://czx-isss624.netlify.app/take_home_ex2/take_home_ex2)        |
 +------------+----------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+
-
-![](images/Singapore-Map.jpg)
