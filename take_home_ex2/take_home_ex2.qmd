@@ -1287,7 +1287,9 @@ From the various models assessed, it appears that the doubly constrained model e
 
 In this context, despite a modest R2 of 31%, the Origin Constraint model appears to be the most suitable for use in this preliminary study.
 
-It is notable that the coefficient for TRAIN_COUNT is the most significant, followed by SCHOOL_COUNT, BUSINESS_COUNT, and HDB_COUNT. All these variables show a direct relationship with MORNING_PEAK, and their respective p-values indicate significant contributions to explaining MORNING_PEAK, as they are less than 5%.
+It is notable that the coefficient for UNIVERSITY_COUNT is the most significant, followed by TRAIN_COUNT , SCHOOL_COUNT, BUSINESS_COUNT, and HDB_COUNT. All these variables show a direct relationship with MORNING_PEAK, and their respective p-values indicate significant contributions to explaining MORNING_PEAK, as they are less than 5%.
+
+The population of university students has steadily increased over the [years](https://www.statista.com/statistics/624429/enrollment-in-universities-in-singapore/), including those engaging in [lifelong learning](https://www.skillsfuture.gov.sg/newsroom/more-individuals-and-enterprises-involved-in-lifelong-learning#:~:text=About%20660%2C000%20individuals%20upskilled%20themselves,since%20the%20launch%20of%20SkillsFuture.). Given the scarcity of universities in Singapore, it's not surprising that UNIVERSITY_COUNT significantly shapes the MORNING_PEAK, especially as working adults frequently undergo training within these educational institutions.
 
 Regarding the train station exit layer, this could be due to passengers switching between MRT and buses for their daily commute to work or school, where the number of alighting MRT passengers affects those taking buses.
 

@@ -153,7 +153,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../hands_on_ex4/hands_on_ex4.html" rel="" target="">
  <span class="dropdown-text">Hands-on Exercise 4</span></a>
   </li>  
-        <li class="dropdown-header">Hands-on Exercise 5</li>
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -579,7 +578,7 @@ Writing 2299 features with 0 fields and geometry type Polygon.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `hexagon' from data source 
   `C:\czx0727\ISSS624_\take_home_ex2\data\geospatial' using driver `ESRI Shapefile'
-Simple feature collection with 70573 features and 1 field
+Simple feature collection with 72872 features and 1 field
 Geometry type: POLYGON
 Dimension:     XY
 Bounding box:  xmin: 3220.122 ymin: 26049.09 xmax: 48970.12 ymax: 50947.32
@@ -622,7 +621,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(odbus6_9, od_data, by = c(ORIGIN_PT_CODE = "BUS_STOP_N")): Detected an unexpected many-to-many relationship between `x` and `y`.
 ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 18817 of `y` matches multiple rows in `x`.
+ℹ Row 19489 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
 </div>
@@ -646,7 +645,7 @@ Projected CRS: SVY21 / Singapore TM</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(od_data_1, od_data, by = c(DESTIN_BS = "BUS_STOP_N")): Detected an unexpected many-to-many relationship between `x` and `y`.
 ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 18789 of `y` matches multiple rows in `x`.
+ℹ Row 19460 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
 </div>
@@ -6379,7 +6378,8 @@ Doubly_Constrained      |   glm |  970.640</code></pre>
 <h1>10 Modelling Results</h1>
 <p>From the various models assessed, it appears that the doubly constrained model emerges as the most favorable, exhibiting the lowest RMSE and displaying the most fitting plot of MORNING_PEAK against TRIPS. However, the coefficients for different variables are absent (indicated as NA), necessitating further investigation into these results. There could potentially be a correlation between the destination and these variables.</p>
 <p>In this context, despite a modest R2 of 31%, the Origin Constraint model appears to be the most suitable for use in this preliminary study.</p>
-<p>It is notable that the coefficient for TRAIN_COUNT is the most significant, followed by SCHOOL_COUNT, BUSINESS_COUNT, and HDB_COUNT. All these variables show a direct relationship with MORNING_PEAK, and their respective p-values indicate significant contributions to explaining MORNING_PEAK, as they are less than 5%.</p>
+<p>It is notable that the coefficient for UNIVERSITY_COUNT is the most significant, followed by TRAIN_COUNT , SCHOOL_COUNT, BUSINESS_COUNT, and HDB_COUNT. All these variables show a direct relationship with MORNING_PEAK, and their respective p-values indicate significant contributions to explaining MORNING_PEAK, as they are less than 5%.</p>
+<p>The population of university students has steadily increased over the <a href="https://www.statista.com/statistics/624429/enrollment-in-universities-in-singapore/">years</a>, including those engaging in <a href="https://www.skillsfuture.gov.sg/newsroom/more-individuals-and-enterprises-involved-in-lifelong-learning#:~:text=About%20660%2C000%20individuals%20upskilled%20themselves,since%20the%20launch%20of%20SkillsFuture.">lifelong learning</a>. Given the scarcity of universities in Singapore, it’s not surprising that UNIVERSITY_COUNT significantly shapes the MORNING_PEAK, especially as working adults frequently undergo training within these educational institutions.</p>
 <p>Regarding the train station exit layer, this could be due to passengers switching between MRT and buses for their daily commute to work or school, where the number of alighting MRT passengers affects those taking buses.</p>
 <p>Concerning schools, it’s plausible that parents commuting with their children contribute to this trend. Surprisingly, businesses have a lesser impact compared to schools but still account for passengers traveling to work between 6 am to 9 am. One possible reason might be the increasing trend of remote work, reducing the necessity for daily office commutes (<a href="https://www.straitstimes.com/business/more-than-7-in-10-s-poreans-prefer-remote-work-arrangements-higher-than-global-average-imf-economists">link</a>).</p>
 <p>HDB_Count appears to have the least impact, possibly indicating that passengers are willing to walk a certain distance to another bus stop for their required bus service instead of opting for the nearest bus service to their homes.</p>
